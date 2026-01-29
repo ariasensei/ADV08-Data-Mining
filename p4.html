@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 4 - Data Understanding and Exploration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    html, body, main {
+      height: 100%;
+    }
+    
+    main {
+      overflow-auto;
+    }
+    
+    .gradient-line {
+      background: linear-gradient(90deg, #06b6d4, #f59e0b, #06b6d4);
+      background-size: 200% 100%;
+      animation: gradient-shift 3s ease infinite;
+    }
+    
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+    }
+    
+    .code-block {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      overflow-x: auto;
+    }
+    
+    .code-line {
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+    
+    .code-keyword {
+      color: #f472b6;
+    }
+    
+    .code-string {
+      color: #86efac;
+    }
+    
+    .code-number {
+      color: #f59e0b;
+    }
+    
+    .code-comment {
+      color: #64748b;
+    }
+    
+    .code-function {
+      color: #60a5fa;
+    }
+    
+    .code-method {
+      color: #a78bfa;
+    }
+    
+    .ilo-item {
+      border-left: 3px solid #06b6d4;
+      padding-left: 1.25rem;
+    }
+    
+    .concept-card {
+      transition: all 0.3s ease;
+    }
+    
+    .concept-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(6, 182, 212, 0.15);
+    }
+    
+    .info-box {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+    }
+    
+    .example-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+    }
+    
+    .output-display {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: #22c55e;
+      margin-top: 0.5rem;
+    }
+
+    .activity-box {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #06b6d4);
+      color: #020617;
+      font-weight: bold;
+      font-family: 'Space Grotesk', sans-serif;
+      flex-shrink: 0;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th, .comparison-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .comparison-table th {
+      background: #1e293b;
+      color: #06b6d4;
+      font-weight: 600;
+    }
+
+    .stat-card {
+      background: #1e293b;
+      border-left: 3px solid #06b6d4;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      margin: 0.5rem 0;
+    }
+
+    .success-badge {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .formula-box {
+      background: #1e293b;
+      border: 1px solid #06b6d4;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+      color: #06b6d4;
+      margin: 1rem 0;
+    }
+
+    .warning-box {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(200, 30, 60, 0.05) 100%);
+      border-left: 3px solid #ef4444;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .stat-visual {
+      background: #1e293b;
+      border: 1px solid #0f766e;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+
+    .distribution-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 200px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .bar {
+      width: 8%;
+      background: linear-gradient(180deg, #06b6d4, #0891b2);
+      border-radius: 0.25rem 0.25rem 0 0;
+      transition: all 0.3s ease;
+    }
+
+    .bar:hover {
+      background: linear-gradient(180deg, #22d3ee, #06b6d4);
+      filter: brightness(1.2);
+    }
+
+    .anomaly-highlight {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+      border-left: 3px solid #ef4444;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      margin: 0.5rem 0;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-950 text-slate-200">
+  <main class="h-full overflow-auto">
+   <div class="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12"><!-- Header Section -->
+    <header class="mb-12">
+     <p class="font-mono text-amber-400 text-sm mb-2" id="course-code">ADV08</p>
+     <h1 class="text-4xl md:text-5xl font-bold mb-2" style="font-family: 'Space Grotesk', sans-serif;"><span class="bg-gradient-to-r from-amber-400 via-cyan-400 to-amber-400 bg-clip-text text-transparent" id="week-title">Week 4 – Data Understanding and Exploration</span></h1>
+     <p class="text-slate-400 flex items-center gap-2">
+      <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg><span>Instructor: </span> <span class="text-slate-200 font-medium" id="instructor-name">MKDB</span></p>
+     <div class="h-1 bg-gradient-line rounded-full mt-4"></div>
+    </header><!-- ILO Section -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-6" style="font-family: 'Space Grotesk', sans-serif;">Intended Learning Outcomes (ILO)</h2>
+     <div class="space-y-4 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+      <div class="ilo-item py-3" id="ilo-1">
+       <p class="text-slate-300 font-medium">Compute and interpret descriptive statistics.</p>
+      </div>
+      <div class="ilo-item py-3" id="ilo-2">
+       <p class="text-slate-300 font-medium">Analyze data distributions and identify anomalies.</p>
+      </div>
+      <div class="ilo-item py-3" id="ilo-3">
+       <p class="text-slate-300 font-medium">Perform exploratory data analysis using Pandas.</p>
+      </div>
+     </div>
+    </section><!-- Topic 1: Descriptive Statistics -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 1: Descriptive Statistics</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-amber-400 mb-4">🎯 What are Descriptive Statistics?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">Descriptive statistics are numbers that <span class="font-semibold">describe</span> your data. They summarize large amounts of information into simple, understandable numbers.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <p class="mb-3"><span class="font-semibold">Real-world example:</span></p>
+        <p>📊 Instead of listing all 500 student test scores, you say: "Average is 75, highest is 98, lowest is 45"</p>
+        <p classname="mt-2">That's much easier to understand!</p>
+       </div>
+      </div><!-- Key Statistics Explained -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-6">📊 Key Descriptive Statistics</h3>
+       <div class="space-y-4"><!-- Mean -->
+        <div class="stat-card">
+         <div class="flex items-center gap-2 mb-2"><span class="text-cyan-400 font-semibold">📈 Mean (Average)</span> <span class="success-badge">Most Used</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Add all values and divide by how many values you have</p>
+         <div class="formula-box">
+          Mean = (Sum of all values) ÷ (Number of values)
+         </div>
+         <p class="text-slate-400 text-sm mb-2"><span class="font-semibold">Example:</span> Scores: 80, 85, 90, 95</p>
+         <div class="code-block">
+          <div class="code-line">
+           scores = [<span class="code-number">80</span>, <span class="code-number">85</span>, <span class="code-number">90</span>, <span class="code-number">95</span>]
+          </div>
+          <div class="code-line">
+           mean = <span class="code-function">sum</span>(scores) / <span class="code-function">len</span>(scores)
+          </div>
+          <div class="code-line">
+           <span class="code-function">print</span>(mean) <span class="code-comment"># 87.5</span>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-3 mt-3">
+          <p class="text-amber-400 text-xs font-semibold">💡 When to use:</p>
+          <p class="text-slate-400 text-xs">When data is normally distributed (no extreme outliers)</p>
+         </div>
+        </div><!-- Median -->
+        <div class="stat-card">
+         <div class="flex items-center gap-2 mb-2"><span class="text-cyan-400 font-semibold">📊 Median (Middle Value)</span> <span class="success-badge">Robust</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">The middle value when data is sorted (50% above, 50% below)</p>
+         <p class="text-slate-400 text-sm mb-2"><span class="font-semibold">Example:</span> Sorted scores: 80, 85, <span class="bg-cyan-500/20 px-1">90</span>, 95, 100</p>
+         <div class="code-block">
+          <div class="code-line">
+           <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+          </div>
+          <div class="code-line mt-2"></div>
+          <div class="code-line">
+           scores = [<span class="code-number">80</span>, <span class="code-number">85</span>, <span class="code-number">90</span>, <span class="code-number">95</span>, <span class="code-number">100</span>]
+          </div>
+          <div class="code-line">
+           median = pd.Series(scores).<span class="code-method">median</span>()
+          </div>
+          <div class="code-line">
+           <span class="code-function">print</span>(median) <span class="code-comment"># 90</span>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-3 mt-3">
+          <p class="text-amber-400 text-xs font-semibold">💡 When to use:</p>
+          <p class="text-slate-400 text-xs">When data has outliers or is skewed</p>
+         </div>
+        </div><!-- Mode -->
+        <div class="stat-card">
+         <div class="flex items-center gap-2 mb-2"><span class="text-cyan-400 font-semibold">🔄 Mode (Most Frequent)</span> <span class="success-badge">Categorical</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">The value that appears most often in the dataset</p>
+         <p class="text-slate-400 text-sm mb-2"><span class="font-semibold">Example:</span> Grades: A, B, B, C, B, D → Mode is B (appears 3 times)</p>
+         <div class="code-block">
+          <div class="code-line">
+           <span class="code-keyword">from</span> statistics <span class="code-keyword">import</span> mode
+          </div>
+          <div class="code-line mt-2"></div>
+          <div class="code-line">
+           grades = [<span class="code-string">'A'</span>, <span class="code-string">'B'</span>, <span class="code-string">'B'</span>, <span class="code-string">'C'</span>, <span class="code-string">'B'</span>]
+          </div>
+          <div class="code-line">
+           most_common = <span class="code-function">mode</span>(grades)
+          </div>
+          <div class="code-line">
+           <span class="code-function">print</span>(most_common) <span class="code-comment"># 'B'</span>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-3 mt-3">
+          <p class="text-amber-400 text-xs font-semibold">💡 When to use:</p>
+          <p class="text-slate-400 text-xs">With categorical data (colors, grades, categories)</p>
+         </div>
+        </div><!-- Range -->
+        <div class="stat-card">
+         <div class="flex items-center gap-2 mb-2"><span class="text-cyan-400 font-semibold">📏 Range (Spread)</span> <span class="success-badge">Simple</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Difference between highest and lowest values</p>
+         <div class="formula-box">
+          Range = Max Value - Min Value
+         </div>
+         <p class="text-slate-400 text-sm mb-2"><span class="font-semibold">Example:</span> Scores: 45, 68, 75, 90, 98</p>
+         <div class="code-block">
+          <div class="code-line">
+           scores = [<span class="code-number">45</span>, <span class="code-number">68</span>, <span class="code-number">75</span>, <span class="code-number">90</span>, <span class="code-number">98</span>]
+          </div>
+          <div class="code-line">
+           range_val = <span class="code-function">max</span>(scores) - <span class="code-function">min</span>(scores)
+          </div>
+          <div class="code-line">
+           <span class="code-function">print</span>(range_val) <span class="code-comment"># 53</span>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-3 mt-3">
+          <p class="text-amber-400 text-xs font-semibold">💡 When to use:</p>
+          <p class="text-slate-400 text-xs">To quickly see how spread out data is</p>
+         </div>
+        </div><!-- Standard Deviation -->
+        <div class="stat-card">
+         <div class="flex items-center gap-2 mb-2"><span class="text-cyan-400 font-semibold">📊 Standard Deviation (Variability)</span> <span class="success-badge">Advanced</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Measures how spread out data is from the average. Higher = more spread</p>
+         <p class="text-slate-400 text-sm mb-2"><span class="font-semibold">Example:</span></p>
+         <div class="code-block">
+          <div class="code-line">
+           <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+          </div>
+          <div class="code-line mt-2"></div>
+          <div class="code-line">
+           scores = np.array([<span class="code-number">80</span>, <span class="code-number">85</span>, <span class="code-number">90</span>, <span class="code-number">95</span>])
+          </div>
+          <div class="code-line">
+           std_dev = np.<span class="code-method">std</span>(scores)
+          </div>
+          <div class="code-line">
+           <span class="code-function">print</span>(std_dev) <span class="code-comment"># ~6.45</span>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-3 mt-3">
+          <p class="text-amber-400 text-xs font-semibold">💡 Interpretation:</p>
+          <p class="text-slate-400 text-xs">Low std dev = data is consistent | High std dev = data is scattered</p>
+         </div>
+        </div>
+       </div>
+      </div><!-- Pandas describe() -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-emerald-400 mb-4">⚡ Quick Descriptive Statistics with Pandas</h3>
+       <p class="text-slate-400 text-sm mb-4">The <span class="font-mono text-emerald-400">describe()</span> method gives you all statistics at once:</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Create a simple dataset</span>
+        </div>
+        <div class="code-line">
+         data = {
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Student': [<span class="code-string">'Alice'</span>, <span class="code-string">'Bob'</span>, <span class="code-string">'Charlie'</span>, <span class="code-string">'Diana'</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Score': [<span class="code-number">85</span>, <span class="code-number">92</span>, <span class="code-number">78</span>, <span class="code-number">95</span>]
+        </div>
+        <div class="code-line">
+         }
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame(data)
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Get all statistics</span>
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">describe</span>())
+        </div>
+       </div>
+       <div class="output-display">
+        count&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.00<br>
+         mean&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;87.50<br>
+         std&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7.31<br>
+         min&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;78.00<br>
+         25%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;81.50<br>
+         50%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;88.50<br>
+         75%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;93.50<br>
+         max&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;95.00
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mt-4">
+        <p class="text-cyan-400 text-sm font-semibold mb-2">📊 What each line means:</p>
+        <ul class="text-slate-400 text-sm space-y-1">
+         <li><span class="font-semibold">count:</span> Number of values</li>
+         <li><span class="font-semibold">mean:</span> Average</li>
+         <li><span class="font-semibold">std:</span> Standard deviation</li>
+         <li><span class="font-semibold">min/max:</span> Lowest/Highest</li>
+         <li><span class="font-semibold">25%, 50%, 75%:</span> Quartiles (break data into 4 equal parts)</li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </section><!-- Topic 2: Data Distributions -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 2: Data Distributions</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-amber-400 mb-4">🎯 What is a Data Distribution?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">A distribution shows <span class="font-semibold">how data is spread out</span>. It shows if data is clustered at one end, spread evenly, or has a certain pattern.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <p class="mb-3"><span class="font-semibold">Think of it this way:</span></p>
+        <p>🏪 If you plot how many customers visit a store each hour, the distribution might show:</p>
+        <p classname="mt-1">• Most customers between 10am-2pm (peak hours)</p>
+        <p>• Very few customers at 8am or 8pm</p>
+        <p>That's the <span classname="font-semibold">distribution pattern</span></p>
+       </div>
+      </div><!-- Normal Distribution -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">⭕ Normal Distribution (Bell Curve)</h3>
+       <p class="text-slate-400 text-sm mb-4">Most data in nature follows a normal distribution - peak in middle, symmetric on both sides.</p>
+       <div class="stat-visual">
+        <div style="font-size: 4rem;">
+         📊
+        </div>
+        <p class="text-slate-400 text-sm mt-2">Bell Curve - symmetric and centered</p>
+       </div>
+       <p class="text-slate-400 text-sm mb-4"><span class="font-semibold">Examples of normal distributions:</span></p>
+       <ul class="text-slate-400 text-sm space-y-2 bg-slate-800/30 p-4 rounded-lg">
+        <li>📏 Height of people in a population</li>
+        <li>📝 Test scores in a classroom</li>
+        <li>⏱️ Processing times for transactions</li>
+        <li>📊 Average daily sales</li>
+       </ul>
+       <div class="code-block mt-4">
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Generate normal distribution data</span>
+        </div>
+        <div class="code-line">
+         normal_data = np.random.normal(mean=<span class="code-number">100</span>, std=<span class="code-number">15</span>, size=<span class="code-number">1000</span>)
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame({'values': normal_data})
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">describe</span>())
+        </div>
+       </div>
+      </div><!-- Skewed Distributions -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🔀 Skewed Distributions (Asymmetric)</h3>
+       <p class="text-slate-400 text-sm mb-6">Sometimes data leans to one side - not symmetric like normal distribution.</p>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-6"><!-- Right Skewed -->
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-amber-500">
+         <p class="text-amber-400 font-semibold mb-2">➡️ Right Skewed (Positive)</p>
+         <p class="text-slate-400 text-sm mb-3">Long tail on the right, peak on the left</p>
+         <div class="stat-visual">
+          <div style="font-size: 3rem;">
+           📈
+          </div>
+         </div>
+         <p class="text-slate-400 text-xs mt-3"><span class="font-semibold">Real examples:</span><br>
+          Income (few rich), House prices, Web traffic</p>
+        </div><!-- Left Skewed -->
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-emerald-500">
+         <p class="text-emerald-400 font-semibold mb-2">⬅️ Left Skewed (Negative)</p>
+         <p class="text-slate-400 text-sm mb-3">Long tail on the left, peak on the right</p>
+         <div class="stat-visual">
+          <div style="font-size: 3rem;">
+           📉
+          </div>
+         </div>
+         <p class="text-slate-400 text-xs mt-3"><span class="font-semibold">Real examples:</span><br>
+          Test scores (mostly high), Customer satisfaction, Product quality</p>
+        </div>
+       </div>
+       <div class="code-block mt-4">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Check skewness</span>
+        </div>
+        <div class="code-line">
+         skewness = df[<span class="code-string">'values'</span>].<span class="code-method">skew</span>()
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(f<span class="code-string">"Skewness: {skewness}"</span>)
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Interpretation:</span>
+        </div>
+        <div class="code-line">
+         <span class="code-comment"># &gt; 0 = Right skewed</span>
+        </div>
+        <div class="code-line">
+         <span class="code-comment"># &lt; 0 = Left skewed</span>
+        </div>
+        <div class="code-line">
+         <span class="code-comment"># = 0 = Normal distribution</span>
+        </div>
+       </div>
+      </div><!-- Bimodal Distribution -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🔺🔺 Bimodal Distribution</h3>
+       <p class="text-slate-400 text-sm mb-4">Two peaks - data clusters at two different values</p>
+       <div class="stat-visual">
+        <div style="font-size: 3rem;">
+         🏔️🏔️
+        </div>
+        <p class="text-slate-400 text-sm mt-2">Two peaks instead of one</p>
+       </div>
+       <p class="text-slate-400 text-sm mt-4 mb-3"><span class="font-semibold">Real-world example:</span> Student test scores might be bimodal if half studied and half didn't:</p>
+       <ul class="text-slate-400 text-sm space-y-1 bg-slate-800/30 p-3 rounded-lg">
+        <li>Peak 1: Low scores (around 50) - students who didn't study</li>
+        <li>Peak 2: High scores (around 85) - students who studied</li>
+       </ul>
+      </div>
+     </div>
+    </section><!-- Topic 3: Patterns and Anomalies -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 3: Patterns and Anomalies</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-amber-400 mb-4">🎯 What are Patterns and Anomalies?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed"><span class="font-semibold">Patterns</span> are trends or behaviors you expect. <span class="font-semibold">Anomalies</span> are unexpected things that don't fit the pattern.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <p class="mb-3"><span class="font-semibold">Example:</span></p>
+        <p>📊 Coffee shop sales: Pattern = high sales during morning (6-9am), low at night</p>
+        <p classname="mt-2">🚨 Anomaly = 3am spike in sales (unusual! Something might be wrong with data or unusual event)</p>
+       </div>
+      </div><!-- Finding Patterns -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🔍 Finding Patterns in Data</h3>
+       <div class="space-y-4">
+        <p class="text-slate-400 text-sm">Common patterns to look for:</p>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-emerald-500">
+         <p class="text-emerald-400 font-semibold mb-2">📈 Trend Pattern</p>
+         <p class="text-slate-400 text-sm">Data consistently increases or decreases over time</p>
+         <p class="text-slate-400 text-xs mt-2"><span class="font-semibold">Example:</span> Monthly sales increase from Jan → Dec</p>
+        </div>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-blue-500">
+         <p class="text-blue-400 font-semibold mb-2">🔄 Seasonal Pattern</p>
+         <p class="text-slate-400 text-sm">Data repeats at regular intervals</p>
+         <p class="text-slate-400 text-xs mt-2"><span class="font-semibold">Example:</span> Ice cream sales peak in summer, drop in winter</p>
+        </div>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-purple-500">
+         <p class="text-purple-400 font-semibold mb-2">🔗 Correlation Pattern</p>
+         <p class="text-slate-400 text-sm">Two variables move together (one increases, other increases too)</p>
+         <p class="text-slate-400 text-xs mt-2"><span class="font-semibold">Example:</span> Study hours and test scores (more study → higher scores)</p>
+        </div>
+       </div>
+       <div class="code-block mt-4">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Find correlation between two columns</span>
+        </div>
+        <div class="code-line">
+         correlation = df[<span class="code-string">'study_hours'</span>].<span class="code-method">corr</span>(df[<span class="code-string">'test_score'</span>])
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(correlation)
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Values close to 1 = strong positive correlation</span>
+        </div>
+        <div class="code-line">
+         <span class="code-comment"># Values close to -1 = strong negative correlation</span>
+        </div>
+        <div class="code-line">
+         <span class="code-comment"># Values close to 0 = no correlation</span>
+        </div>
+       </div>
+      </div><!-- Identifying Anomalies -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-red-400 mb-4">🚨 Identifying Anomalies (Outliers)</h3>
+       <p class="text-slate-400 text-sm mb-4">Anomalies are data points that are very different from the rest.</p>
+       <div class="warning-box">
+        <p class="text-red-400 font-semibold text-sm mb-2">⚠️ Why Find Anomalies?</p>
+        <ul class="text-slate-400 text-sm space-y-1">
+         <li>🐛 Could be data entry errors</li>
+         <li>🚨 Could indicate fraud or unusual activity</li>
+         <li>🔬 Could be interesting discoveries worth investigating</li>
+        </ul>
+       </div><!-- IQR Method -->
+       <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-amber-500 mt-4">
+        <p class="text-amber-400 font-semibold mb-2">📊 IQR Method (Interquartile Range)</p>
+        <p class="text-slate-400 text-sm mb-3">Most common way to find outliers:</p>
+        <div class="formula-box" style="{{fontSize:" 0.875rem}}>
+         Outlier = Any value &gt; (Q3 + 1.5×IQR) OR &lt; (Q1 - 1.5×IQR)
+        </div>
+        <p class="text-slate-400 text-xs mb-2"><span class="font-semibold">Where:</span></p>
+        <ul class="text-slate-400 text-xs space-y-1">
+         <li>Q1 = 25th percentile (lower quarter)</li>
+         <li>Q3 = 75th percentile (upper quarter)</li>
+         <li>IQR = Q3 - Q1 (middle 50% of data)</li>
+        </ul>
+        <div class="code-block mt-3">
+         <div class="code-line">
+          <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+         </div>
+         <div class="code-line mt-2"></div>
+         <div class="code-line">
+          <span class="code-comment"># Find outliers using IQR</span>
+         </div>
+         <div class="code-line">
+          Q1 = df[<span class="code-string">'Score'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.25</span>)
+         </div>
+         <div class="code-line">
+          Q3 = df[<span class="code-string">'Score'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.75</span>)
+         </div>
+         <div class="code-line">
+          IQR = Q3 - Q1
+         </div>
+         <div class="code-line mt-2"></div>
+         <div class="code-line">
+          lower_bound = Q1 - <span class="code-number">1.5</span> * IQR
+         </div>
+         <div class="code-line">
+          upper_bound = Q3 + <span class="code-number">1.5</span> * IQR
+         </div>
+         <div class="code-line mt-2"></div>
+         <div class="code-line">
+          <span class="code-comment"># Find outliers</span>
+         </div>
+         <div class="code-line">
+          outliers = df[(df[<span class="code-string">'Score'</span>] &lt; lower_bound) |
+         </div>
+         <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+          (df[<span class="code-string">'Score'</span>] &gt; upper_bound)]
+         </div>
+         <div class="code-line">
+          <span class="code-function">print</span>(<span class="code-string">"Outliers:"</span>, outliers)
+         </div>
+        </div>
+       </div><!-- Z-Score Method -->
+       <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-cyan-500 mt-4">
+        <p class="text-cyan-400 font-semibold mb-2">📐 Z-Score Method</p>
+        <p class="text-slate-400 text-sm mb-2">Measures how many standard deviations away from the mean a value is</p>
+        <div class="formula-box" style="{{fontSize:" 0.875rem}}>
+         Z-Score = (Value - Mean) ÷ Standard Deviation<br><span style="{{fontSize:" 0.75rem, margintop: 0.5rem, display: block}}>|Z-Score| &gt; 3 = likely outlier</span>
+        </div>
+        <div class="code-block mt-3">
+         <div class="code-line">
+          <span class="code-keyword">from</span> scipy <span class="code-keyword">import</span> stats
+         </div>
+         <div class="code-line mt-2"></div>
+         <div class="code-line">
+          <span class="code-comment"># Calculate Z-scores</span>
+         </div>
+         <div class="code-line">
+          z_scores = np.abs(stats.<span class="code-method">zscore</span>(df[<span class="code-string">'Score'</span>]))
+         </div>
+         <div class="code-line">
+          outliers = df[z_scores &gt; <span class="code-number">3</span>]
+         </div>
+         <div class="code-line">
+          <span class="code-function">print</span>(<span class="code-string">"Outliers:"</span>, outliers)
+         </div>
+        </div>
+       </div>
+      </div><!-- Real Anomaly Example -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-amber-400 mb-4">💡 Real Anomaly Example</h3>
+       <p class="text-slate-400 text-sm mb-4">Student test scores: 72, 75, 78, 80, 82, 85, 87, 90, 92, 5</p>
+       <div class="anomaly-highlight">
+        <p class="text-red-400 font-semibold text-sm mb-2">🚨 Anomaly Found: Score of 5</p>
+        <p class="text-slate-400 text-sm">This is way too low compared to others (even though normal range is 0-100)</p>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mt-4">
+        <p class="text-amber-400 font-semibold text-sm mb-2">What might cause this?</p>
+        <ul class="text-slate-400 text-sm space-y-1">
+         <li>❌ Data entry error (100 mistyped as 5)</li>
+         <li>🚑 Student was sick during test</li>
+         <li>🎓 Student didn't show up (entered as failed: 5)</li>
+         <li>⚠️ System error during grading</li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </section><!-- Real-World Case Study -->
+    <section class="mb-12">
+     <div class="case-study border border-cyan-500/30 rounded-xl p-8">
+      <div class="flex items-center gap-3 mb-6"><span class="text-3xl">📊</span>
+       <h3 class="text-2xl font-semibold" style="{{fontFamily:" space grotesk, sans-serif}}>Real Case: E-Commerce Sales Analysis</h3>
+      </div>
+      <div class="space-y-6">
+       <div>
+        <h4 class="text-lg font-semibold text-emerald-400 mb-3">The Business Problem</h4>
+        <p class="text-slate-300 leading-relaxed">An e-commerce company has daily sales data for 1 year. They want to understand:</p>
+        <ul class="text-slate-300 text-sm space-y-2 mt-3">
+         <li>📊 What's typical daily sales?</li>
+         <li>📈 Is sales trending up or down?</li>
+         <li>🚨 Are there any unusual days (anomalies)?</li>
+         <li>🔄 Is there a seasonal pattern?</li>
+        </ul>
+       </div>
+       <div>
+        <h4 class="text-lg font-semibold text-cyan-400 mb-3">Data Analysis Steps</h4>
+        <div class="space-y-3">
+         <div class="bg-slate-800/30 rounded-lg p-4">
+          <p class="text-cyan-400 font-semibold text-sm mb-2">Step 1: Descriptive Statistics</p>
+          <div class="code-block text-xs">
+           <div class="code-line">
+            df.<span class="code-method">describe</span>()
+           </div>
+           <div class="code-line mt-2">
+            <span class="code-comment"># Results: Mean = $5000, Std Dev = $800</span>
+           </div>
+           <div class="code-line">
+            <span class="code-comment"># Most days sales are between $4000-$6000</span>
+           </div>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-4">
+          <p class="text-cyan-400 font-semibold text-sm mb-2">Step 2: Check Distribution</p>
+          <div class="code-block text-xs">
+           <div class="code-line">
+            skewness = df[<span class="code-string">'sales'</span>].<span class="code-method">skew</span>()
+           </div>
+           <div class="code-line mt-2">
+            <span class="code-comment"># Result: Skewness = 0.3 (slightly right skewed)</span>
+           </div>
+           <div class="code-line">
+            <span class="code-comment"># Means a few days with very high sales</span>
+           </div>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-4">
+          <p class="text-cyan-400 font-semibold text-sm mb-2">Step 3: Find Anomalies</p>
+          <div class="code-block text-xs">
+           <div class="code-line">
+            Q1 = df[<span class="code-string">'sales'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.25</span>)
+           </div>
+           <div class="code-line">
+            Q3 = df[<span class="code-string">'sales'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.75</span>)
+           </div>
+           <div class="code-line">
+            outliers = df[(df[<span class="code-string">'sales'</span>] &gt; Q3 + <span class="code-number">1.5</span>*IQR)]
+           </div>
+           <div class="code-line mt-2">
+            <span class="code-comment"># Found 12 anomalies: Black Friday, holiday sales, etc</span>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div classname="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+        <p classname="text-emerald-400 font-semibold mb-2">💡 Business Insights:</p>
+        <ul classname="text-slate-300 text-sm space-y-2">
+         <li>✅ Normal daily sales average $5000 ± $800</li>
+         <li>✅ 12 anomalous high-sales days identified (sales events)</li>
+         <li>✅ Recommend planning inventory based on $5000 baseline</li>
+         <li>✅ Monitor anomalies to predict special events</li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </section><!-- Exploratory Data Analysis -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="{{fontFamily:" space grotesk, sans-serif}}>Exploratory Data Analysis (EDA) Checklist</h2>
+     <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+      <p class="text-slate-300 text-sm mb-6">EDA is the process of investigating data before analysis. Here's what to do:</p>
+      <div class="space-y-3">
+       <div class="bg-slate-800/30 rounded-lg p-4 flex items-start gap-3"><span class="text-cyan-400 font-bold">1.</span>
+        <div>
+         <p class="text-slate-300 font-semibold text-sm">Load and Inspect Data</p>
+         <p class="text-slate-400 text-xs mt-1">Check shape, data types, missing values</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 flex items-start gap-3"><span class="text-cyan-400 font-bold">2.</span>
+        <div>
+         <p class="text-slate-300 font-semibold text-sm">Descriptive Statistics</p>
+         <p class="text-slate-400 text-xs mt-1">Use .describe() and .info()</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 flex items-start gap-3"><span class="text-cyan-400 font-bold">3.</span>
+        <div>
+         <p class="text-slate-300 font-semibold text-sm">Check for Missing Data</p>
+         <p class="text-slate-400 text-xs mt-1">Use .isnull() and .dropna()</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 flex items-start gap-3"><span class="text-cyan-400 font-bold">4.</span>
+        <div>
+         <p class="text-slate-300 font-semibold text-sm">Understand Distribution</p>
+         <p class="text-slate-400 text-xs mt-1">Check skewness, kurtosis</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 flex items-start gap-3"><span class="text-cyan-400 font-bold">5.</span>
+        <div>
+         <p class="text-slate-300 font-semibold text-sm">Identify Anomalies</p>
+         <p class="text-slate-400 text-xs mt-1">Use IQR or Z-score method</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 flex items-start gap-3"><span class="text-cyan-400 font-bold">6.</span>
+        <div>
+         <p class="text-slate-300 font-semibold text-sm">Find Correlations</p>
+         <p class="text-slate-400 text-xs mt-1">Check relationships between variables</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section><!-- Hands-On Activities -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="{{fontFamily:" space grotesk, sans-serif}} id="activity-title">Hands-On Data Analysis Exercises</h2>
+     <div class="space-y-6"><!-- Activity 1 -->
+      <div class="activity-box border border-purple-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number">1</span>
+        <div>
+         <h4 class="text-lg font-semibold text-purple-300">Activity 1: Basic Descriptive Statistics</h4>
+         <p class="text-slate-400 text-sm">Calculate mean, median, and other statistics</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Load student test scores data</li>
+         <li>2. Calculate: mean, median, mode, range, std deviation</li>
+         <li>3. Use .describe() to get all stats at once</li>
+         <li>4. Interpret the results</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Student test scores</span>
+        </div>
+        <div class="code-line">
+         scores = [<span class="code-number">65</span>, <span class="code-number">72</span>, <span class="code-number">78</span>, <span class="code-number">85</span>, <span class="code-number">88</span>, <span class="code-number">90</span>, <span class="code-number">92</span>, <span class="code-number">95</span>]
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame({'Score': scores})
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Your code:</span>
+        </div>
+        <div class="code-line">
+         mean_score = df[<span class="code-string">'Score'</span>].<span class="code-method">mean</span>()
+        </div>
+        <div class="code-line">
+         median_score = df[<span class="code-string">'Score'</span>].<span class="code-method">median</span>()
+        </div>
+        <div class="code-line">
+         std_score = df[<span class="code-string">'Score'</span>].<span class="code-method">std</span>()
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">describe</span>())
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Expected Output:</p>
+        <div class="font-mono text-xs text-green-300 mt-2">
+         count&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8.00<br>
+          mean&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;83.13<br>
+          std&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9.16<br>
+          min&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;65.00<br>
+          25%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;76.50<br>
+          50%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;86.50<br>
+          75%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;90.50<br>
+          max&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;95.00
+        </div>
+       </div>
+      </div><!-- Activity 2 -->
+      <div class="activity-box border border-blue-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #f59e0b, #3b82f6)}}>2</span>
+        <div>
+         <h4 class="text-lg font-semibold text-blue-300">Activity 2: Analyze Data Distribution</h4>
+         <p class="text-slate-400 text-sm">Check if data is normally distributed</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Create two datasets with different distributions</li>
+         <li>2. Calculate skewness for both</li>
+         <li>3. Determine if each is normal, right-skewed, or left-skewed</li>
+         <li>4. Interpret what this means</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Dataset 1: Normal test scores</span>
+        </div>
+        <div class="code-line">
+         normal_scores = [<span class="code-number">70</span>, <span class="code-number">75</span>, <span class="code-number">80</span>, <span class="code-number">85</span>, <span class="code-number">90</span>]
+        </div>
+        <div class="code-line">
+         df1 = pd.DataFrame({'Score': normal_scores})
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Dataset 2: Right-skewed income data</span>
+        </div>
+        <div class="code-line">
+         income = [<span class="code-number">30</span>, <span class="code-number">35</span>, <span class="code-number">40</span>, <span class="code-number">45</span>, <span class="code-number">200</span>] <span class="code-comment"># One very high value</span>
+        </div>
+        <div class="code-line">
+         df2 = pd.DataFrame({'Income': income})
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Calculate skewness</span>
+        </div>
+        <div class="code-line">
+         skew1 = df1[<span class="code-string">'Score'</span>].<span class="code-method">skew</span>()
+        </div>
+        <div class="code-line">
+         skew2 = df2[<span class="code-string">'Income'</span>].<span class="code-method">skew</span>()
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(f<span class="code-string">"Dataset 1 Skewness: {skew1}"</span>)
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(f<span class="code-string">"Dataset 2 Skewness: {skew2}"</span>)
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Expected Interpretation:</p>
+        <p class="text-slate-300 text-xs mt-2">Dataset 1: Skewness ≈ 0 (Normal distribution)<br>
+          Dataset 2: Skewness &gt; 0 (Right-skewed - one high income person)</p>
+       </div>
+      </div><!-- Activity 3 -->
+      <div class="activity-box border border-emerald-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #f59e0b, #10b981)}}>3</span>
+        <div>
+         <h4 class="text-lg font-semibold text-emerald-300">Activity 3: Detect Anomalies</h4>
+         <p class="text-slate-400 text-sm">Find outliers using IQR method</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Create dataset with some outliers</li>
+         <li>2. Calculate Q1, Q3, and IQR</li>
+         <li>3. Find any values outside the normal range</li>
+         <li>4. Report which records are anomalies</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Website response times (mostly 200-500ms, one very slow)</span>
+        </div>
+        <div class="code-line">
+         response_times = [<span class="code-number">210</span>, <span class="code-number">250</span>, <span class="code-number">280</span>, <span class="code-number">300</span>, <span class="code-number">320</span>, <span class="code-number">5000</span>]
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame({'Response_ms': response_times})
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># IQR Method</span>
+        </div>
+        <div class="code-line">
+         Q1 = df[<span class="code-string">'Response_ms'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.25</span>)
+        </div>
+        <div class="code-line">
+         Q3 = df[<span class="code-string">'Response_ms'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.75</span>)
+        </div>
+        <div class="code-line">
+         IQR = Q3 - Q1
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         lower_bound = Q1 - <span class="code-number">1.5</span> * IQR
+        </div>
+        <div class="code-line">
+         upper_bound = Q3 + <span class="code-number">1.5</span> * IQR
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Find anomalies</span>
+        </div>
+        <div class="code-line">
+         anomalies = df[(df[<span class="code-string">'Response_ms'</span>] &lt; lower_bound) |
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         (df[<span class="code-string">'Response_ms'</span>] &gt; upper_bound)]
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(<span class="code-string">"Anomalies:"</span>)
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(anomalies)
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Expected Output:</p>
+        <div class="font-mono text-xs text-green-300 mt-2">
+         Anomalies:<br>
+          &nbsp;&nbsp;Response_ms<br>
+          5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5000
+        </div>
+       </div>
+      </div><!-- Activity 4 -->
+      <div class="activity-box border border-cyan-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #f59e0b, #06b6d4)}}>4</span>
+        <div>
+         <h4 class="text-lg font-semibold text-cyan-300">Activity 4: Exploratory Data Analysis</h4>
+         <p class="text-slate-400 text-sm">Complete EDA on a real dataset</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Create a restaurant customer spending dataset</li>
+         <li>2. Load data and check info() and describe()</li>
+         <li>3. Check for missing values</li>
+         <li>4. Find distribution (check skewness)</li>
+         <li>5. Detect any anomalies (unusual spending)</li>
+         <li>6. Summarize findings</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Restaurant customer spending</span>
+        </div>
+        <div class="code-line">
+         data = {
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Customer': [<span class="code-string">'A'</span>, <span class="code-string">'B'</span>, <span class="code-string">'C'</span>, <span class="code-string">'D'</span>, <span class="code-string">'E'</span>, <span class="code-string">'F'</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Spending': [<span class="code-number">45</span>, <span class="code-number">52</span>, <span class="code-number">48</span>, <span class="code-number">500</span>, <span class="code-number">50</span>, <span class="code-number">55</span>]
+        </div>
+        <div class="code-line">
+         }
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame(data)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 1: Check basic info</span>
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">info</span>())
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">describe</span>())
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 2: Check missing values</span>
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">isnull</span>().<span class="code-method">sum</span>())
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 3: Check distribution</span>
+        </div>
+        <div class="code-line">
+         skewness = df[<span class="code-string">'Spending'</span>].<span class="code-method">skew</span>()
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(f<span class="code-string">"Skewness: {skewness}"</span>)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 4: Find anomalies</span>
+        </div>
+        <div class="code-line">
+         Q1 = df[<span class="code-string">'Spending'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.25</span>)
+        </div>
+        <div class="code-line">
+         Q3 = df[<span class="code-string">'Spending'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.75</span>)
+        </div>
+        <div class="code-line">
+         IQR = Q3 - Q1
+        </div>
+        <div class="code-line">
+         upper_bound = Q3 + <span class="code-number">1.5</span> * IQR
+        </div>
+        <div class="code-line">
+         anomalies = df[df[<span class="code-string">'Spending'</span>] &gt; upper_bound]
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-string">"Anomalies found:"</span>, anomalies)
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Summary of Findings:</p>
+        <ul class="text-slate-300 text-xs space-y-1 mt-2">
+         <li>• Average spending: ~50</li>
+         <li>• High skewness: One customer spent 500 (anomaly)</li>
+         <li>• No missing values</li>
+         <li>• Action: Investigate why Customer D spent 10x normal amount</li>
+        </ul>
+       </div>
+      </div><!-- Challenge Activity -->
+      <div class="activity-box border border-pink-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #f59e0b, #ec4899)}}>⭐</span>
+        <div>
+         <h4 class="text-lg font-semibold text-pink-300">Challenge: Complete EDA Report</h4>
+         <p class="text-slate-400 text-sm">Analyze a dataset and create a comprehensive report</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Challenge:</p>
+        <p class="text-slate-400 text-sm mb-3">Choose ONE dataset and perform complete EDA:</p>
+        <ul class="text-slate-400 text-sm space-y-2">
+         <li>📊 Monthly product sales (12 months)</li>
+         <li>🎓 Student GPA and test scores</li>
+         <li>💰 Daily trading volume</li>
+         <li>🏥 Patient wait times</li>
+        </ul>
+        <p class="text-slate-400 text-sm mt-4">Your report should include:</p>
+        <ol class="text-slate-400 text-sm space-y-1">
+         <li>1. Data overview (shape, types, missing values)</li>
+         <li>2. Descriptive statistics table</li>
+         <li>3. Distribution analysis (normal? skewed?)</li>
+         <li>4. Anomalies found and explanations</li>
+         <li>5. Key insights and recommendations</li>
+        </ol>
+       </div>
+       <div class="bg-slate-800/50 rounded-lg p-4">
+        <p class="text-pink-400 text-sm font-semibold mb-2">💡 Hints:</p>
+        <ul class="text-slate-400 text-xs space-y-1">
+         <li>• Start with df.info() and df.describe()</li>
+         <li>• Check df.isnull().sum() for missing data</li>
+         <li>• Use .skew() to check distribution</li>
+         <li>• Use IQR method for anomalies</li>
+         <li>• Document your findings clearly</li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </section><!-- Key Takeaways -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-6" style="{{fontFamily:" space grotesk, sans-serif}}>Key Takeaways</h2>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-gradient-to-br from-amber-500/10 to-yellow-500/10 border border-amber-500/20 rounded-lg p-6">
+       <p class="text-amber-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> Descriptive Statistics</p>
+       <p class="text-slate-300 text-sm">Mean, median, mode, range, std deviation summarize data into easy-to-understand numbers</p>
+      </div>
+      <div class="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-lg p-6">
+       <p class="text-cyan-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> Data Distributions</p>
+       <p class="text-slate-300 text-sm">Normal, skewed, and bimodal distributions reveal patterns in how data is arranged</p>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-lg p-6">
+       <p class="text-emerald-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> Anomaly Detection</p>
+       <p class="text-slate-300 text-sm">IQR and Z-score methods identify outliers that may indicate errors or interesting discoveries</p>
+      </div>
+      <div class="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-6">
+       <p class="text-purple-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> EDA Process</p>
+       <p class="text-slate-300 text-sm">Systematic exploration using Pandas reveals insights before formal analysis</p>
+      </div>
+     </div>
+    </section><!-- Next Steps -->
+    <section class="mb-12 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+     <h3 class="text-lg font-semibold text-emerald-400 mb-4">🚀 Next Steps</h3>
+     <ol class="text-slate-300 text-sm space-y-3">
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">1.</span> <span>Complete all 4 hands-on activities with your own datasets</span></li>
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">2.</span> <span>Take the Challenge project and submit your EDA report</span></li>
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">3.</span> <span>Practice with real-world datasets from Kaggle</span></li>
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">4.</span> <span>In Week 5, we'll learn data cleaning and preprocessing</span></li>
+     </ol>
+    </section><!-- Footer -->
+    <footer class="border-t border-slate-800 pt-8 pb-8">
+     <p class="text-slate-400 text-sm" id="footer-text">Copyright 2026 - BSIS Lyceum de San Pablo</p>
+    </footer>
+   </div>
+  </main>
+  <script>
+    const defaultConfig = {
+      course_code: 'ADV08',
+      instructor_name: 'MKDB',
+      week_title: 'Week 4 – Data Understanding and Exploration',
+      ilo_1: 'Compute and interpret descriptive statistics.',
+      ilo_2: 'Analyze data distributions and identify anomalies.',
+      ilo_3: 'Perform exploratory data analysis using Pandas.',
+      activity_title: 'Hands-On Data Analysis Exercises',
+      footer_text: 'Copyright 2026 - BSIS Lyceum de San Pablo'
+    };
+    
+    let config = { ...defaultConfig };
+    
+    async function onConfigChange(cfg) {
+      config = { ...defaultConfig, ...cfg };
+      document.getElementById('course-code').textContent = config.course_code;
+      document.getElementById('instructor-name').textContent = config.instructor_name;
+      document.getElementById('week-title').innerHTML = `<span class="bg-gradient-to-r from-amber-400 via-cyan-400 to-amber-400 bg-clip-text text-transparent">${config.week_title}</span>`;
+      document.getElementById('ilo-1').textContent = config.ilo_1;
+      document.getElementById('ilo-2').textContent = config.ilo_2;
+      document.getElementById('ilo-3').textContent = config.ilo_3;
+      document.getElementById('activity-title').textContent = config.activity_title;
+      document.getElementById('footer-text').textContent = config.footer_text;
+    }
+    
+    function mapToCapabilities(cfg) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+    
+    function mapToEditPanelValues(cfg) {
+      return new Map([
+        ['course_code', cfg.course_code || defaultConfig.course_code],
+        ['instructor_name', cfg.instructor_name || defaultConfig.instructor_name],
+        ['week_title', cfg.week_title || defaultConfig.week_title],
+        ['ilo_1', cfg.ilo_1 || defaultConfig.ilo_1],
+        ['ilo_2', cfg.ilo_2 || defaultConfig.ilo_2],
+        ['ilo_3', cfg.ilo_3 || defaultConfig.ilo_3],
+        ['activity_title', cfg.activity_title || defaultConfig.activity_title],
+        ['footer_text', cfg.footer_text || defaultConfig.footer_text]
+      ]);
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c551974e1df8d0f',t:'MTc2OTY1MTY0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

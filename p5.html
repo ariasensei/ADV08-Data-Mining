@@ -1,0 +1,1714 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 5 - Data Cleaning and Preprocessing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    html, body, main {
+      height: 100%;
+    }
+    
+    main {
+      overflow-auto;
+    }
+    
+    .gradient-line {
+      background: linear-gradient(90deg, #06b6d4, #ef4444, #06b6d4);
+      background-size: 200% 100%;
+      animation: gradient-shift 3s ease infinite;
+    }
+    
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+    }
+    
+    .code-block {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      overflow-x: auto;
+    }
+    
+    .code-line {
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+    
+    .code-keyword {
+      color: #f472b6;
+    }
+    
+    .code-string {
+      color: #86efac;
+    }
+    
+    .code-number {
+      color: #f59e0b;
+    }
+    
+    .code-comment {
+      color: #64748b;
+    }
+    
+    .code-function {
+      color: #60a5fa;
+    }
+    
+    .code-method {
+      color: #a78bfa;
+    }
+    
+    .ilo-item {
+      border-left: 3px solid #06b6d4;
+      padding-left: 1.25rem;
+    }
+    
+    .concept-card {
+      transition: all 0.3s ease;
+    }
+    
+    .concept-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(6, 182, 212, 0.15);
+    }
+    
+    .info-box {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(239, 68, 68, 0.05) 100%);
+    }
+    
+    .example-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+    }
+    
+    .output-display {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: #22c55e;
+      margin-top: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .activity-box {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ef4444, #06b6d4);
+      color: #020617;
+      font-weight: bold;
+      font-family: 'Space Grotesk', sans-serif;
+      flex-shrink: 0;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th, .comparison-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .comparison-table th {
+      background: #1e293b;
+      color: #06b6d4;
+      font-weight: 600;
+    }
+
+    .stat-card {
+      background: #1e293b;
+      border-left: 3px solid #06b6d4;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      margin: 0.5rem 0;
+    }
+
+    .success-badge {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .formula-box {
+      background: #1e293b;
+      border: 1px solid #06b6d4;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+      color: #06b6d4;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+    }
+
+    .warning-box {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(200, 30, 60, 0.05) 100%);
+      border-left: 3px solid #ef4444;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .process-flow {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .process-step {
+      background: #1e293b;
+      border: 1px solid #0f766e;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .arrow {
+      color: #06b6d4;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    @media (max-width: 768px) {
+      .before-after {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .before-section, .after-section {
+      background: #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    .before-section {
+      border-left: 3px solid #ef4444;
+    }
+
+    .before-section h4 {
+      color: #ef4444;
+    }
+
+    .after-section {
+      border-left: 3px solid #22c55e;
+    }
+
+    .after-section h4 {
+      color: #22c55e;
+    }
+
+    .visual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .visual-card {
+      background: #1e293b;
+      border: 1px solid #0f766e;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .method-comparison {
+      background: #1e293b;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .method-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 1fr;
+      border-bottom: 1px solid #0f766e;
+      padding: 1rem;
+    }
+
+    .method-row:first-child {
+      background: #0f766e;
+      color: #06b6d4;
+      font-weight: bold;
+    }
+
+    .method-row:last-child {
+      border-bottom: none;
+    }
+
+    @media (max-width: 640px) {
+      .method-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .method-row:first-child {
+        display: none;
+      }
+    }
+
+    .technique-box {
+      background: linear-gradient(135deg, #0f766e, #064e3b);
+      border: 1px solid #06b6d4;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .technique-title {
+      color: #06b6d4;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .pipeline-steps {
+      background: #1e293b;
+      border: 2px dashed #06b6d4;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .step-list {
+      list-style: none;
+      counter-reset: step-counter;
+      padding: 0;
+    }
+
+    .step-list li {
+      counter-increment: step-counter;
+      position: relative;
+      padding-left: 2.5rem;
+      margin-bottom: 1rem;
+      color: #e2e8f0;
+    }
+
+    .step-list li:before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: #06b6d4;
+      color: #020617;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .case-study {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%);
+      border: 2px solid #06b6d4;
+    }
+
+    .data-comparison {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .data-item {
+      background: #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      border: 1px solid #0f766e;
+    }
+
+    .data-item-title {
+      color: #06b6d4;
+      font-weight: bold;
+      margin-bottom: 0.75rem;
+    }
+
+    .data-item-code {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #e2e8f0;
+      overflow-x: auto;
+    }
+
+    .decision-tree {
+      background: #1e293b;
+      border: 1px solid #0f766e;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .tree-node {
+      background: #0f172a;
+      border-left: 3px solid #06b6d4;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-radius: 0.375rem;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-950 text-slate-200">
+  <main class="h-full overflow-auto">
+   <div class="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12"><!-- Header Section -->
+    <header class="mb-12">
+     <p class="font-mono text-red-400 text-sm mb-2" id="course-code">ADV08</p>
+     <h1 class="text-4xl md:text-5xl font-bold mb-2" style="font-family: 'Space Grotesk', sans-serif;"><span class="bg-gradient-to-r from-red-400 via-cyan-400 to-red-400 bg-clip-text text-transparent" id="week-title">Week 5 – Data Cleaning and Preprocessing</span></h1>
+     <p class="text-slate-400 flex items-center gap-2">
+      <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg><span>Instructor: </span> <span class="text-slate-200 font-medium" id="instructor-name">MKDB</span></p>
+     <div class="h-1 bg-gradient-line rounded-full mt-4"></div>
+    </header><!-- ILO Section -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-6" style="font-family: 'Space Grotesk', sans-serif;">Intended Learning Outcomes (ILO)</h2>
+     <div class="space-y-4 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+      <div class="ilo-item py-3" id="ilo-1">
+       <p class="text-slate-300 font-medium">Handle missing values and outliers in datasets.</p>
+      </div>
+      <div class="ilo-item py-3" id="ilo-2">
+       <p class="text-slate-300 font-medium">Apply data normalization and transformation techniques.</p>
+      </div>
+      <div class="ilo-item py-3" id="ilo-3">
+       <p class="text-slate-300 font-medium">Prepare datasets for data mining tasks.</p>
+      </div>
+     </div>
+    </section><!-- Introduction -->
+    <section class="mb-12">
+     <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+      <h3 class="text-lg font-semibold text-red-400 mb-4">🎯 What is Data Cleaning and Preprocessing?</h3>
+      <p class="text-slate-300 mb-4 leading-relaxed">Before you can analyze data or build models, you need to <span class="font-semibold">clean and prepare</span> it. Real-world data is messy! It has missing values, wrong entries, and inconsistencies.</p>
+      <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+       <p class="mb-3"><span class="font-semibold">Think of it this way:</span></p>
+       <p>🏗️ Building a house: You don't build on dirty ground. You first clean the foundation, remove rocks, level it, then build.</p>
+       <p classname="mt-2">📊 Working with data: You don't analyze messy data. You first clean it, fix errors, remove duplicates, then analyze.</p>
+       <p classname="mt-2"><span classname="font-semibold">Data cleaning = 80% of data science work!</span></p>
+      </div>
+     </div>
+    </section><!-- Topic 1: Missing Values -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 1: Handling Missing Values</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-amber-400 mb-4">🎯 What are Missing Values?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">Missing values are <span class="font-semibold">empty or blank cells</span> in your data where information should be but isn't.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300 space-y-3">
+        <p><span class="font-semibold">Represented as:</span></p>
+        <ul class="space-y-1">
+         <li>❌ NaN (Not a Number)</li>
+         <li>❌ NULL</li>
+         <li>❌ None</li>
+         <li>❌ Empty cells</li>
+        </ul>
+        <p classname="mt-3"><span classname="font-semibold">Real example:</span></p>
+        <p>A customer database where some customers didn't provide a phone number → Missing value!</p>
+       </div>
+      </div><!-- Why Missing Values Happen -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">❓ Why Do Missing Values Happen?</h3>
+       <div class="space-y-3">
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-amber-500">
+         <p class="text-amber-400 font-semibold mb-1">📋 User didn't enter data</p>
+         <p class="text-slate-400 text-sm">Customer skipped optional form fields</p>
+        </div>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-orange-500">
+         <p class="text-orange-400 font-semibold mb-1">⚠️ System error</p>
+         <p class="text-slate-400 text-sm">Database crash lost some records</p>
+        </div>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-red-500">
+         <p class="text-red-400 font-semibold mb-1">🔗 Data integration problem</p>
+         <p class="text-slate-400 text-sm">Combining data from different sources, some fields don't match</p>
+        </div>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-rose-500">
+         <p class="text-rose-400 font-semibold mb-1">📊 Not applicable</p>
+         <p class="text-slate-400 text-sm">Field doesn't apply to that record (e.g., high school for college student)</p>
+        </div>
+       </div>
+      </div><!-- Detect Missing Values -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-emerald-400 mb-4">🔍 How to Find Missing Values</h3>
+       <p class="text-slate-400 text-sm mb-4">Use Pandas to detect and display missing values:</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line mt-2"></div>
+        <div class="code-line">
+         <span class="code-comment"># Create sample data with missing values</span>
+        </div>
+        <div class="code-line">
+         data = {
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Name': [<span class="code-string">'Alice'</span>, <span class="code-string">'Bob'</span>, <span class="code-string">'Charlie'</span>, <span class="code-string">'Diana'</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Age': [<span class="code-number">25</span>, np.nan, <span class="code-number">35</span>, <span class="code-number">28</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Salary': [<span class="code-number">50000</span>, <span class="code-number">60000</span>, np.nan, <span class="code-number">55000</span>]
+        </div>
+        <div class="code-line">
+         }
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame(data)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Check for missing values</span>
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">isnull</span>())
+        </div>
+       </div>
+       <div class="output-display">
+        Name Age Salary<br>
+         0 False False False<br>
+         1 False True False<br>
+         2 False False True<br>
+         3 False False False
+       </div>
+       <p class="text-slate-400 text-sm mt-4">Count missing values:</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-comment"># Count missing values in each column</span>
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">isnull</span>().<span class="code-method">sum</span>())
+        </div>
+       </div>
+       <div class="output-display">
+        Name 0<br>
+         Age 1<br>
+         Salary 1<br>
+         dtype: int64
+       </div>
+      </div><!-- Strategies for Missing Values -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-6">🛠️ Strategies to Handle Missing Values</h3>
+       <div class="space-y-4"><!-- Strategy 1: Delete -->
+        <div class="technique-box">
+         <div class="technique-title">
+          1. Delete (Remove) Missing Values ❌
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Simply remove rows or columns with missing data</p>
+         <div class="code-block text-sm">
+          <div class="code-line">
+           <span class="code-comment"># Remove rows with ANY missing values</span>
+          </div>
+          <div class="code-line">
+           df_clean = df.<span class="code-method">dropna</span>()
+          </div>
+          <div class="code-line mt-2></div>
+                  <div class=" code-line>
+           <span class="code-comment"># Remove rows where 'Age' is missing</span>
+          </div>
+          <div class="code-line">
+           df_clean = df.<span class="code-method">dropna</span>(subset=[<span class="code-string">'Age'</span>])
+          </div>
+          <div class="code-line mt-2></div>
+                  <div class=" code-line>
+           <span class="code-comment"># Remove columns with missing values</span>
+          </div>
+          <div class="code-line">
+           df_clean = df.<span class="code-method">dropna</span>(axis=<span class="code-number">1</span>)
+          </div>
+         </div>
+         <div class="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p class="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p class="text-slate-400 text-xs">Simple, keeps only clean data</p>
+          <p class="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p class="text-slate-400 text-xs">Loses data, may remove too much information</p>
+         </div>
+        </div><!-- Strategy 2: Fill with Mean/Median -->
+        <div class="technique-box">
+         <div class="technique-title">
+          2. Fill with Mean, Median, or Mode 📊
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Replace missing values with average or most common value</p>
+         <div class="code-block text-sm">
+          <div class="code-line">
+           <span class="code-comment"># Fill with mean (average)</span>
+          </div>
+          <div class="code-line">
+           df[<span class="code-string">'Age'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'Age'</span>].<span class="code-method">mean</span>())
+          </div>
+          <div class="code-line mt-2></div>
+                  <div class=" code-line>
+           <span class="code-comment"># Fill with median</span>
+          </div>
+          <div class="code-line">
+           df[<span class="code-string">'Salary'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'Salary'</span>].<span class="code-method">median</span>())
+          </div>
+          <div class="code-line mt-2></div>
+                  <div class=" code-line>
+           <span class="code-comment"># Fill with mode (most frequent)</span>
+          </div>
+          <div class="code-line">
+           df[<span class="code-string">'Category'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'Category'</span>].<span class="code-method">mode</span>()[<span class="code-number">0</span>])
+          </div>
+         </div>
+         <div class="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p class="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p class="text-slate-400 text-xs">Keeps data, reasonable estimate</p>
+          <p class="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p class="text-slate-400 text-xs">Assumes all missing values are similar (may not be accurate)</p>
+         </div>
+        </div><!-- Strategy 3: Forward/Backward Fill -->
+        <div class="technique-box">
+         <div class="technique-title">
+          3. Forward/Backward Fill ⏩
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Use value from previous or next row (good for time series data)</p>
+         <div class="code-block text-sm">
+          <div class="code-line">
+           <span class="code-comment"># Fill with previous value (forward fill)</span>
+          </div>
+          <div class="code-line">
+           df.<span class="code-method">fillna</span>(method=<span class="code-string">'ffill'</span>)
+          </div>
+          <div class="code-line mt-2></div>
+                  <div class=" code-line>
+           <span class="code-comment"># Fill with next value (backward fill)</span>
+          </div>
+          <div class="code-line">
+           df.<span class="code-method">fillna</span>(method=<span class="code-string">'bfill'</span>)
+          </div>
+         </div>
+         <div class="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p class="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p class="text-slate-400 text-xs">Good for time-series data, preserves trends</p>
+          <p class="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p class="text-slate-400 text-xs">Only works if data has temporal order</p>
+         </div>
+        </div><!-- Strategy 4: Interpolation -->
+        <div class="technique-box">
+         <div class="technique-title">
+          4. Interpolation 📈
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Estimate missing values based on surrounding values</p>
+         <div class="code-block text-sm">
+          <div class="code-line">
+           <span class="code-comment"># Linear interpolation</span>
+          </div>
+          <div class="code-line">
+           df.<span class="code-method">interpolate</span>(method=<span class="code-string">'linear'</span>)
+          </div>
+         </div>
+         <p class="text-slate-400 text-xs mt-3"><span class="font-semibold">Example:</span> Values are 10, __, __, 40</p>
+         <p classname="text-slate-400 text-xs">Interpolation fills as: 10, 20, 30, 40</p>
+         <div class="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p class="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p class="text-slate-400 text-xs">Smart estimation based on pattern</p>
+          <p class="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p class="text-slate-400 text-xs">Assumes linear relationship</p>
+         </div>
+        </div>
+       </div>
+      </div><!-- Decision Guide -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-emerald-400 mb-4">🤔 Which Strategy to Use?</h3>
+       <div class="decision-tree">
+        <div class="tree-node">
+         <p classname="text-slate-300 font-semibold text-sm">Missing value percentage:</p>
+         <ul classname="text-slate-400 text-xs mt-2 space-y-1">
+          <li>• <span classname="text-red-400 font-semibold">&gt;50% missing</span> → DELETE the column</li>
+          <li>• <span classname="text-amber-400 font-semibold">5-50% missing</span> → Fill with mean/median</li>
+          <li>• <span classname="text-emerald-400 font-semibold">&lt;5% missing</span> → Delete rows or interpolate</li>
+         </ul>
+        </div>
+        <div class="tree-node mt-3">
+         <p classname="text-slate-300 font-semibold text-sm">Data type:</p>
+         <ul classname="text-slate-400 text-xs mt-2 space-y-1">
+          <li>• <span classname="text-blue-400 font-semibold">Numeric (age, salary)</span> → Mean/Median</li>
+          <li>• <span classname="text-blue-400 font-semibold">Time series</span> → Forward/Backward fill</li>
+          <li>• <span classname="text-blue-400 font-semibold">Categorical (color, grade)</span> → Mode</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section><!-- Topic 2: Outliers -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 2: Handling Outliers</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-amber-400 mb-4">🎯 What are Outliers?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">Outliers are data points that are <span class="font-semibold">extremely different</span> from the rest. They're unusual values that stand out.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <p class="mb-3"><span class="font-semibold">Real examples:</span></p>
+        <ul class="space-y-2">
+         <li>📊 Student test scores: Most get 70-90, but one student got 5 (copied wrong answers?)</li>
+         <li>💰 Employee salaries: Most earn 50,000-80,000, but CEO earns 5,000,000</li>
+         <li>🛒 Customer purchases: Most buy $50 items, one customer buys $100,000 worth (bulk order?)</li>
+        </ul>
+       </div>
+      </div><!-- Types of Outliers -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🔍 Types of Outliers</h3>
+       <div class="space-y-4">
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-emerald-500">
+         <p class="text-emerald-400 font-semibold mb-2">✓ Legitimate Outliers (Keep)</p>
+         <p class="text-slate-400 text-sm">Real data that IS different - CEO's salary is legitimately high</p>
+         <p classname="text-slate-400 text-xs mt-2"><span classname="font-semibold">Action:</span> Keep it, it's real!</p>
+        </div>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-red-500">
+         <p class="text-red-400 font-semibold mb-2">❌ Erroneous Outliers (Remove)</p>
+         <p class="text-slate-400 text-sm">Data entry errors - temperature recorded as 999°C instead of 29.9°C</p>
+         <p classname="text-slate-400 text-xs mt-2"><span classname="font-semibold">Action:</span> Delete or fix it!</p>
+        </div>
+        <div class="bg-slate-800/30 rounded-lg p-4 border-l-3 border-amber-500">
+         <p class="text-amber-400 font-semibold mb-2">⚠️ Suspicious Outliers (Investigate)</p>
+         <p class="text-slate-400 text-sm">Could be interesting or an error - unusual purchase behavior</p>
+         <p classname="text-slate-400 text-xs mt-2"><span classname="font-semibold">Action:</span> Investigate before deciding</p>
+        </div>
+       </div>
+      </div><!-- Detecting Outliers -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-emerald-400 mb-4">🔎 How to Find Outliers</h3>
+       <p class="text-slate-400 text-sm mb-4">Use statistical methods (same as in Week 4!):</p><!-- IQR Method -->
+       <div classname="bg-slate-800/50 rounded-lg p-4 mb-4">
+        <p classname="text-cyan-400 font-semibold text-sm mb-3">📊 IQR Method (Most Common)</p>
+        <div class="formula-box" style="{{fontSize:" 0.875rem}}>
+         Outlier = Value {'&gt;'} (Q3 + 1.5×IQR) OR {'&lt;'} (Q1 - 1.5×IQR)
+        </div>
+        <div classname="code-block text-sm">
+         <div classname="code-line">
+          <span classname="code-keyword">import</span> pandas <span classname="code-keyword">as</span> pd
+         </div>
+         <div classname="code-line">
+          import numpy <span classname="code-keyword">as</span> np
+         </div>
+         <div classname="code-line mt-2"></div>
+         <div classname="code-line">
+          <span classname="code-comment"># Find outliers</span>
+         </div>
+         <div classname="code-line">
+          Q1 = df[<span classname="code-string">'value'</span>].<span classname="code-method">quantile</span>(<span classname="code-number">0.25</span>)
+         </div>
+         <div classname="code-line">
+          Q3 = df[<span classname="code-string">'value'</span>].<span classname="code-method">quantile</span>(<span classname="code-number">0.75</span>)
+         </div>
+         <div classname="code-line">
+          IQR = Q3 - Q1
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          lower = Q1 - <span classname="code-number">1.5</span> * IQR
+         </div>
+         <div classname="code-line">
+          upper = Q3 + <span classname="code-number">1.5</span> * IQR
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          outliers = df[(df[<span classname="code-string">'value'</span>] &lt; lower) |
+         </div>
+         <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+          (df[<span classname="code-string">'value'</span>] &gt; upper)]
+         </div>
+        </div>
+       </div><!-- Z-Score Method -->
+       <div classname="bg-slate-800/50 rounded-lg p-4">
+        <p classname="text-cyan-400 font-semibold text-sm mb-3">📐 Z-Score Method</p>
+        <div classname="formula-box" style="{{fontSize:" 0.875rem}}>
+         Outlier = |Z-Score| {'&gt;'} 3<br><span style="{{fontSize:" 0.75rem, margintop: 0.5rem, display: block}}>Z-Score = (Value - Mean) ÷ Std Dev</span>
+        </div>
+        <div classname="code-block text-sm">
+         <div classname="code-line">
+          <span classname="code-keyword">from</span> scipy <span classname="code-keyword">import</span> stats
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          <span classname="code-comment"># Find outliers using Z-score</span>
+         </div>
+         <div classname="code-line">
+          z_scores = np.abs(stats.<span classname="code-method">zscore</span>(df[<span classname="code-string">'value'</span>]))
+         </div>
+         <div classname="code-line">
+          outliers = df[z_scores &gt; <span classname="code-number">3</span>]
+         </div>
+        </div>
+       </div>
+      </div><!-- Handling Outliers Strategies -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-6">🛠️ How to Handle Outliers</h3>
+       <div class="space-y-4"><!-- Strategy 1: Remove -->
+        <div class="technique-box">
+         <div class="technique-title">
+          1. Remove Outliers ❌
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Delete rows with outlier values</p>
+         <div class="code-block text-sm">
+          <div class="code-line">
+           <span class="code-comment"># Remove outliers detected by IQR</span>
+          </div>
+          <div class="code-line">
+           df_clean = df[(df[<span class="code-string">'value'</span>] &gt;= lower) &amp;
+          </div>
+          <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+           (df[<span class="code-string">'value'</span>] &lt;= upper)]
+          </div>
+         </div>
+         <div class="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p class="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p class="text-slate-400 text-xs">Clean data, won't affect analysis</p>
+          <p class="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p class="text-slate-400 text-xs">Loses information, might remove important data</p>
+         </div>
+        </div><!-- Strategy 2: Cap/Floor -->
+        <div class="technique-box">
+         <div class="technique-title">
+          2. Cap or Floor (Winsorizing) 🎯
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Replace extreme values with a maximum/minimum threshold</p>
+         <div class="code-block text-sm">
+          <div class="code-line">
+           <span class="code-comment"># Cap values to upper/lower bounds</span>
+          </div>
+          <div class="code-line">
+           df[<span class="code-string">'value'</span>] = df[<span class="code-string">'value'</span>].<span class="code-method">clip</span>(lower=lower, upper=upper)
+          </div>
+          <div class="code-line mt-2></div>
+                  <div class=" code-line>
+           <span class="code-comment"># Replace values &gt; upper with upper</span>
+          </div>
+          <div class="code-line">
+           df.<span class="code-method">loc</span>[df[<span class="code-string">'value'</span>] &gt; upper, <span class="code-string">'value'</span>] = upper
+          </div>
+         </div>
+         <p classname="text-slate-400 text-xs mt-3"><span classname="font-semibold">Example:</span> If salary cap is $100k, replace all $500k with $100k</p>
+         <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p classname="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p classname="text-slate-400 text-xs">Keeps data, reduces extreme values</p>
+          <p classname="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p classname="text-slate-400 text-xs">Changes original values</p>
+         </div>
+        </div><!-- Strategy 3: Transform -->
+        <div class="technique-box">
+         <div class="technique-title">
+          3. Transform Data 🔄
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Apply mathematical transformation to reduce impact of outliers</p>
+         <div classname="code-block text-sm">
+          <div classname="code-line">
+           <span classname="code-comment"># Log transformation reduces extreme values</span>
+          </div>
+          <div classname="code-line">
+           df[<span classname="code-string">'value_log'</span>] = np.<span classname="code-method">log</span>(df[<span classname="code-string">'value'</span>])
+          </div>
+          <div classname="code-line mt-2></div>
+                  <div className=" code-line>
+           <span classname="code-comment"># Square root transformation</span>
+          </div>
+          <div classname="code-line">
+           df[<span classname="code-string">'value_sqrt'</span>] = np.<span classname="code-method">sqrt</span>(df[<span classname="code-string">'value'</span>])
+          </div>
+         </div>
+         <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p classname="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p classname="text-slate-400 text-xs">Keeps data, handles skewed data well</p>
+          <p classname="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p classname="text-slate-400 text-xs">Harder to interpret results</p>
+         </div>
+        </div><!-- Strategy 4: Separate Analysis -->
+        <div classname="technique-box">
+         <div classname="technique-title">
+          4. Separate Analysis 📂
+         </div>
+         <p classname="text-slate-400 text-sm mb-3">Keep outliers separate and analyze them differently</p>
+         <div classname="code-block text-sm">
+          <div classname="code-line">
+           <span classname="code-comment"># Create two datasets</span>
+          </div>
+          <div classname="code-line">
+           normal_data = df[(df[<span classname="code-string">'value'</span>] &gt;= lower) &amp;
+          </div>
+          <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+           (df[<span classname="code-string">'value'</span>] &lt;= upper)]
+          </div>
+          <div classname="code-line">
+           outlier_data = df[(df[<span classname="code-string">'value'</span>] &lt; lower) |
+          </div>
+          <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+           (df[<span classname="code-string">'value'</span>] &gt; upper)]
+          </div>
+         </div>
+         <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+          <p classname="text-amber-400 font-semibold mb-1">✅ Pros:</p>
+          <p classname="text-slate-400 text-xs">Keep all data, understand outliers separately</p>
+          <p classname="text-red-400 font-semibold mb-1 mt-2">❌ Cons:</p>
+          <p classname="text-slate-400 text-xs">Complex analysis with two datasets</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section><!-- Topic 3: Normalization and Transformation -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 3: Normalization and Transformation</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-amber-400 mb-4">🎯 What are Normalization and Transformation?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">These techniques <span class="font-semibold">rescale or reshape your data</span> to make it:</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <ul class="space-y-2">
+         <li>✅ On the same scale (comparing 1-100 vs 1000-100000)</li>
+         <li>✅ More suitable for algorithms</li>
+         <li>✅ Easier to interpret</li>
+        </ul>
+        <p classname="mt-3"><span classname="font-semibold">Real analogy:</span></p>
+        <p>🌍 Converting: 5 km vs 3000 meters → Both to meters: 5000m vs 3000m (now comparable!)</p>
+       </div>
+      </div><!-- Normalization -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">📏 Normalization (Scaling to 0-1)</h3>
+       <p class="text-slate-400 text-sm mb-4">Scale all values to a specific range, usually 0 to 1</p><!-- Min-Max Normalization -->
+       <div classname="bg-slate-800/30 rounded-lg p-4 mb-4 border-l-3 border-cyan-500">
+        <p classname="text-cyan-400 font-semibold text-sm mb-3">Min-Max Normalization (Most Common)</p>
+        <div classname="formula-box" style="{{fontSize:" 0.875rem}}>
+         Normalized = (Value - Min) ÷ (Max - Min)
+        </div>
+        <div classname="code-block text-sm">
+         <div classname="code-line">
+          <span classname="code-keyword">from</span> sklearn.preprocessing <span classname="code-keyword">import</span> MinMaxScaler
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          <span classname="code-comment"># Create scaler</span>
+         </div>
+         <div classname="code-line">
+          scaler = MinMaxScaler()
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          <span classname="code-comment"># Apply to data</span>
+         </div>
+         <div classname="code-line">
+          df_normalized = scaler.<span classname="code-method">fit_transform</span>(df[[<span classname="code-string">'Age'</span>]])
+         </div>
+        </div>
+        <p classname="text-slate-400 text-xs mt-3"><span classname="font-semibold">Example:</span></p>
+        <p classname="text-slate-400 text-xs">Ages: 20, 30, 40, 50 → Normalized: 0, 0.33, 0.67, 1.0</p>
+        <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+         <p classname="text-amber-400 font-semibold mb-1">✅ When to use:</p>
+         <p classname="text-slate-400 text-xs">When you know the data range (e.g., test scores 0-100)</p>
+        </div>
+       </div><!-- Z-Score Normalization -->
+       <div classname="bg-slate-800/30 rounded-lg p-4 border-l-3 border-emerald-500">
+        <p classname="text-emerald-400 font-semibold text-sm mb-3">Z-Score Normalization (Standardization)</p>
+        <div classname="formula-box" style="{{fontSize:" 0.875rem}}>
+         Z-Score = (Value - Mean) ÷ Standard Deviation
+        </div>
+        <div classname="code-block text-sm">
+         <div classname="code-line">
+          <span classname="code-keyword">from</span> sklearn.preprocessing <span classname="code-keyword">import</span> StandardScaler
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          scaler = StandardScaler()
+         </div>
+         <div classname="code-line">
+          df_standardized = scaler.<span classname="code-method">fit_transform</span>(df[[<span classname="code-string">'Age'</span>]])
+         </div>
+        </div>
+        <p classname="text-slate-400 text-xs mt-3"><span classname="font-semibold">Example:</span></p>
+        <p classname="text-slate-400 text-xs">Mean=35, StdDev=7: Age 35 → 0, Age 42 → 1.0, Age 28 → -1.0</p>
+        <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+         <p classname="text-amber-400 font-semibold mb-1">✅ When to use:</p>
+         <p classname="text-slate-400 text-xs">When data is normally distributed (like test scores)</p>
+        </div>
+       </div>
+      </div><!-- Data Transformation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🔄 Data Transformation</h3>
+       <p class="text-slate-400 text-sm mb-4">Change the shape or distribution of data to make it more suitable for analysis</p><!-- Log Transformation -->
+       <div classname="bg-slate-800/30 rounded-lg p-4 mb-4 border-l-3 border-amber-500">
+        <p classname="text-amber-400 font-semibold text-sm mb-3">📊 Log Transformation</p>
+        <p classname="text-slate-400 text-sm mb-3">Apply logarithm to compress large values, good for skewed data</p>
+        <div classname="code-block text-sm">
+         <div classname="code-line">
+          <span classname="code-keyword">import</span> numpy <span classname="code-keyword">as</span> np
+         </div>
+         <div classname="code-line">
+          import pandas <span classname="code-keyword">as</span> pd
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          <span classname="code-comment"># Log transformation</span>
+         </div>
+         <div classname="code-line">
+          df[<span classname="code-string">'income_log'</span>] = np.<span classname="code-method">log</span>(df[<span classname="code-string">'income'</span>])
+         </div>
+        </div>
+        <p classname="text-slate-400 text-xs mt-3"><span classname="font-semibold">Example:</span></p>
+        <p classname="text-slate-400 text-xs">Income: 1000, 10000, 100000 → Log: 3.0, 4.0, 5.0 (linear!)</p>
+        <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+         <p classname="text-amber-400 font-semibold mb-1">✅ Best for:</p>
+         <p classname="text-slate-400 text-xs">Exponential/skewed data (income, prices, web traffic)</p>
+        </div>
+       </div><!-- Power Transformations -->
+       <div classname="bg-slate-800/30 rounded-lg p-4 mb-4 border-l-3 border-emerald-500">
+        <p classname="text-emerald-400 font-semibold text-sm mb-3">⚡ Power Transformations</p>
+        <p classname="text-slate-400 text-sm mb-3">Square root, cube root, or other power functions</p>
+        <div classname="code-block text-sm">
+         <div classname="code-line">
+          <span classname="code-comment"># Square root</span>
+         </div>
+         <div classname="code-line">
+          df[<span classname="code-string">'age_sqrt'</span>] = np.<span classname="code-method">sqrt</span>(df[<span classname="code-string">'age'</span>])
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          <span classname="code-comment"># Cube root</span>
+         </div>
+         <div classname="code-line">
+          df[<span classname="code-string">'age_cbrt'</span>] = np.<span classname="code-method">cbrt</span>(df[<span classname="code-string">'age'</span>])
+         </div>
+        </div>
+        <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+         <p classname="text-amber-400 font-semibold mb-1">✅ Best for:</p>
+         <p classname="text-slate-400 text-xs">Moderately skewed data (less extreme than log)</p>
+        </div>
+       </div><!-- Box-Cox Transformation -->
+       <div classname="bg-slate-800/30 rounded-lg p-4 border-l-3 border-purple-500">
+        <p classname="text-purple-400 font-semibold text-sm mb-3">🎁 Box-Cox Transformation</p>
+        <p classname="text-slate-400 text-sm mb-3">Automatic transformation that finds best power</p>
+        <div classname="code-block text-sm">
+         <div classname="code-line">
+          <span classname="code-keyword">from</span> scipy.stats <span classname="code-keyword">import</span> boxcox
+         </div>
+         <div classname="code-line mt-2></div>
+                <div className=" code-line>
+          <span classname="code-comment"># Automatic transformation</span>
+         </div>
+         <div classname="code-line">
+          transformed, lambda_param = boxcox(df[<span classname="code-string">'value'</span>])
+         </div>
+         <div classname="code-line">
+          df[<span classname="code-string">'value_transformed'</span>] = transformed
+         </div>
+        </div>
+        <div classname="bg-slate-800/50 rounded-lg p-3 mt-3 text-sm">
+         <p classname="text-amber-400 font-semibold mb-1">✅ Best for:</p>
+         <p classname="text-slate-400 text-xs">When you don't know which transformation to use</p>
+        </div>
+       </div>
+      </div><!-- Comparison Table -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">📊 Normalization vs Transformation</h3>
+       <div classname="overflow-x-auto">
+        <table classname="comparison-table">
+         <thead>
+          <tr>
+           <th>Aspect</th>
+           <th>Normalization</th>
+           <th>Transformation</th>
+          </tr>
+         </thead>
+         <tbody>
+          <tr>
+           <td classname="font-semibold">Purpose</td>
+           <td>Scale to 0-1 or mean=0</td>
+           <td>Change distribution shape</td>
+          </tr>
+          <tr>
+           <td classname="font-semibold">Output Range</td>
+           <td>0-1 or -3 to +3</td>
+           <td>Variable</td>
+          </tr>
+          <tr>
+           <td classname="font-semibold">Use Case</td>
+           <td>Same scale comparison</td>
+           <td>Fix skewed data</td>
+          </tr>
+          <tr>
+           <td classname="font-semibold">Examples</td>
+           <td>Min-Max, Z-Score</td>
+           <td>Log, Square Root</td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div>
+    </section><!-- Real-World Case Study -->
+    <section class="mb-12">
+     <div class="case-study border border-red-500/30 rounded-xl p-8">
+      <div class="flex items-center gap-3 mb-6"><span class="text-3xl">🏥</span>
+       <h3 class="text-2xl font-semibold" style="{{fontFamily:" space grotesk, sans-serif}}>Real Case: Hospital Patient Data Cleaning</h3>
+      </div>
+      <div class="space-y-6">
+       <div>
+        <h4 class="text-lg font-semibold text-emerald-400 mb-3">The Problem</h4>
+        <p class="text-slate-300 leading-relaxed">A hospital wants to analyze patient data but has many issues:</p>
+        <ul class="text-slate-300 text-sm space-y-2 mt-3">
+         <li>🚫 Missing ages and weights</li>
+         <li>⚠️ Some patients have age 150 (data entry errors)</li>
+         <li>📊 Blood pressure readings vary from 60 to 500 (different scales?)</li>
+         <li>🔴 Some hospital IDs are inconsistent</li>
+        </ul>
+       </div>
+       <div>
+        <h4 class="text-lg font-semibold text-cyan-400 mb-3">Cleaning Process</h4>
+        <div class="space-y-3">
+         <div class="bg-slate-800/30 rounded-lg p-4">
+          <p class="text-emerald-400 font-semibold text-sm mb-2">Step 1: Handle Missing Values</p>
+          <div class="code-block text-xs">
+           <div class="code-line">
+            <span class="code-comment"># Fill missing age with mean</span>
+           </div>
+           <div class="code-line">
+            df[<span class="code-string">'age'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'age'</span>].<span class="code-method">mean</span>())
+           </div>
+           <div class="code-line mt-1"></div>
+           <div class="code-line">
+            <span class="code-comment"># Fill missing weight with median</span>
+           </div>
+           <div class="code-line">
+            df[<span class="code-string">'weight'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'weight'</span>].<span class="code-method">median</span>())
+           </div>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-4">
+          <p class="text-emerald-400 font-semibold text-sm mb-2">Step 2: Remove Outliers</p>
+          <div class="code-block text-xs">
+           <div class="code-line">
+            <span class="code-comment"># Remove age &gt; 120 (unrealistic)</span>
+           </div>
+           <div class="code-line">
+            df = df[df[<span class="code-string">'age'</span>] &lt;= <span class="code-number">120</span>]
+           </div>
+           <div class="code-line mt-1></div>
+                    <div class=" code-line>
+            <span class="code-comment"># Remove BP outliers using IQR</span>
+           </div>
+           <div class="code-line">
+            Q3 = df[<span class="code-string">'BP'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.75</span>)
+           </div>
+           <div class="code-line">
+            df = df[df[<span class="code-string">'BP'</span>] &lt;= Q3 + <span class="code-number">1.5</span> * IQR]
+           </div>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-4">
+          <p class="text-emerald-400 font-semibold text-sm mb-2">Step 3: Normalize Numeric Data</p>
+          <div class="code-block text-xs">
+           <div class="code-line">
+            <span class="code-keyword">from</span> sklearn.preprocessing <span class="code-keyword">import</span> MinMaxScaler
+           </div>
+           <div class="code-line mt-1></div>
+                    <div class=" code-line>
+            scaler = MinMaxScaler()
+           </div>
+           <div class="code-line">
+            numeric_cols = [<span class="code-string">'age'</span>, <span class="code-string">'weight'</span>, <span class="code-string">'BP'</span>]
+           </div>
+           <div class="code-line">
+            df[numeric_cols] = scaler.<span class="code-method">fit_transform</span>(df[numeric_cols])
+           </div>
+          </div>
+         </div>
+         <div class="bg-slate-800/30 rounded-lg p-4">
+          <p class="text-emerald-400 font-semibold text-sm mb-2">Step 4: Fix Data Types</p>
+          <div class="code-block text-xs">
+           <div class="code-line">
+            <span class="code-comment"># Ensure age is integer</span>
+           </div>
+           <div class="code-line">
+            df[<span class="code-string">'age'</span>] = df[<span class="code-string">'age'</span>].<span class="code-method">astype</span>(<span class="code-string">'int'</span>)
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div classname="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+        <p classname="text-emerald-400 font-semibold mb-2">✅ Result:</p>
+        <ul classname="text-slate-300 text-sm space-y-2">
+         <li>• All missing values filled appropriately</li>
+         <li>• Impossible values removed (age &gt; 120)</li>
+         <li>• All numeric data on 0-1 scale (comparable)</li>
+         <li>• Data ready for analysis or modeling!</li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </section><!-- Complete Preprocessing Pipeline -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="{{fontFamily:" space grotesk, sans-serif}}>Complete Data Cleaning Pipeline</h2>
+     <div class="pipeline-steps">
+      <ol class="step-list">
+       <li><span class="font-semibold">Load Data</span> - Import CSV, check shape and types</li>
+       <li><span class="font-semibold">Check for Issues</span> - Missing values, duplicates, data types</li>
+       <li><span class="font-semibold">Handle Missing Data</span> - Delete or fill missing values</li>
+       <li><span class="font-semibold">Fix Data Types</span> - Convert to correct types (int, float, string)</li>
+       <li><span class="font-semibold">Remove Duplicates</span> - Delete duplicate rows</li>
+       <li><span class="font-semibold">Handle Outliers</span> - Remove, cap, or transform extreme values</li>
+       <li><span class="font-semibold">Normalize/Transform</span> - Scale data to proper ranges</li>
+       <li><span class="font-semibold">Verify Quality</span> - Check descriptive stats, distributions</li>
+       <li><span class="font-semibold">Save Clean Data</span> - Export for analysis</li>
+      </ol>
+     </div>
+    </section><!-- Hands-On Activities -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="{{fontFamily:" space grotesk, sans-serif}} id="activity-title">Hands-On Data Cleaning Exercises</h2>
+     <div class="space-y-6"><!-- Activity 1 -->
+      <div class="activity-box border border-purple-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number">1</span>
+        <div>
+         <h4 class="text-lg font-semibold text-purple-300">Activity 1: Handle Missing Values</h4>
+         <p class="text-slate-400 text-sm">Practice filling missing data using different methods</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Create dataset with missing values</li>
+         <li>2. Detect which columns have missing data</li>
+         <li>3. Fill missing ages with mean</li>
+         <li>4. Fill missing categories with mode</li>
+         <li>5. Remove rows where salary is missing</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Create messy data</span>
+        </div>
+        <div class="code-line">
+         data = {
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Employee': [<span class="code-string">'Alice'</span>, <span class="code-string">'Bob'</span>, <span class="code-string">'Charlie'</span>, <span class="code-string">'Diana'</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Age': [<span class="code-number">25</span>, np.nan, <span class="code-number">35</span>, <span class="code-number">28</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Department': [<span class="code-string">'IT'</span>, <span class="code-string">'IT'</span>, np.nan, <span class="code-string">'IT'</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Salary': [<span class="code-number">50000</span>, np.nan, <span class="code-number">65000</span>, <span class="code-number">55000</span>]
+        </div>
+        <div class="code-line">
+         }
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame(data)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 1: Check missing values</span>
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">isnull</span>().<span class="code-method">sum</span>())
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 2: Fill age with mean</span>
+        </div>
+        <div class="code-line">
+         df[<span class="code-string">'Age'</span>] = df[<span class="code-string">'Age'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'Age'</span>].<span class="code-method">mean</span>())
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 3: Fill department with mode</span>
+        </div>
+        <div class="code-line">
+         df[<span class="code-string">'Department'</span>] = df[<span class="code-string">'Department'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'Department'</span>].<span class="code-method">mode</span>()[<span class="code-number">0</span>])
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 4: Remove salary missing</span>
+        </div>
+        <div class="code-line">
+         df_clean = df.<span class="code-method">dropna</span>(subset=[<span class="code-string">'Salary'</span>])
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(df_clean)
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Expected Result:</p>
+        <p class="text-slate-300 text-xs mt-2">All missing values handled. Age column filled with mean (29), Department with 'IT', and salary row removed.</p>
+       </div>
+      </div><!-- Activity 2 -->
+      <div class="activity-box border border-blue-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #ef4444, #3b82f6)}}>2</span>
+        <div>
+         <h4 class="text-lg font-semibold text-blue-300">Activity 2: Detect and Remove Outliers</h4>
+         <p class="text-slate-400 text-sm">Find and handle extreme values</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Create dataset with outliers</li>
+         <li>2. Calculate Q1, Q3, IQR</li>
+         <li>3. Identify outliers using IQR method</li>
+         <li>4. Remove outliers</li>
+         <li>5. Compare before/after statistics</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Product prices (mostly 50-200, one extreme)</span>
+        </div>
+        <div class="code-line">
+         prices = [<span class="code-number">45</span>, <span class="code-number">50</span>, <span class="code-number">55</span>, <span class="code-number">60</span>, <span class="code-number">65</span>, <span class="code-number">70</span>, <span class="code-number">500</span>] <span class="code-comment"># 500 is outlier!</span>
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame({'Price': prices})
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># IQR Method</span>
+        </div>
+        <div class="code-line">
+         Q1 = df[<span class="code-string">'Price'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.25</span>)
+        </div>
+        <div class="code-line">
+         Q3 = df[<span class="code-string">'Price'</span>].<span class="code-method">quantile</span>(<span class="code-number">0.75</span>)
+        </div>
+        <div class="code-line">
+         IQR = Q3 - Q1
+        </div>
+        <div class="code-line">
+         lower = Q1 - <span class="code-number">1.5</span> * IQR
+        </div>
+        <div class="code-line">
+         upper = Q3 + <span class="code-number">1.5</span> * IQR
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(f<span class="code-string">"Lower bound: {lower}, Upper bound: {upper}"</span>)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Find outliers</span>
+        </div>
+        <div class="code-line">
+         outliers = df[(df[<span class="code-string">'Price'</span>] &lt; lower) | (df[<span class="code-string">'Price'</span>] &gt; upper)]
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-string">"Outliers:"</span>, outliers)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Remove outliers</span>
+        </div>
+        <div class="code-line">
+         df_clean = df[(df[<span class="code-string">'Price'</span>] &gt;= lower) &amp; (df[<span class="code-string">'Price'</span>] &lt;= upper)]
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(<span class="code-string">"Before:"</span>, df.<span class="code-method">describe</span>())
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-string">"After:"</span>, df_clean.<span class="code-method">describe</span>())
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Expected Result:</p>
+        <p class="text-slate-300 text-xs mt-2">Outlier 500 detected and removed. Mean changes from ~127 to ~62. Data is now consistent!</p>
+       </div>
+      </div><!-- Activity 3 -->
+      <div class="activity-box border border-emerald-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #ef4444, #10b981)}}>3</span>
+        <div>
+         <h4 class="text-lg font-semibold text-emerald-300">Activity 3: Normalize Data</h4>
+         <p class="text-slate-400 text-sm">Scale data to 0-1 range</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Create dataset with different scales (Age 20-60, Salary 30000-100000)</li>
+         <li>2. Apply Min-Max normalization</li>
+         <li>3. Verify all values are 0-1</li>
+         <li>4. Compare before/after</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">from</span> sklearn.preprocessing <span class="code-keyword">import</span> MinMaxScaler
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Data with different scales</span>
+        </div>
+        <div class="code-line">
+         data = {
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Age': [<span class="code-number">25</span>, <span class="code-number">35</span>, <span class="code-number">45</span>, <span class="code-number">55</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Salary': [<span class="code-number">40000</span>, <span class="code-number">60000</span>, <span class="code-number">80000</span>, <span class="code-number">100000</span>]
+        </div>
+        <div class="code-line">
+         }
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame(data)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(<span class="code-string">"BEFORE NORMALIZATION:"</span>)
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">describe</span>())
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Apply normalization</span>
+        </div>
+        <div class="code-line">
+         scaler = MinMaxScaler()
+        </div>
+        <div class="code-line">
+         df_normalized = pd.DataFrame(
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         scaler.<span class="code-method">fit_transform</span>(df),
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         columns=df.columns
+        </div>
+        <div class="code-line">
+         )
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(<span class="code-string">"AFTER NORMALIZATION:"</span>)
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df_normalized.<span class="code-method">describe</span>())
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Expected Result:</p>
+        <p class="text-slate-300 text-xs mt-2">All values now between 0 and 1. Age (20-60) and Salary (30k-100k) now on same scale!</p>
+       </div>
+      </div><!-- Activity 4 -->
+      <div class="activity-box border border-cyan-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #ef4444, #06b6d4)}}>4</span>
+        <div>
+         <h4 class="text-lg font-semibold text-cyan-300">Activity 4: Complete Data Cleaning Pipeline</h4>
+         <p class="text-slate-400 text-sm">Apply all techniques to messy data</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol class="text-slate-400 text-sm space-y-2">
+         <li>1. Create realistic messy dataset</li>
+         <li>2. Handle missing values</li>
+         <li>3. Remove outliers</li>
+         <li>4. Normalize numeric columns</li>
+         <li>5. Show before/after quality metrics</li>
+        </ol>
+       </div>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">import</span> pandas <span class="code-keyword">as</span> pd
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+        </div>
+        <div class="code-line">
+         <span class="code-keyword">from</span> sklearn.preprocessing <span class="code-keyword">import</span> MinMaxScaler
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Messy e-commerce data</span>
+        </div>
+        <div class="code-line">
+         data = {
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Customer': [<span class="code-string">'A'</span>, <span class="code-string">'B'</span>, <span class="code-string">'C'</span>, <span class="code-string">'D'</span>, <span class="code-string">'E'</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Age': [<span class="code-number">25</span>, np.nan, <span class="code-number">35</span>, <span class="code-number">150</span>, <span class="code-number">40</span>],
+        </div>
+        <div class="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Purchase': [<span class="code-number">50</span>, <span class="code-number">100</span>, <span class="code-number">75</span>, <span class="code-number">9999</span>, np.nan]
+        </div>
+        <div class="code-line">
+         }
+        </div>
+        <div class="code-line">
+         df = pd.DataFrame(data)
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># BEFORE metrics</span>
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-string">"BEFORE CLEANING:"</span>)
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-string">"Missing:"</span>, df.<span class="code-method">isnull</span>().<span class="code-method">sum</span>())
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">describe</span>())
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 1: Handle missing</span>
+        </div>
+        <div class="code-line">
+         df[<span class="code-string">'Age'</span>] = df[<span class="code-string">'Age'</span>].<span class="code-method">fillna</span>(df[<span class="code-string">'Age'</span>].<span class="code-method">mean</span>())
+        </div>
+        <div class="code-line">
+         df = df.<span class="code-method">dropna</span>(subset=[<span class="code-string">'Purchase'</span>])
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 2: Remove outliers (Age &gt; 100)</span>
+        </div>
+        <div class="code-line">
+         df = df[df[<span class="code-string">'Age'</span>] &lt;= <span class="code-number">100</span>]
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-comment"># Step 3: Normalize</span>
+        </div>
+        <div class="code-line">
+         scaler = MinMaxScaler()
+        </div>
+        <div class="code-line">
+         df[[<span class="code-string">'Age'</span>, <span class="code-string">'Purchase'</span>]] = scaler.<span class="code-method">fit_transform</span>(df[[<span class="code-string">'Age'</span>, <span class="code-string">'Purchase'</span>]])
+        </div>
+        <div class="code-line mt-2></div>
+              <div class=" code-line>
+         <span class="code-function">print</span>(<span class="code-string">"AFTER CLEANING:"</span>)
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-string">"Missing:"</span>, df.<span class="code-method">isnull</span>().<span class="code-method">sum</span>())
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(df.<span class="code-method">describe</span>())
+        </div>
+       </div>
+       <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p class="text-green-400 text-sm font-semibold">✓ Summary:</p>
+        <ul class="text-slate-300 text-xs space-y-1 mt-2">
+         <li>✓ 2 missing values handled</li>
+         <li>✓ 2 rows removed (age 150, purchase 9999)</li>
+         <li>✓ All numeric data normalized 0-1</li>
+         <li>✓ Data quality improved!</li>
+        </ul>
+       </div>
+      </div><!-- Challenge Activity -->
+      <div class="activity-box border border-pink-500/30 rounded-xl p-6">
+       <div class="flex items-start gap-3 mb-4"><span class="step-number" style="{{background:" linear-gradient(135deg, #ef4444, #ec4899)}}>⭐</span>
+        <div>
+         <h4 class="text-lg font-semibold text-pink-300">Challenge: Data Cleaning Project</h4>
+         <p class="text-slate-400 text-sm">Clean and prepare a real-world dataset</p>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p class="text-slate-300 font-semibold text-sm mb-3">📋 Challenge:</p>
+        <p class="text-slate-400 text-sm mb-3">Choose ONE dataset to clean:</p>
+        <ul class="text-slate-400 text-sm space-y-2">
+         <li>📊 Sales dataset (1000+ rows with missing/outlier issues)</li>
+         <li>👥 Customer demographic data</li>
+         <li>🏥 Health/medical dataset</li>
+         <li>📱 E-commerce transaction data</li>
+        </ul>
+        <p class="text-slate-400 text-sm mt-4">Your cleaned dataset should include:</p>
+        <ol class="text-slate-400 text-sm space-y-1">
+         <li>1. Missing value analysis and handling report</li>
+         <li>2. Outlier detection and removal justification</li>
+         <li>3. Normalized numeric columns (0-1 scale)</li>
+         <li>4. Data quality metrics (before/after)</li>
+         <li>5. Summary of cleaning steps applied</li>
+        </ol>
+       </div>
+       <div class="bg-slate-800/50 rounded-lg p-4">
+        <p class="text-pink-400 text-sm font-semibold mb-2">💡 Checklist:</p>
+        <ul class="text-slate-400 text-xs space-y-1">
+         <li>☐ Identified all missing values</li>
+         <li>☐ Chose appropriate handling strategy</li>
+         <li>☐ Detected outliers with IQR method</li>
+         <li>☐ Documented outlier removal decisions</li>
+         <li>☐ Applied Min-Max normalization</li>
+         <li>☐ Validated data quality (no NaN, reasonable ranges)</li>
+         <li>☐ Created before/after comparison</li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </section><!-- Key Takeaways -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-6" style="{{fontFamily:" space grotesk, sans-serif}}>Key Takeaways</h2>
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-lg p-6">
+       <p class="text-red-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> Missing Values</p>
+       <p class="text-slate-300 text-sm">Delete, fill with mean/median/mode, or use interpolation - choose based on percentage and data type</p>
+      </div>
+      <div class="bg-gradient-to-br from-amber-500/10 to-yellow-500/10 border border-amber-500/20 rounded-lg p-6">
+       <p class="text-amber-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> Outliers</p>
+       <p class="text-slate-300 text-sm">Detect with IQR or Z-score, then remove, cap, transform, or analyze separately</p>
+      </div>
+      <div class="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-lg p-6">
+       <p class="text-cyan-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> Normalization</p>
+       <p class="text-slate-300 text-sm">Scale data to 0-1 range using Min-Max or standardize with Z-score for comparison</p>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-lg p-6">
+       <p class="text-emerald-400 font-semibold mb-2 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+        </svg> Transformation</p>
+       <p class="text-slate-300 text-sm">Use log, sqrt, or Box-Cox to fix skewed distributions and handle extreme values</p>
+      </div>
+     </div>
+    </section><!-- Next Steps -->
+    <section class="mb-12 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+     <h3 class="text-lg font-semibold text-emerald-400 mb-4">🚀 Next Steps</h3>
+     <ol class="text-slate-300 text-sm space-y-3">
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">1.</span> <span>Complete all 4 hands-on activities with real datasets</span></li>
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">2.</span> <span>Submit your data cleaning project report</span></li>
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">3.</span> <span>Practice with Kaggle datasets to develop skills</span></li>
+      <li class="flex gap-3"><span class="font-bold text-emerald-400">4.</span> <span>In Week 6, we'll learn feature engineering and selection</span></li>
+     </ol>
+    </section><!-- Footer -->
+    <footer class="border-t border-slate-800 pt-8 pb-8">
+     <p class="text-slate-400 text-sm" id="footer-text">Copyright 2026 - BSIS Lyceum de San Pablo</p>
+    </footer>
+   </div>
+  </main>
+  <script>
+    const defaultConfig = {
+      course_code: 'ADV08',
+      instructor_name: 'MKDB',
+      week_title: 'Week 5 – Data Cleaning and Preprocessing',
+      ilo_1: 'Handle missing values and outliers in datasets.',
+      ilo_2: 'Apply data normalization and transformation techniques.',
+      ilo_3: 'Prepare datasets for data mining tasks.',
+      activity_title: 'Hands-On Data Cleaning Exercises',
+      footer_text: 'Copyright 2026 - BSIS Lyceum de San Pablo'
+    };
+    
+    let config = { ...defaultConfig };
+    
+    async function onConfigChange(cfg) {
+      config = { ...defaultConfig, ...cfg };
+      document.getElementById('course-code').textContent = config.course_code;
+      document.getElementById('instructor-name').textContent = config.instructor_name;
+      document.getElementById('week-title').innerHTML = `<span class="bg-gradient-to-r from-red-400 via-cyan-400 to-red-400 bg-clip-text text-transparent">${config.week_title}</span>`;
+      document.getElementById('ilo-1').textContent = config.ilo_1;
+      document.getElementById('ilo-2').textContent = config.ilo_2;
+      document.getElementById('ilo-3').textContent = config.ilo_3;
+      document.getElementById('activity-title').textContent = config.activity_title;
+      document.getElementById('footer-text').textContent = config.footer_text;
+    }
+    
+    function mapToCapabilities(cfg) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+    
+    function mapToEditPanelValues(cfg) {
+      return new Map([
+        ['course_code', cfg.course_code || defaultConfig.course_code],
+        ['instructor_name', cfg.instructor_name || defaultConfig.instructor_name],
+        ['week_title', cfg.week_title || defaultConfig.week_title],
+        ['ilo_1', cfg.ilo_1 || defaultConfig.ilo_1],
+        ['ilo_2', cfg.ilo_2 || defaultConfig.ilo_2],
+        ['ilo_3', cfg.ilo_3 || defaultConfig.ilo_3],
+        ['activity_title', cfg.activity_title || defaultConfig.activity_title],
+        ['footer_text', cfg.footer_text || defaultConfig.footer_text]
+      ]);
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c55206b63b28362',t:'MTc2OTY1MTkyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 3 - Python Basics for Data Mining</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    html, body, main {
+      height: 100%;
+    }
+    
+    main {
+      overflow-auto;
+    }
+    
+    .gradient-line {
+      background: linear-gradient(90deg, #00d4ff, #fbbf24, #00d4ff);
+      background-size: 200% 100%;
+      animation: gradient-shift 3s ease infinite;
+    }
+    
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+    }
+    
+    .code-block {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      overflow-x: auto;
+    }
+    
+    .code-line {
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+    
+    .code-keyword {
+      color: #f472b6;
+    }
+    
+    .code-string {
+      color: #86efac;
+    }
+    
+    .code-number {
+      color: #fbbf24;
+    }
+    
+    .code-comment {
+      color: #64748b;
+    }
+    
+    .code-function {
+      color: #60a5fa;
+    }
+    
+    .ilo-item {
+      border-left: 3px solid #00d4ff;
+      padding-left: 1.25rem;
+    }
+    
+    .concept-card {
+      transition: all 0.3s ease;
+    }
+    
+    .concept-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 212, 255, 0.15);
+    }
+    
+    .info-box {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(251, 191, 36, 0.05) 100%);
+    }
+    
+    .example-box {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+    }
+    
+    .output-display {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: #22c55e;
+      margin-top: 0.5rem;
+    }
+
+    .activity-box {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00d4ff, #fbbf24);
+      color: #020617;
+      font-weight: bold;
+      font-family: 'Space Grotesk', sans-serif;
+      flex-shrink: 0;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th, .comparison-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .comparison-table th {
+      background: #1e293b;
+      color: #00d4ff;
+      font-weight: 600;
+    }
+
+    .code-snippet {
+      background: #0f172a;
+      border-left: 3px solid #00d4ff;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      margin: 0.5rem 0;
+    }
+
+    .success-badge {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-950 text-slate-200">
+  <main class="h-full overflow-auto">
+   <div class="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12"><!-- Header Section -->
+    <header class="mb-12">
+     <p class="font-mono text-yellow-400 text-sm mb-2" id="course-code">ADV08</p>
+     <h1 class="text-4xl md:text-5xl font-bold mb-2" style="font-family: 'Space Grotesk', sans-serif;"><span class="bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent" id="week-title">Week 3 – Python Basics for Data Mining</span></h1>
+     <p class="text-slate-400 flex items-center gap-2">
+      <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg><span>Instructor: </span> <span class="text-slate-200 font-medium" id="instructor-name">MKDB</span></p>
+     <div class="h-1 bg-gradient-line rounded-full mt-4"></div>
+    </header><!-- ILO Section -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-6" style="font-family: 'Space Grotesk', sans-serif;">Intended Learning Outcomes (ILO)</h2>
+     <div class="space-y-4 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+      <div class="ilo-item py-3" id="ilo-1">
+       <p class="text-slate-300 font-medium">Use basic Python syntax for data analysis tasks.</p>
+      </div>
+      <div class="ilo-item py-3" id="ilo-2">
+       <p class="text-slate-300 font-medium">Apply variables, data types, loops, and functions in Python.</p>
+      </div>
+     </div>
+    </section><!-- Topic 1: Python Essentials -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 1: Python Essentials</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-yellow-400 mb-4">🎯 What is Python?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">Python is a programming language that's easy to learn and read. Think of it like English—simple rules, clear structure. For data mining, Python is the #1 choice because it has powerful libraries for working with data.</p>
+       <p class="text-slate-300 mb-4 leading-relaxed"><span class="font-semibold text-emerald-400">Why Python for Data Mining?</span></p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300 space-y-2">
+        <p>✅ <span class="font-semibold">Easy to Learn:</span> Simple syntax similar to English</p>
+        <p>✅ <span class="font-semibold">Great Libraries:</span> NumPy, Pandas, Scikit-learn</p>
+        <p>✅ <span class="font-semibold">Industry Standard:</span> Used by 90% of data scientists</p>
+        <p>✅ <span class="font-semibold">Free &amp; Open Source:</span> No licensing costs</p>
+       </div>
+      </div><!-- Your First Python Code -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">📝 Your First Python Code</h3>
+       <p class="text-slate-400 text-sm mb-4">The simplest Python program:</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-string">"Hello, Data Mining!"</span>)
+        </div>
+       </div>
+       <div class="output-display">
+        Hello, Data Mining!
+       </div>
+       <p class="text-slate-400 text-sm mt-4">That's it! <span class="code-keyword">print()</span> displays text on the screen.</p>
+      </div><!-- Why Learn Python? -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+       <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 concept-card">
+        <div class="text-3xl mb-3">
+         🚀
+        </div>
+        <h4 class="text-lg font-semibold text-yellow-400 mb-3">Fast Development</h4>
+        <p class="text-slate-400 text-sm leading-relaxed">Write less code to do more. Python is concise—what takes 10 lines in Java takes 3 in Python.</p>
+       </div>
+       <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 concept-card">
+        <div class="text-3xl mb-3">
+         📚
+        </div>
+        <h4 class="text-lg font-semibold text-yellow-400 mb-3">Huge Ecosystem</h4>
+        <p class="text-slate-400 text-sm leading-relaxed">Libraries for everything: data science, machine learning, web development, automation.</p>
+       </div>
+       <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 concept-card">
+        <div class="text-3xl mb-3">
+         🤝
+        </div>
+        <h4 class="text-lg font-semibold text-yellow-400 mb-3">Active Community</h4>
+        <p class="text-slate-400 text-sm leading-relaxed">Millions of developers worldwide. Tutorials, forums, and help everywhere.</p>
+       </div>
+       <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 concept-card">
+        <div class="text-3xl mb-3">
+         💼
+        </div>
+        <h4 class="text-lg font-semibold text-yellow-400 mb-3">Job Market</h4>
+        <p class="text-slate-400 text-sm leading-relaxed">Most data science jobs require Python. Learning it increases your career prospects.</p>
+       </div>
+      </div>
+     </div>
+    </section><!-- Topic 2: Variables & Data Types -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 2: Variables &amp; Data Types</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-yellow-400 mb-4">🎯 What are Variables?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">A <span class="font-semibold">variable</span> is like a container that holds information. Just like a box can hold toys, a variable holds data.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <p class="mb-3"><span class="font-semibold">Think of it this way:</span></p>
+        <p>📦 Box Name: <span class="font-mono text-emerald-400">age</span></p>
+        <p>📦 Box Contents: <span class="font-mono text-emerald-400">25</span></p>
+        <p classname="mt-2">The box is the <span class="font-semibold">variable</span>, and what's inside is the <span class="font-semibold">value</span></p>
+       </div>
+      </div><!-- Variable Declaration -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-emerald-400 mb-4">📝 Creating Variables</h3>
+       <div class="space-y-4">
+        <div>
+         <p class="text-slate-400 text-sm mb-2">Simple variable assignment:</p>
+         <div class="code-block">
+          <div class="code-line">
+           name = <span class="code-string">"Alice"</span>
+          </div>
+          <div class="code-line">
+           age = 25
+          </div>
+          <div class="code-line">
+           gpa = 3.8
+          </div>
+         </div>
+        </div>
+        <div>
+         <p class="text-slate-400 text-sm mb-2">Using variables:</p>
+         <div class="code-block">
+          <div class="code-line">
+           <span class="code-function">print</span>(<span class="code-string">"Name:"</span>, name)
+          </div>
+          <div class="code-line">
+           <span class="code-function">print</span>(<span class="code-string">"Age:"</span>, age)
+          </div>
+         </div>
+         <div class="output-display">
+          Name: Alice<br>
+           Age: 25
+         </div>
+        </div>
+       </div>
+      </div><!-- Data Types -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🏷️ Data Types in Python</h3>
+       <p class="text-slate-400 text-sm mb-6">Different types of information need different containers:</p>
+       <div class="space-y-4"><!-- String -->
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-emerald-500">
+         <div class="flex items-center gap-2 mb-2"><span class="text-emerald-400 font-semibold">📝 String (str)</span> <span class="success-badge">Text</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Text data enclosed in quotes</p>
+         <div class="code-block">
+          <div class="code-line">
+           city = <span class="code-string">"Manila"</span>
+          </div>
+          <div class="code-line">
+           message = <span class="code-string">"Data is everywhere"</span>
+          </div>
+         </div>
+        </div><!-- Integer -->
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-blue-500">
+         <div class="flex items-center gap-2 mb-2"><span class="text-blue-400 font-semibold">🔢 Integer (int)</span> <span class="success-badge">Whole Numbers</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Whole numbers without decimals</p>
+         <div class="code-block">
+          <div class="code-line">
+           count = <span class="code-number">100</span>
+          </div>
+          <div class="code-line">
+           year = <span class="code-number">2024</span>
+          </div>
+         </div>
+        </div><!-- Float -->
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-yellow-500">
+         <div class="flex items-center gap-2 mb-2"><span class="text-yellow-400 font-semibold">📊 Float (float)</span> <span class="success-badge">Decimal Numbers</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Numbers with decimals</p>
+         <div class="code-block">
+          <div class="code-line">
+           price = <span class="code-number">19.99</span>
+          </div>
+          <div class="code-line">
+           percentage = <span class="code-number">85.5</span>
+          </div>
+         </div>
+        </div><!-- Boolean -->
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-purple-500">
+         <div class="flex items-center gap-2 mb-2"><span class="text-purple-400 font-semibold">✓ Boolean (bool)</span> <span class="success-badge">True/False</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Only two values: True or False</p>
+         <div class="code-block">
+          <div class="code-line">
+           is_student = <span class="code-keyword">True</span>
+          </div>
+          <div class="code-line">
+           is_graduated = <span class="code-keyword">False</span>
+          </div>
+         </div>
+        </div><!-- List -->
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-pink-500">
+         <div class="flex items-center gap-2 mb-2"><span class="text-pink-400 font-semibold">📋 List (list)</span> <span class="success-badge">Collection</span>
+         </div>
+         <p class="text-slate-400 text-sm mb-3">Multiple values in one variable</p>
+         <div class="code-block">
+          <div class="code-line">
+           scores = [<span class="code-number">85</span>, <span class="code-number">90</span>, <span class="code-number">78</span>, <span class="code-number">92</span>]
+          </div>
+          <div class="code-line">
+           fruits = [<span class="code-string">"apple"</span>, <span class="code-string">"banana"</span>, <span class="code-string">"cherry"</span>]
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Type Checking -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🔍 Checking Data Types</h3>
+       <p class="text-slate-400 text-sm mb-4">Use <span class="font-mono text-emerald-400">type()</span> to check what type a variable is:</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-function">type</span>(<span class="code-string">"Hello"</span>))
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-function">type</span>(<span class="code-number">25</span>))
+        </div>
+        <div class="code-line">
+         <span class="code-function">print</span>(<span class="code-function">type</span>(<span class="code-number">3.14</span>))
+        </div>
+       </div>
+       <div class="output-display">
+        &lt;class 'str'&gt;<br>
+         &lt;class 'int'&gt;<br>
+         &lt;class 'float'&gt;
+       </div>
+      </div>
+     </div>
+    </section><!-- Topic 3: Loops -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 3: Loops</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-yellow-400 mb-4">🎯 What are Loops?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">A <span class="font-semibold">loop</span> repeats code multiple times. Imagine you need to print 100 numbers—would you write 100 print statements? No! You use a loop.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <p class="mb-3"><span class="font-semibold">Real-world example:</span></p>
+        <p>📋 Process all 1000 customer records (not manually)</p>
+        <p>📋 Calculate average of 500 test scores (not one by one)</p>
+        <p>📋 Read data from 50 files (not individually)</p>
+       </div>
+      </div><!-- For Loop -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-emerald-400 mb-4">🔄 For Loop: Repeat a Fixed Number of Times</h3>
+       <p class="text-slate-400 text-sm mb-4">Use a for loop when you know how many times to repeat:</p>
+       <div class="space-y-4">
+        <div>
+         <p class="text-slate-400 text-sm mb-2">Example: Print numbers 1 to 5</p>
+         <div class="code-block">
+          <div class="code-line">
+           <span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-function">range</span>(<span class="code-number">1</span>, <span class="code-number">6</span>):
+          </div>
+          <div class="code-line" style="margin-left: 1.5rem;">
+           <span class="code-function">print</span>(i)
+          </div>
+         </div>
+         <div class="output-display">
+          1<br>
+           2<br>
+           3<br>
+           4<br>
+           5
+         </div>
+        </div>
+        <div>
+         <p class="text-slate-400 text-sm mb-2">Example: Process a list of students</p>
+         <div class="code-block">
+          <div class="code-line">
+           students = [<span class="code-string">"Alice"</span>, <span class="code-string">"Bob"</span>, <span class="code-string">"Charlie"</span>]
+          </div>
+          <div class="code-line">
+           <span class="code-keyword">for</span> student <span class="code-keyword">in</span> students:
+          </div>
+          <div class="code-line" style="margin-left: 1.5rem;">
+           <span class="code-function">print</span>(<span class="code-string">"Processing:"</span>, student)
+          </div>
+         </div>
+         <div class="output-display">
+          Processing: Alice<br>
+           Processing: Bob<br>
+           Processing: Charlie
+         </div>
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mt-4">
+        <p class="text-blue-400 text-sm font-semibold mb-2">💡 How it works:</p>
+        <p class="text-slate-400 text-sm">The loop takes each item from the list and assigns it to the variable (student). Then the code inside the loop runs for each item.</p>
+       </div>
+      </div><!-- While Loop -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-blue-400 mb-4">⏰ While Loop: Repeat Until Something Changes</h3>
+       <p class="text-slate-400 text-sm mb-4">Use a while loop when you want to repeat until a condition changes:</p>
+       <div>
+        <p class="text-slate-400 text-sm mb-2">Example: Count down from 5 to 1</p>
+        <div class="code-block">
+         <div class="code-line">
+          count = <span class="code-number">5</span>
+         </div>
+         <div class="code-line">
+          <span class="code-keyword">while</span> count &gt; <span class="code-number">0</span>:
+         </div>
+         <div class="code-line" style="margin-left: 1.5rem;">
+          <span class="code-function">print</span>(count)
+         </div>
+         <div class="code-line" style="margin-left: 1.5rem;">
+          count = count - <span class="code-number">1</span>
+         </div>
+        </div>
+        <div class="output-display">
+         5<br>
+          4<br>
+          3<br>
+          2<br>
+          1
+        </div>
+       </div>
+       <div class="bg-slate-800/30 rounded-lg p-4 mt-4">
+        <p class="text-blue-400 text-sm font-semibold mb-2">⚠️ Important:</p>
+        <p class="text-slate-400 text-sm">Always make sure the condition will eventually become false, or your loop will run forever!</p>
+       </div>
+      </div><!-- Loop Comparison Table -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">For vs While Loop</h3>
+       <table class="comparison-table">
+        <thead>
+         <tr>
+          <th>Aspect</th>
+          <th>For Loop</th>
+          <th>While Loop</th>
+         </tr>
+        </thead>
+        <tbody>
+         <tr>
+          <td class="font-semibold text-slate-300">When to use</td>
+          <td class="text-slate-400">Known number of times</td>
+          <td class="text-slate-400">Unknown, until condition changes</td>
+         </tr>
+         <tr>
+          <td class="font-semibold text-slate-300">Example</td>
+          <td class="text-slate-400">Process 100 items in list</td>
+          <td class="text-slate-400">Keep asking until user says stop</td>
+         </tr>
+         <tr>
+          <td class="font-semibold text-slate-300">Data Mining Use</td>
+          <td class="text-slate-400">🌟 More Common</td>
+          <td class="text-slate-400">Less Common</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </section><!-- Topic 4: Functions -->
+    <section class="mb-12">
+     <h2 class="text-2xl font-semibold mb-8" style="font-family: 'Space Grotesk', sans-serif;">Topic 4: Functions</h2>
+     <div class="space-y-6"><!-- Easy Explanation -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 class="text-lg font-semibold text-yellow-400 mb-4">🎯 What are Functions?</h3>
+       <p class="text-slate-300 mb-4 leading-relaxed">A <span class="font-semibold">function</span> is reusable code. Instead of writing the same code over and over, write it once in a function and use it many times.</p>
+       <div class="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300">
+        <p class="mb-3"><span class="font-semibold">Real-world analogy:</span></p>
+        <p>🏠 Instead of describing how to make coffee every time someone visits, you just say "I'll make coffee" and use the same process.</p>
+        <p classname="mt-2">Functions are like recipes—define once, use many times.</p>
+       </div>
+      </div><!-- Creating Functions -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-emerald-400 mb-4">📝 Creating a Function</h3>
+       <p class="text-slate-400 text-sm mb-4">Simple function with no input:</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">def</span> <span class="code-function">greet</span>():
+        </div>
+        <div class="code-line" style="margin-left: 1.5rem;">
+         <span class="code-function">print</span>(<span class="code-string">"Hello, Data Miners!"</span>)
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-line">
+         <span class="code-comment"># Call the function</span>
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">greet</span>()
+        </div>
+       </div>
+       <div class="output-display">
+        Hello, Data Miners!
+       </div>
+       <p class="text-slate-400 text-sm mt-4 mb-4">Function with input (parameters):</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">def</span> <span class="code-function">add</span>(a, b):
+        </div>
+        <div class="code-line" style="margin-left: 1.5rem;">
+         <span class="code-keyword">return</span> a + b
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-line">
+         <span classname="code-comment"># Call the function</span>
+        </div>
+        <div classname="code-line">
+         result = <span classname="code-function">add</span>(<span classname="code-number">5</span>, <span classname="code-number">3</span>)
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(result)
+        </div>
+       </div>
+       <div class="output-display">
+        8
+       </div>
+      </div><!-- Function Components -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 class="text-lg font-semibold text-cyan-400 mb-4">🔧 Parts of a Function</h3>
+       <div class="code-block mb-6">
+        <div class="code-line">
+         <span class="code-keyword">def</span> <span class="code-function">calculate_average</span>(scores):
+        </div>
+        <div class="code-line" style="margin-left: 1.5rem;">
+         <span class="code-comment"># This is the function body</span>
+        </div>
+        <div class="code-line" style="margin-left: 1.5rem;">
+         total = <span class="code-function">sum</span>(scores)
+        </div>
+        <div class="code-line" style="margin-left: 1.5rem;">
+         count = <span classname="code-function">len</span>(scores)
+        </div>
+        <div class="code-line" style="margin-left: 1.5rem;">
+         average = total / count
+        </div>
+        <div classname="code-line" style="margin-left: 1.5rem;">
+         <span classname="code-keyword">return</span> average
+        </div>
+       </div>
+       <div class="space-y-3">
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-yellow-500">
+         <p class="text-yellow-400 font-semibold mb-1">def keyword</p>
+         <p class="text-slate-400 text-sm">Tells Python you're defining a function</p>
+        </div>
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-emerald-500">
+         <p class="text-emerald-400 font-semibold mb-1">Function name</p>
+         <p class="text-slate-400 text-sm">What you call it: <span class="font-mono">calculate_average</span></p>
+        </div>
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-blue-500">
+         <p class="text-blue-400 font-semibold mb-1">Parameters (input)</p>
+         <p class="text-slate-400 text-sm">Data the function receives: <span class="font-mono">scores</span></p>
+        </div>
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-purple-500">
+         <p class="text-purple-400 font-semibold mb-1">Function body</p>
+         <p class="text-slate-400 text-sm">Code that runs inside the function (indented)</p>
+        </div>
+        <div class="bg-slate-800/50 rounded-lg p-4 border-l-4 border-pink-500">
+         <p class="text-pink-400 font-semibold mb-1">Return (output)</p>
+         <p class="text-slate-400 text-sm">What the function gives back</p>
+        </div>
+       </div>
+      </div><!-- Practical Examples -->
+      <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 example-box">
+       <h3 class="text-lg font-semibold text-blue-400 mb-4">💡 Practical Data Mining Example</h3>
+       <p class="text-slate-400 text-sm mb-4">Function to normalize test scores (0-100):</p>
+       <div class="code-block">
+        <div class="code-line">
+         <span class="code-keyword">def</span> <span classname="code-function">normalize_score</span>(score, max_score):
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+         normalized = (score / max_score) * <span classname="code-number">100</span>
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+         <span classname="code-keyword">return</span> normalized
+        </div>
+        <div classname="code-line mt-3"></div>
+        <div classname="code-comment">
+         # Using the function
+        </div>
+        <div classname="code-line">
+         score1 = <span classname="code-function">normalize_score</span>(<span classname="code-number">45</span>, <span classname="code-number">50</span>)
+        </div>
+        <div classname="code-line">
+         score2 = <span classname="code-function">normalize_score</span>(<span classname="code-number">85</span>, <span classname="code-number">100</span>)
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-string">"Score 1:"</span>, score1)
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-string">"Score 2:"</span>, score2)
+        </div>
+       </div>
+       <div classname="output-display">
+        Score 1: 90.0<br>
+         Score 2: 85.0
+       </div>
+      </div>
+     </div>
+    </section><!-- Topic 5: NumPy and Pandas Introduction -->
+    <section class="mb-12">
+     <h2 classname="text-2xl font-semibold mb-8" style="{{fontFamily:" space grotesk, sans-serif}}>Topic 5: NumPy &amp; Pandas - The Data Mining Superpowers</h2>
+     <div classname="space-y-6"><!-- Easy Explanation -->
+      <div classname="bg-slate-900/40 border border-slate-800 rounded-xl p-6 info-box">
+       <h3 classname="text-lg font-semibold text-yellow-400 mb-4">🎯 What are NumPy and Pandas?</h3>
+       <p classname="text-slate-300 mb-4 leading-relaxed"><span classname="font-semibold">NumPy</span> and <span classname="font-semibold">Pandas</span> are Python libraries that make working with data super easy. They're the tools every data scientist uses.</p>
+       <div classname="bg-slate-800/50 rounded-lg p-4 text-sm text-slate-300 space-y-2">
+        <p>🔢 <span classname="font-semibold">NumPy:</span> Fast math operations on arrays</p>
+        <p>📊 <span classname="font-semibold">Pandas:</span> Work with tables (like Excel spreadsheets)</p>
+        <p>⚡ Both are lightning-fast compared to regular Python</p>
+       </div>
+      </div>
+      <div classname="grid grid-cols-1 md:grid-cols-2 gap-6"><!-- NumPy -->
+       <div classname="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <h4 classname="text-lg font-semibold text-emerald-400 mb-4">🔢 NumPy - Numerical Computing</h4>
+        <p classname="text-slate-400 text-sm mb-4">NumPy helps with mathematical calculations on large arrays:</p>
+        <div>
+         <p classname="text-slate-400 text-sm mb-2">Import and use NumPy:</p>
+         <div classname="code-block">
+          <div classname="code-line">
+           <span classname="code-keyword">import</span> numpy <span classname="code-keyword">as</span> np
+          </div>
+          <div classname="code-line mt-2"></div>
+          <div classname="code-comment">
+           # Create an array
+          </div>
+          <div classname="code-line">
+           scores = np.array([<span classname="code-number">85</span>, <span classname="code-number">90</span>, <span classname="code-number">78</span>, <span classname="code-number">92</span>])
+          </div>
+          <div classname="code-line mt-2"></div>
+          <div classname="code-comment">
+           # Calculate statistics
+          </div>
+          <div classname="code-line">
+           <span classname="code-function">print</span>(<span classname="code-string">"Mean:"</span>, np.mean(scores))
+          </div>
+          <div classname="code-line">
+           <span classname="code-function">print</span>(<span classname="code-string">"Max:"</span>, np.max(scores))
+          </div>
+          <div classname="code-line">
+           <span classname="code-function">print</span>(<span classname="code-string">"Min:"</span>, np.min(scores))
+          </div>
+         </div>
+         <div classname="output-display">
+          Mean: 86.25<br>
+           Max: 92<br>
+           Min: 78
+         </div>
+        </div>
+        <div classname="bg-slate-800/30 rounded-lg p-4 mt-4">
+         <p classname="text-emerald-400 text-sm font-semibold mb-2">✅ NumPy is great for:</p>
+         <ul classname="text-slate-400 text-sm space-y-1">
+          <li>• Mathematical calculations</li>
+          <li>• Working with numerical data</li>
+          <li>• Matrix operations</li>
+          <li>• Statistical functions</li>
+         </ul>
+        </div>
+       </div><!-- Pandas -->
+       <div classname="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+        <h4 classname="text-lg font-semibold text-blue-400 mb-4">📊 Pandas - Data Analysis</h4>
+        <p classname="text-slate-400 text-sm mb-4">Pandas works with DataFrames (tables with rows and columns):</p>
+        <div>
+         <p classname="text-slate-400 text-sm mb-2">Import and create a DataFrame:</p>
+         <div classname="code-block">
+          <div classname="code-line">
+           <span classname="code-keyword">import</span> pandas <span classname="code-keyword">as</span> pd
+          </div>
+          <div classname="code-line mt-2"></div>
+          <div classname="code-comment">
+           # Create a table
+          </div>
+          <div classname="code-line">
+           data = {'Name': [<span classname="code-string">'Alice'</span>, <span classname="code-string">'Bob'</span>],
+          </div>
+          <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+           'Score': [<span classname="code-number">85</span>, <span classname="code-number">90</span>]}
+          </div>
+          <div classname="code-line">
+           df = pd.DataFrame(data)
+          </div>
+          <div classname="code-line mt-2"></div>
+          <div classname="code-line">
+           <span classname="code-function">print</span>(df)
+          </div>
+         </div>
+         <div classname="output-display">
+          &nbsp;&nbsp;Name Score<br>
+           0 Alice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;85<br>
+           1&nbsp;&nbsp;Bob&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;90
+         </div>
+        </div>
+        <div classname="bg-slate-800/30 rounded-lg p-4 mt-4">
+         <p classname="text-blue-400 text-sm font-semibold mb-2">✅ Pandas is great for:</p>
+         <ul classname="text-slate-400 text-sm space-y-1">
+          <li>• Reading Excel files</li>
+          <li>• Cleaning data</li>
+          <li>• Organizing tables</li>
+          <li>• Data analysis &amp; filtering</li>
+         </ul>
+        </div>
+       </div>
+      </div><!-- NumPy vs Pandas -->
+      <div classname="bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+       <h3 classname="text-lg font-semibold text-cyan-400 mb-4">NumPy vs Pandas</h3>
+       <table classname="comparison-table">
+        <thead>
+         <tr>
+          <th>Feature</th>
+          <th>NumPy</th>
+          <th>Pandas</th>
+         </tr>
+        </thead>
+        <tbody>
+         <tr>
+          <td classname="font-semibold text-slate-300">Data Structure</td>
+          <td classname="text-slate-400">Arrays (1D, 2D, etc)</td>
+          <td classname="text-slate-400">DataFrames (tables)</td>
+         </tr>
+         <tr>
+          <td classname="font-semibold text-slate-300">Best For</td>
+          <td classname="text-slate-400">Math &amp; Statistics</td>
+          <td classname="text-slate-400">Data Manipulation</td>
+         </tr>
+         <tr>
+          <td classname="font-semibold text-slate-300">Speed</td>
+          <td classname="text-slate-400">⚡ Very Fast</td>
+          <td classname="text-slate-400">⚡ Very Fast</td>
+         </tr>
+         <tr>
+          <td classname="font-semibold text-slate-300">Data Mining Use</td>
+          <td classname="text-slate-400">Preprocessing</td>
+          <td classname="text-slate-400">🌟 More Common</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </section><!-- Real-World Case Study -->
+    <section classname="mb-12">
+     <div classname="case-study border border-yellow-500/30 rounded-xl p-8">
+      <div classname="flex items-center gap-3 mb-6"><span classname="text-3xl">📊</span>
+       <h3 classname="text-2xl font-semibold" style="{{fontFamily:" space grotesk, sans-serif}}>Real-World Case: Analyzing Student Grades with Python</h3>
+      </div>
+      <div classname="space-y-6">
+       <div>
+        <h4 classname="text-lg font-semibold text-emerald-400 mb-3">The Problem</h4>
+        <p classname="text-slate-300 leading-relaxed">A university has grades for 1,000 students across 50 courses. How do you find the top performers, average grades, and struggling students? Manually? That would take forever!</p>
+       </div>
+       <div>
+        <h4 classname="text-lg font-semibold text-cyan-400 mb-3">The Python Solution</h4>
+        <p classname="text-slate-400 text-sm mb-4">Using Pandas to analyze grades:</p>
+        <div classname="code-block">
+         <div classname="code-line">
+          <span classname="code-keyword">import</span> pandas <span classname="code-keyword">as</span> pd
+         </div>
+         <div classname="code-line mt-2"></div>
+         <div classname="code-comment">
+          # Load the data
+         </div>
+         <div classname="code-line">
+          grades = pd.read_csv(<span classname="code-string">'student_grades.csv'</span>)
+         </div>
+         <div classname="code-line mt-2"></div>
+         <div classname="code-comment">
+          # Calculate average grade
+         </div>
+         <div classname="code-line">
+          average = grades[<span classname="code-string">'Score'</span>].mean()
+         </div>
+         <div classname="code-line">
+          <span classname="code-function">print</span>(<span classname="code-string">"Average grade:"</span>, average)
+         </div>
+         <div classname="code-line mt-2"></div>
+         <div classname="code-comment">
+          # Find top 10 students
+         </div>
+         <div classname="code-line">
+          top_students = grades.nlargest(<span classname="code-number">10</span>, <span classname="code-string">'Score'</span>)
+         </div>
+         <div classname="code-line mt-2"></div>
+         <div classname="code-comment">
+          # Find students below 70 (need help)
+         </div>
+         <div classname="code-line">
+          struggling = grades[grades[<span classname="code-string">'Score'</span>] &lt; <span classname="code-number">70</span>]
+         </div>
+        </div>
+       </div>
+       <div classname="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+        <p classname="text-emerald-400 font-semibold mb-2">💡 The Impact:</p>
+        <p classname="text-slate-300 text-sm">Instead of hours of work, Python delivers results in seconds! The university can quickly identify struggling students and provide help.</p>
+       </div>
+      </div>
+     </div>
+    </section><!-- Hands-On Activities -->
+    <section classname="mb-12">
+     <h2 classname="text-2xl font-semibold mb-8" style="{{fontFamily:" space grotesk, sans-serif}} id="activity-title">Hands-On Coding Exercises</h2>
+     <div classname="space-y-6"><!-- Activity 1 -->
+      <div classname="activity-box border border-purple-500/30 rounded-xl p-6">
+       <div classname="flex items-start gap-3 mb-4"><span classname="step-number">1</span>
+        <div>
+         <h4 classname="text-lg font-semibold text-purple-300">Activity 1: Variables &amp; Data Types</h4>
+         <p classname="text-slate-400 text-sm">Master the basics of Python variables</p>
+        </div>
+       </div>
+       <div classname="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p classname="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol classname="text-slate-400 text-sm space-y-2">
+         <li>1. Create variables: name, age, gpa, is_enrolled</li>
+         <li>2. Assign appropriate data types to each</li>
+         <li>3. Print them using print() statements</li>
+         <li>4. Check their data types using type()</li>
+        </ol>
+       </div>
+       <div classname="code-block">
+        <div classname="code-line">
+         <span classname="code-comment"># Your code here</span>
+        </div>
+        <div classname="code-line">
+         name = <span classname="code-string">"Your Name"</span>
+        </div>
+        <div classname="code-line">
+         age = <span classname="code-number">20</span>
+        </div>
+        <div classname="code-line">
+         gpa = <span classname="code-number">3.8</span>
+        </div>
+        <div classname="code-line">
+         is_enrolled = <span classname="code-keyword">True</span>
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-string">"Name:"</span>, name)
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-string">"Type of name:"</span>, <span classname="code-function">type</span>(name))
+        </div>
+       </div>
+       <div classname="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p classname="text-green-400 text-sm font-semibold">✓ Expected Output:</p>
+        <div classname="font-mono text-xs text-green-300 mt-2">
+         Name: Your Name<br>
+          Type of name: &lt;class 'str'&gt;
+        </div>
+       </div>
+      </div><!-- Activity 2 -->
+      <div classname="activity-box border border-blue-500/30 rounded-xl p-6">
+       <div classname="flex items-start gap-3 mb-4"><span classname="step-number" style="{{background:" linear-gradient(135deg, #fbbf24, #3b82f6)}}>2</span>
+        <div>
+         <h4 classname="text-lg font-semibold text-blue-300">Activity 2: Working with Lists &amp; Loops</h4>
+         <p classname="text-slate-400 text-sm">Process data using lists and for loops</p>
+        </div>
+       </div>
+       <div classname="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p classname="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol classname="text-slate-400 text-sm space-y-2">
+         <li>1. Create a list of 5 student scores</li>
+         <li>2. Use a for loop to print each score</li>
+         <li>3. Calculate and print the average score</li>
+         <li>4. Find and print the highest score</li>
+        </ol>
+       </div>
+       <div classname="code-block">
+        <div classname="code-line">
+         <span classname="code-comment"># Your code here</span>
+        </div>
+        <div classname="code-line">
+         scores = [<span classname="code-number">85</span>, <span classname="code-number">90</span>, <span classname="code-number">78</span>, <span classname="code-number">92</span>, <span classname="code-number">88</span>]
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-line">
+         <span classname="code-comment"># Print each score</span>
+        </div>
+        <div classname="code-line">
+         <span classname="code-keyword">for</span> score <span classname="code-keyword">in</span> scores:
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+         <span classname="code-function">print</span>(<span classname="code-string">"Score:"</span>, score)
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-line">
+         <span classname="code-comment"># Calculate average</span>
+        </div>
+        <div classname="code-line">
+         average = <span classname="code-function">sum</span>(scores) / <span classname="code-function">len</span>(scores)
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-string">"Average:"</span>, average)
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-string">"Highest:"</span>, <span classname="code-function">max</span>(scores))
+        </div>
+       </div>
+       <div classname="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p classname="text-green-400 text-sm font-semibold">✓ Expected Output:</p>
+        <div classname="font-mono text-xs text-green-300 mt-2">
+         Score: 85<br>
+          Score: 90<br>
+          Score: 78<br>
+          Score: 92<br>
+          Score: 88<br>
+          Average: 86.6<br>
+          Highest: 92
+        </div>
+       </div>
+      </div><!-- Activity 3 -->
+      <div classname="activity-box border border-emerald-500/30 rounded-xl p-6">
+       <div classname="flex items-start gap-3 mb-4"><span classname="step-number" style="{{background:" linear-gradient(135deg, #fbbf24, #10b981)}}>3</span>
+        <div>
+         <h4 classname="text-lg font-semibold text-emerald-300">Activity 3: Creating Functions</h4>
+         <p classname="text-slate-400 text-sm">Write reusable functions for data analysis</p>
+        </div>
+       </div>
+       <div classname="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p classname="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol classname="text-slate-400 text-sm space-y-2">
+         <li>1. Create a function called grade_status(score)</li>
+         <li>2. Return "Pass" if score ≥ 70, else "Fail"</li>
+         <li>3. Test with different scores</li>
+        </ol>
+       </div>
+       <div classname="code-block">
+        <div classname="code-line">
+         <span classname="code-keyword">def</span> <span classname="code-function">grade_status</span>(score):
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+         <span classname="code-keyword">if</span> score &gt;= <span classname="code-number">70</span>:
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 3rem}}>
+         <span classname="code-keyword">return</span> <span classname="code-string">"Pass"</span>
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+         <span classname="code-keyword">else</span>:
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 3rem}}>
+         <span classname="code-keyword">return</span> <span classname="code-string">"Fail"</span>
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-line">
+         <span classname="code-comment"># Test the function</span>
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-function">grade_status</span>(<span classname="code-number">85</span>))
+        </div>
+        <div classname="code-line">
+         <span classname="code-function">print</span>(<span classname="code-function">grade_status</span>(<span classname="code-number">65</span>))
+        </div>
+       </div>
+       <div classname="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+        <p classname="text-green-400 text-sm font-semibold">✓ Expected Output:</p>
+        <div classname="font-mono text-xs text-green-300 mt-2">
+         Pass<br>
+          Fail
+        </div>
+       </div>
+      </div><!-- Activity 4 -->
+      <div classname="activity-box border border-cyan-500/30 rounded-xl p-6">
+       <div classname="flex items-start gap-3 mb-4"><span classname="step-number" style="{{background:" linear-gradient(135deg, #fbbf24, #06b6d4)}}>4</span>
+        <div>
+         <h4 classname="text-lg font-semibold text-cyan-300">Activity 4: Data Analysis with Pandas</h4>
+         <p classname="text-slate-400 text-sm">Load and analyze a real dataset</p>
+        </div>
+       </div>
+       <div classname="bg-slate-800/30 rounded-lg p-4 mb-4">
+        <p classname="text-slate-300 font-semibold text-sm mb-3">📋 Task:</p>
+        <ol classname="text-slate-400 text-sm space-y-2">
+         <li>1. Create a Pandas DataFrame with student data</li>
+         <li>2. Display the data</li>
+         <li>3. Calculate average score</li>
+         <li>4. Find the student with the highest score</li>
+        </ol>
+       </div>
+       <div classname="code-block">
+        <div classname="code-line">
+         <span classname="code-keyword">import</span> pandas <span classname="code-keyword">as</span> pd
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-comment">
+         # Create DataFrame
+        </div>
+        <div classname="code-line">
+         data = {
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Student': [<span classname="code-string">'Alice'</span>, <span classname="code-string">'Bob'</span>, <span classname="code-string">'Charlie'</span>, <span classname="code-string">'Diana'</span>],
+        </div>
+        <div classname="code-line" style="{{marginLeft:" 1.5rem}}>
+         'Score': [<span classname="code-number">85</span>, <span classname="code-number">92</span>, <span classname="code-number">78</span>, <span classname="code-number">95</span>]
+        </div>
+        <div classname="code-line">
+         }
+        </div>
+        <div classname="code-line">
+         df = pd.DataFrame(data)
+        </div>
+        <div classname="code-line mt-2"></div>
+        <div classname="code-function">
+         print
+        </div>(<span classname="code-string">"Data:"</span>)
+       </div>
+       <div classname="code-line">
+        <span classname="code-function">print</span>(df)
+       </div>
+       <div classname="code-line mt-2"></div>
+       <div classname="code-function">
+        print
+       </div>(<span classname="code-string">"Average Score:"</span>, df[<span classname="code-string">'Score'</span>].mean())
+      </div>
+      <div classname="code-line">
+       <span classname="code-function">print</span>(<span classname="code-string">"Highest Score:"</span>, df[<span classname="code-string">'Score'</span>].max())
+      </div>
+     </div>
+     <div classname="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mt-4">
+      <p classname="text-green-400 text-sm font-semibold">✓ Expected Output:</p>
+      <div classname="font-mono text-xs text-green-300 mt-2">
+       Data:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Student Score<br>
+        0&nbsp;&nbsp;&nbsp;&nbsp;Alice&nbsp;&nbsp;&nbsp;&nbsp;85<br>
+        1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bob&nbsp;&nbsp;&nbsp;&nbsp;92<br>
+        2 Charlie&nbsp;&nbsp;&nbsp;&nbsp;78<br>
+        3&nbsp;&nbsp;&nbsp;&nbsp;Diana&nbsp;&nbsp;&nbsp;&nbsp;95<br>
+        Average Score: 87.5<br>
+        Highest Score: 95
+      </div>
+     </div>
+    </section>
+   </div><!-- Challenge Activity -->
+   <div classname="activity-box border border-pink-500/30 rounded-xl p-6">
+    <div classname="flex items-start gap-3 mb-4"><span classname="step-number" style="{{background:" linear-gradient(135deg, #fbbf24, #ec4899)}}>⭐</span>
+     <div>
+      <h4 classname="text-lg font-semibold text-pink-300">Challenge: Complete Data Analysis Project</h4>
+      <p classname="text-slate-400 text-sm">Combine everything you learned!</p>
+     </div>
+    </div>
+    <div classname="bg-slate-800/30 rounded-lg p-4 mb-4">
+     <p classname="text-slate-300 font-semibold text-sm mb-3">📋 Challenge:</p>
+     <p classname="text-slate-400 text-sm mb-3">Create a Python program that:</p>
+     <ol classname="text-slate-400 text-sm space-y-2">
+      <li>1. Creates a list of 10 student names and their math/science/english scores</li>
+      <li>2. Uses a function to calculate average score for each student</li>
+      <li>3. Uses loops to process all students</li>
+      <li>4. Creates a Pandas DataFrame with the results</li>
+      <li>5. Finds top 3 students and struggling students (score &lt; 75)</li>
+     </ol>
+    </div>
+    <div classname="bg-slate-800/50 rounded-lg p-4">
+     <p classname="text-pink-400 text-sm font-semibold mb-2">💡 Hints:</p>
+     <ul classname="text-slate-400 text-xs space-y-1">
+      <li>• Use nested lists or dictionaries for student data</li>
+      <li>• Create a function to calculate average</li>
+      <li>• Use for loop to process all students</li>
+      <li>• Use Pandas for final analysis</li>
+     </ul>
+    </div>
+   </div> <!-- Key Takeaways -->
+   <section classname="mb-12">
+    <h2 classname="text-2xl font-semibold mb-6" style="{{fontFamily:" space grotesk, sans-serif}}>Key Takeaways</h2>
+    <div classname="grid grid-cols-1 md:grid-cols-2 gap-4">
+     <div classname="bg-gradient-to-br from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 rounded-lg p-6">
+      <p classname="text-yellow-400 font-semibold mb-2 flex items-center gap-2">
+       <svg classname="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+       </svg> Python Basics</p>
+      <p classname="text-slate-300 text-sm">Variables, data types (str, int, float, bool, list), and basic operations are the foundation</p>
+     </div>
+     <div classname="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-lg p-6">
+      <p classname="text-blue-400 font-semibold mb-2 flex items-center gap-2">
+       <svg classname="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+       </svg> Loops &amp; Functions</p>
+      <p classname="text-slate-300 text-sm">Loops process multiple items, functions make code reusable—essential for data analysis</p>
+     </div>
+     <div classname="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-lg p-6">
+      <p classname="text-emerald-400 font-semibold mb-2 flex items-center gap-2">
+       <svg classname="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+       </svg> NumPy &amp; Pandas</p>
+      <p classname="text-slate-300 text-sm">NumPy for math, Pandas for data tables—these are your data mining superpowers</p>
+     </div>
+     <div classname="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-6">
+      <p classname="text-purple-400 font-semibold mb-2 flex items-center gap-2">
+       <svg classname="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path fillrule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" cliprule="evenodd" />
+       </svg> Practice!</p>
+      <p classname="text-slate-300 text-sm">The best way to learn is by writing code. Complete all activities and challenges!</p>
+     </div>
+    </div>
+   </section><!-- Next Steps -->
+   <section classname="mb-12 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+    <h3 classname="text-lg font-semibold text-emerald-400 mb-4">🚀 Next Steps</h3>
+    <ol classname="text-slate-300 text-sm space-y-3">
+     <li classname="flex gap-3"><span classname="font-bold text-emerald-400">1.</span> <span>Complete all 4 hands-on activities in this module</span></li>
+     <li classname="flex gap-3"><span classname="font-bold text-emerald-400">2.</span> <span>Take the Challenge project and submit it to the forum</span></li>
+     <li classname="flex gap-3"><span classname="font-bold text-emerald-400">3.</span> <span>Review the sample code solutions posted by instructor</span></li>
+     <li classname="flex gap-3"><span classname="font-bold text-emerald-400">4.</span> <span>In Week 4, we'll use these skills to work with real datasets</span></li>
+    </ol>
+   </section><!-- Footer -->
+   <footer classname="border-t border-slate-800 pt-8 pb-8">
+    <p classname="text-slate-400 text-sm" id="footer-text">Copyright 2026 - BSIS Lyceum de San Pablo</p>
+   </footer>
+  </main>
+  <script>
+    const defaultConfig = {
+      course_code: 'ADV08',
+      instructor_name: 'MKDB',
+      week_title: 'Week 3 – Python Basics for Data Mining',
+      ilo_1: 'Use basic Python syntax for data analysis tasks.',
+      ilo_2: 'Apply variables, data types, loops, and functions in Python.',
+      activity_title: 'Hands-On Coding Exercises',
+      footer_text: 'Copyright 2026 - BSIS Lyceum de San Pablo'
+    };
+    
+    let config = { ...defaultConfig };
+    
+    async function onConfigChange(cfg) {
+      config = { ...defaultConfig, ...cfg };
+      document.getElementById('course-code').textContent = config.course_code;
+      document.getElementById('instructor-name').textContent = config.instructor_name;
+      document.getElementById('week-title').innerHTML = `<span class="bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">${config.week_title}</span>`;
+      document.getElementById('ilo-1').textContent = config.ilo_1;
+      document.getElementById('ilo-2').textContent = config.ilo_2;
+      document.getElementById('activity-title').textContent = config.activity_title;
+      document.getElementById('footer-text').textContent = config.footer_text;
+    }
+    
+    function mapToCapabilities(cfg) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+    
+    function mapToEditPanelValues(cfg) {
+      return new Map([
+        ['course_code', cfg.course_code || defaultConfig.course_code],
+        ['instructor_name', cfg.instructor_name || defaultConfig.instructor_name],
+        ['week_title', cfg.week_title || defaultConfig.week_title],
+        ['ilo_1', cfg.ilo_1 || defaultConfig.ilo_1],
+        ['ilo_2', cfg.ilo_2 || defaultConfig.ilo_2],
+        ['activity_title', cfg.activity_title || defaultConfig.activity_title],
+        ['footer_text', cfg.footer_text || defaultConfig.footer_text]
+      ]);
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c550f52e50c8d0f',t:'MTc2OTY1MTIyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
