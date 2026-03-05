@@ -1,0 +1,1547 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Visualization Lesson - ADV08</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4, .heading { font-family: 'Space Grotesk', sans-serif; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    
+    .card-glow {
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.1);
+    }
+    
+    .nav-item {
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background: rgba(99, 102, 241, 0.2);
+      border-left-color: #818cf8;
+    }
+    
+    .chart-bar {
+      transition: height 0.5s ease, background 0.3s ease;
+    }
+    
+    .chart-bar:hover {
+      filter: brightness(1.2);
+    }
+    
+    .pie-segment {
+      transition: transform 0.3s ease;
+    }
+    
+    .pie-segment:hover {
+      transform: scale(1.05);
+    }
+    
+    .tip-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .tip-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .quiz-option {
+      transition: all 0.3s ease;
+    }
+    
+    .quiz-option:hover:not(.selected) {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: #818cf8;
+    }
+    
+    .quiz-option.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+    }
+    
+    .quiz-option.incorrect {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .jargon-term {
+      border-bottom: 2px dashed #818cf8;
+      cursor: help;
+      position: relative;
+    }
+    
+    .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1e3f;
+      color: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      width: max-content;
+      max-width: 250px;
+      z-index: 100;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .jargon-term:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #1a1a2e;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 4px;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg text-gray-100">
+  <div class="h-full w-full flex flex-col lg:flex-row overflow-auto"><!-- Sidebar Navigation -->
+   <aside class="lg:w-72 w-full bg-slate-900/50 backdrop-blur-sm border-b lg:border-b-0 lg:border-r border-indigo-500/20 flex-shrink-0">
+    <div class="p-6"><!-- Course Header -->
+     <div class="mb-8">
+      <div class="flex items-center gap-3 mb-2">
+       <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center"><span class="text-xl">📊</span>
+       </div>
+       <div><span id="course-badge" class="text-xs font-semibold bg-indigo-500/30 text-indigo-300 px-2 py-1 rounded">ADV08</span>
+       </div>
+      </div>
+      <h1 class="heading text-xl font-bold text-white mt-3">Data Mining</h1>
+      <p class="text-sm text-gray-400">Instructor: <span id="instructor-display" class="text-indigo-300">MKDB</span></p>
+      <p id="week-display" class="text-xs text-gray-500 mt-1">Midterm Week 1</p>
+     </div><!-- Progress -->
+     <div class="mb-6">
+      <div class="flex justify-between text-sm mb-2"><span class="text-gray-400">Lesson Progress</span> <span id="progress-text" class="text-indigo-300">0%</span>
+      </div>
+      <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+       <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 0%"></div>
+      </div>
+     </div><!-- Navigation -->
+     <nav class="space-y-1"><button onclick="showSection('intro')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="intro"> <span class="text-lg">🎯</span>
+       <div>
+        <div class="font-medium">
+         Introduction
+        </div>
+        <div class="text-xs text-gray-500">
+         Learning Objectives
+        </div>
+       </div></button> <button onclick="showSection('importance')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="importance"> <span class="text-lg">💡</span>
+       <div>
+        <div class="font-medium">
+         Why Visualize?
+        </div>
+        <div class="text-xs text-gray-500">
+         Importance &amp; Benefits
+        </div>
+       </div></button> <button onclick="showSection('charts')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="charts"> <span class="text-lg">📈</span>
+       <div>
+        <div class="font-medium">
+         Charts &amp; Graphs
+        </div>
+        <div class="text-xs text-gray-500">
+         Types &amp; When to Use
+        </div>
+       </div></button> <button onclick="showSection('bestpractices')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="bestpractices"> <span class="text-lg">✨</span>
+       <div>
+        <div class="font-medium">
+         Best Practices
+        </div>
+        <div class="text-xs text-gray-500">
+         Design Principles
+        </div>
+       </div></button> <button onclick="showSection('interpret')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="interpret"> <span class="text-lg">🔍</span>
+       <div>
+        <div class="font-medium">
+         Interpretation Tips
+        </div>
+        <div class="text-xs text-gray-500">
+         Reading Visualizations
+        </div>
+       </div></button> <button onclick="showSection('scenarios')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="scenarios"> <span class="text-lg">🌍</span>
+       <div>
+        <div class="font-medium">
+         Real-World Examples
+        </div>
+        <div class="text-xs text-gray-500">
+         Case Studies
+        </div>
+       </div></button> <button onclick="showSection('quiz')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="quiz"> <span class="text-lg">📝</span>
+       <div>
+        <div class="font-medium">
+         Knowledge Check
+        </div>
+        <div class="text-xs text-gray-500">
+         Interactive Quiz
+        </div>
+       </div></button> <button onclick="showSection('activity')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="activity"> <span class="text-lg">🎓</span>
+       <div>
+        <div class="font-medium">
+         Activities
+        </div>
+        <div class="text-xs text-gray-500">
+         Individual &amp; Group
+        </div>
+       </div></button>
+     </nav>
+    </div>
+   </aside><!-- Main Content Area -->
+   <main class="flex-1 overflow-auto">
+    <div class="max-w-4xl mx-auto p-6 lg:p-10"><!-- Section: Introduction -->
+     <section id="section-intro" class="section fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Module Overview</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Data Visualization</h2>
+       <p class="text-xl text-gray-300 leading-relaxed">Transform raw numbers into meaningful stories. Learn how to communicate data insights effectively through visual representations.</p>
+      </div><!-- Learning Objectives Card -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center"><span class="text-2xl">🎯</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Intended Learning Outcomes (ILOs)</h3>
+         <p class="text-sm text-gray-400">What you'll master by the end of this lesson</p>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-indigo-500/30 flex items-center justify-center flex-shrink-0"><span class="text-indigo-300 font-bold">1</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Explain the importance of data visualization in analysis</h4>
+          <p class="text-sm text-gray-400 mt-1">Understand WHY we visualize and its impact on decision-making</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-purple-500/30 flex items-center justify-center flex-shrink-0"><span class="text-purple-300 font-bold">2</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Create appropriate charts and graphs for datasets</h4>
+          <p class="text-sm text-gray-400 mt-1">Match the RIGHT chart type to your data and message</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-pink-500/30 flex items-center justify-center flex-shrink-0"><span class="text-pink-300 font-bold">3</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Apply visualization best practices</h4>
+          <p class="text-sm text-gray-400 mt-1">Design clear, accurate, and compelling visual stories</p>
+         </div>
+        </div>
+       </div>
+      </div><!-- Key Terms Preview -->
+      <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/20">
+       <h4 class="heading text-lg font-semibold text-white mb-4 flex items-center gap-2"><span>📚</span> Key Terms You'll Learn</h4>
+       <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-indigo-300">Data Visualization</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-purple-300">Quantitative Data</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-pink-300">Categorical Data</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-blue-300">Trend Analysis</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-green-300">Data-Ink Ratio</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-yellow-300">Chart Junk</span>
+       </div>
+      </div>
+      <div class="mt-8 text-center"><button onclick="showSection('importance')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 inline-flex items-center gap-2"> Start Learning <span>→</span> </button>
+      </div>
+     </section><!-- Section: Importance -->
+     <section id="section-importance" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 1</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Why Data Visualization Matters</h2>
+      </div><!-- The Problem with Raw Data -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-red-500/20 mb-8">
+       <h3 class="heading text-xl font-bold text-white mb-4 flex items-center gap-3"><span class="text-2xl">😵</span> The Problem: Raw Data Overload</h3>
+       <div class="bg-slate-900/60 rounded-xl p-4 font-mono text-sm text-gray-400 overflow-x-auto mb-4">
+        <p>Sales Q1: 45,230 | Q2: 52,100 | Q3: 48,900 | Q4: 67,500</p>
+        <p>Expenses Q1: 32,100 | Q2: 35,200 | Q3: 33,800 | Q4: 41,200</p>
+        <p>Customers Q1: 1,245 | Q2: 1,389 | Q3: 1,298 | Q4: 1,567</p>
+        <p>Returns Q1: 234 | Q2: 256 | Q3: 241 | Q4: 312...</p>
+       </div>
+       <p class="text-gray-300"><strong class="text-red-400">Can you quickly tell:</strong> Which quarter performed best? Is there a trend? How do sales compare to expenses? Most people struggle to extract insights from raw numbers alone.</p>
+      </div><!-- The Solution -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-green-500/20 mb-8">
+       <h3 class="heading text-xl font-bold text-white mb-4 flex items-center gap-3"><span class="text-2xl">✨</span> The Solution: Visual Representation</h3><!-- Interactive Bar Chart Demo -->
+       <div class="bg-slate-900/60 rounded-xl p-6 mb-4">
+        <p class="text-sm text-gray-400 mb-4">Quarterly Sales Performance (in thousands)</p>
+        <div class="flex items-end justify-around h-48 gap-4">
+         <div class="flex flex-col items-center gap-2">
+          <div class="chart-bar w-16 bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-lg" style="height: 67%"></div><span class="text-sm text-gray-400">Q1</span> <span class="text-xs text-indigo-300">$45.2K</span>
+         </div>
+         <div class="flex flex-col items-center gap-2">
+          <div class="chart-bar w-16 bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-lg" style="height: 77%"></div><span class="text-sm text-gray-400">Q2</span> <span class="text-xs text-purple-300">$52.1K</span>
+         </div>
+         <div class="flex flex-col items-center gap-2">
+          <div class="chart-bar w-16 bg-gradient-to-t from-pink-600 to-pink-400 rounded-t-lg" style="height: 72%"></div><span class="text-sm text-gray-400">Q3</span> <span class="text-xs text-pink-300">$48.9K</span>
+         </div>
+         <div class="flex flex-col items-center gap-2">
+          <div class="chart-bar w-16 bg-gradient-to-t from-green-600 to-green-400 rounded-t-lg" style="height: 100%"></div><span class="text-sm text-gray-400">Q4</span> <span class="text-xs text-green-300">$67.5K</span>
+         </div>
+        </div>
+       </div>
+       <p class="text-gray-300"><strong class="text-green-400">Now it's obvious:</strong> Q4 was the best quarter, and there's an overall upward trend with a slight dip in Q3. You understood this in seconds!</p>
+      </div><!-- Key Benefits -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-indigo-500/20">
+        <div class="text-3xl mb-3">
+         🧠
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Faster Comprehension</h4>
+        <p class="text-gray-400 text-sm">The human brain processes visuals 60,000x faster than text. Patterns that take minutes to find in spreadsheets appear instantly in charts.</p>
+       </div>
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-purple-500/20">
+        <div class="text-3xl mb-3">
+         🎯
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Pattern Recognition</h4>
+        <p class="text-gray-400 text-sm">Visualizations reveal <span class="jargon-term text-purple-300">trends<span class="tooltip">A general direction in which data is moving over time (upward, downward, or stable)</span></span>, <span class="jargon-term text-purple-300">outliers<span class="tooltip">Data points that are significantly different from other observations</span></span>, and correlations hidden in raw numbers.</p>
+       </div>
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-pink-500/20">
+        <div class="text-3xl mb-3">
+         💬
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Better Communication</h4>
+        <p class="text-gray-400 text-sm">A well-designed chart communicates complex findings to stakeholders who may not have technical backgrounds.</p>
+       </div>
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-green-500/20">
+        <div class="text-3xl mb-3">
+         ⚡
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Informed Decisions</h4>
+        <p class="text-gray-400 text-sm">Leaders can make data-driven decisions quickly when information is presented visually and clearly.</p>
+       </div>
+      </div><!-- Real Example -->
+      <div class="bg-gradient-to-r from-amber-900/30 to-orange-900/30 rounded-2xl p-6 border border-amber-500/30 mb-8">
+       <h4 class="heading text-lg font-semibold text-amber-300 mb-3 flex items-center gap-2"><span>💼</span> Real-World Impact</h4>
+       <p class="text-gray-300 mb-4"><strong>Florence Nightingale</strong> (1858) used pie charts to show that most British soldiers died from preventable diseases, not battle wounds. Her visualizations convinced Parliament to improve military hospital conditions, saving thousands of lives.</p>
+       <p class="text-sm text-amber-200/70">This is the power of visualization: turning data into action.</p>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('intro')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('charts')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Charts &amp; Graphs <span>→</span> </button>
+      </div>
+     </section><!-- Section: Charts and Graphs -->
+     <section id="section-charts" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 2</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Charts &amp; Graphs</h2>
+       <p class="text-xl text-gray-300">Choosing the right chart is like choosing the right tool — each has a specific purpose.</p>
+      </div><!-- Chart Type Selector -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-lg font-bold text-white mb-4">🔄 Interactive Chart Explorer</h3>
+       <p class="text-gray-400 text-sm mb-4">Click on each chart type to learn when and how to use it:</p>
+       <div class="flex flex-wrap gap-3 mb-6"><button onclick="showChartType('bar')" class="chart-type-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium transition-all" data-chart="bar">Bar Chart</button> <button onclick="showChartType('line')" class="chart-type-btn px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded-lg font-medium transition-all" data-chart="line">Line Chart</button> <button onclick="showChartType('pie')" class="chart-type-btn px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded-lg font-medium transition-all" data-chart="pie">Pie Chart</button> <button onclick="showChartType('scatter')" class="chart-type-btn px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded-lg font-medium transition-all" data-chart="scatter">Scatter Plot</button> <button onclick="showChartType('histogram')" class="chart-type-btn px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded-lg font-medium transition-all" data-chart="histogram">Histogram</button>
+       </div><!-- Chart Display Area -->
+       <div id="chart-display" class="bg-slate-900/60 rounded-xl p-6"><!-- Bar Chart (Default) -->
+        <div id="chart-bar" class="chart-content">
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h4 class="heading text-xl font-bold text-indigo-300 mb-3">📊 Bar Chart</h4>
+           <p class="text-gray-300 mb-4">Compares <span class="jargon-term text-indigo-300">discrete categories<span class="tooltip">Distinct groups or items that don't have a natural order (e.g., products, countries, departments)</span></span> using rectangular bars.</p>
+           <div class="space-y-3">
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Comparing sales across products</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Survey responses by category</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Performance by department</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-red-400">✗</span> <span class="text-sm text-gray-400">Showing trends over time</span>
+            </div>
+           </div>
+           <div class="mt-4 p-3 bg-indigo-900/30 rounded-lg">
+            <p class="text-sm text-indigo-200"><strong>Pro Tip:</strong> Use horizontal bars when category labels are long.</p>
+           </div>
+          </div>
+          <div class="flex items-center justify-center">
+           <div class="flex items-end gap-3 h-40">
+            <div class="flex flex-col items-center">
+             <div class="w-12 bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t" style="height: 60%"></div><span class="text-xs text-gray-400 mt-2">A</span>
+            </div>
+            <div class="flex flex-col items-center">
+             <div class="w-12 bg-gradient-to-t from-purple-600 to-purple-400 rounded-t" style="height: 90%"></div><span class="text-xs text-gray-400 mt-2">B</span>
+            </div>
+            <div class="flex flex-col items-center">
+             <div class="w-12 bg-gradient-to-t from-pink-600 to-pink-400 rounded-t" style="height: 45%"></div><span class="text-xs text-gray-400 mt-2">C</span>
+            </div>
+            <div class="flex flex-col items-center">
+             <div class="w-12 bg-gradient-to-t from-green-600 to-green-400 rounded-t" style="height: 75%"></div><span class="text-xs text-gray-400 mt-2">D</span>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div><!-- Line Chart -->
+        <div id="chart-line" class="chart-content hidden">
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h4 class="heading text-xl font-bold text-blue-300 mb-3">📈 Line Chart</h4>
+           <p class="text-gray-300 mb-4">Shows <span class="jargon-term text-blue-300">trends<span class="tooltip">The general direction data moves over time — up, down, or stable</span></span> and changes over <span class="jargon-term text-blue-300">continuous data<span class="tooltip">Data that can take any value within a range (e.g., time, temperature, price)</span></span> like time.</p>
+           <div class="space-y-3">
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Stock prices over months</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Website traffic over time</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Temperature changes</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-red-400">✗</span> <span class="text-sm text-gray-400">Comparing unrelated categories</span>
+            </div>
+           </div>
+           <div class="mt-4 p-3 bg-blue-900/30 rounded-lg">
+            <p class="text-sm text-blue-200"><strong>Pro Tip:</strong> Use multiple lines to compare trends across different groups.</p>
+           </div>
+          </div>
+          <div class="flex items-center justify-center">
+           <svg viewbox="0 0 200 120" class="w-full max-w-xs"><polyline fill="none" stroke="url(#lineGradient)" stroke-width="3" points="10,100 50,70 90,80 130,40 170,20" /> <defs>
+             <lineargradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#60a5fa" />
+              <stop offset="100%" stop-color="#a78bfa" />
+             </lineargradient>
+            </defs> <circle cx="10" cy="100" r="4" fill="#60a5fa" /> <circle cx="50" cy="70" r="4" fill="#818cf8" /> <circle cx="90" cy="80" r="4" fill="#a78bfa" /> <circle cx="130" cy="40" r="4" fill="#c084fc" /> <circle cx="170" cy="20" r="4" fill="#e879f9" /> <text x="10" y="115" fill="#9ca3af" font-size="8">
+             Jan
+            </text> <text x="50" y="115" fill="#9ca3af" font-size="8">
+             Feb
+            </text> <text x="90" y="115" fill="#9ca3af" font-size="8">
+             Mar
+            </text> <text x="130" y="115" fill="#9ca3af" font-size="8">
+             Apr
+            </text> <text x="170" y="115" fill="#9ca3af" font-size="8">
+             May
+            </text>
+           </svg>
+          </div>
+         </div>
+        </div><!-- Pie Chart -->
+        <div id="chart-pie" class="chart-content hidden">
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h4 class="heading text-xl font-bold text-pink-300 mb-3">🥧 Pie Chart</h4>
+           <p class="text-gray-300 mb-4">Shows <span class="jargon-term text-pink-300">parts of a whole<span class="tooltip">How individual pieces contribute to a total (100%)</span></span> — how categories contribute to a total.</p>
+           <div class="space-y-3">
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Market share distribution</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Budget allocation</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Survey response percentages</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-red-400">✗</span> <span class="text-sm text-gray-400">More than 5-6 categories</span>
+            </div>
+           </div>
+           <div class="mt-4 p-3 bg-pink-900/30 rounded-lg">
+            <p class="text-sm text-pink-200"><strong>Warning:</strong> Avoid pie charts with too many slices — they become hard to read!</p>
+           </div>
+          </div>
+          <div class="flex items-center justify-center">
+           <svg viewbox="0 0 100 100" class="w-32 h-32"><circle cx="50" cy="50" r="40" fill="transparent" stroke="#818cf8" stroke-width="20" stroke-dasharray="100 151" stroke-dashoffset="0" class="pie-segment" /> <circle cx="50" cy="50" r="40" fill="transparent" stroke="#c084fc" stroke-width="20" stroke-dasharray="60 191" stroke-dashoffset="-100" class="pie-segment" /> <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f472b6" stroke-width="20" stroke-dasharray="50 201" stroke-dashoffset="-160" class="pie-segment" /> <circle cx="50" cy="50" r="40" fill="transparent" stroke="#34d399" stroke-width="20" stroke-dasharray="41 210" stroke-dashoffset="-210" class="pie-segment" />
+           </svg>
+          </div>
+         </div>
+        </div><!-- Scatter Plot -->
+        <div id="chart-scatter" class="chart-content hidden">
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h4 class="heading text-xl font-bold text-green-300 mb-3">⚬ Scatter Plot</h4>
+           <p class="text-gray-300 mb-4">Shows <span class="jargon-term text-green-300">correlation<span class="tooltip">A relationship between two variables — when one changes, does the other change too?</span></span> or relationship between two <span class="jargon-term text-green-300">quantitative variables<span class="tooltip">Data measured in numbers that can be counted or measured (e.g., age, income, temperature)</span></span>.</p>
+           <div class="space-y-3">
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Height vs. Weight relationship</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Study hours vs. Exam scores</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Advertising spend vs. Sales</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-red-400">✗</span> <span class="text-sm text-gray-400">Categorical comparisons</span>
+            </div>
+           </div>
+           <div class="mt-4 p-3 bg-green-900/30 rounded-lg">
+            <p class="text-sm text-green-200"><strong>Pro Tip:</strong> Look for clusters, outliers, and the overall direction of points.</p>
+           </div>
+          </div>
+          <div class="flex items-center justify-center">
+           <svg viewbox="0 0 200 120" class="w-full max-w-xs"><line x1="20" y1="100" x2="180" y2="100" stroke="#4b5563" stroke-width="1" /> <line x1="20" y1="100" x2="20" y2="10" stroke="#4b5563" stroke-width="1" /> <circle cx="35" cy="85" r="5" fill="#34d399" /> <circle cx="50" cy="70" r="5" fill="#34d399" /> <circle cx="70" cy="75" r="5" fill="#34d399" /> <circle cx="85" cy="55" r="5" fill="#34d399" /> <circle cx="100" cy="50" r="5" fill="#34d399" /> <circle cx="120" cy="40" r="5" fill="#34d399" /> <circle cx="140" cy="35" r="5" fill="#34d399" /> <circle cx="160" cy="25" r="5" fill="#34d399" /> <circle cx="110" cy="80" r="5" fill="#f87171" opacity="0.8" /> <text x="95" y="115" fill="#9ca3af" font-size="8">
+             X variable
+            </text>
+           </svg>
+          </div>
+         </div>
+        </div><!-- Histogram -->
+        <div id="chart-histogram" class="chart-content hidden">
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h4 class="heading text-xl font-bold text-amber-300 mb-3">📊 Histogram</h4>
+           <p class="text-gray-300 mb-4">Shows the <span class="jargon-term text-amber-300">distribution<span class="tooltip">How data is spread across different ranges or values</span></span> of a single quantitative variable across ranges.</p>
+           <div class="space-y-3">
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Age distribution of customers</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Test score distribution</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="text-sm text-gray-300">Income ranges in a population</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-red-400">✗</span> <span class="text-sm text-gray-400">Comparing categories</span>
+            </div>
+           </div>
+           <div class="mt-4 p-3 bg-amber-900/30 rounded-lg">
+            <p class="text-sm text-amber-200"><strong>Note:</strong> Unlike bar charts, histogram bars touch because the data is continuous.</p>
+           </div>
+          </div>
+          <div class="flex items-center justify-center">
+           <div class="flex items-end h-32">
+            <div class="w-8 bg-gradient-to-t from-amber-600 to-amber-400" style="height: 30%"></div>
+            <div class="w-8 bg-gradient-to-t from-amber-600 to-amber-400" style="height: 50%"></div>
+            <div class="w-8 bg-gradient-to-t from-amber-600 to-amber-400" style="height: 80%"></div>
+            <div class="w-8 bg-gradient-to-t from-amber-600 to-amber-400" style="height: 100%"></div>
+            <div class="w-8 bg-gradient-to-t from-amber-600 to-amber-400" style="height: 70%"></div>
+            <div class="w-8 bg-gradient-to-t from-amber-600 to-amber-400" style="height: 40%"></div>
+            <div class="w-8 bg-gradient-to-t from-amber-600 to-amber-400" style="height: 20%"></div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Quick Reference Table -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8 overflow-x-auto">
+       <h3 class="heading text-lg font-bold text-white mb-4">📋 Quick Reference: Which Chart to Use?</h3>
+       <table class="w-full text-sm">
+        <thead>
+         <tr class="border-b border-slate-600">
+          <th class="text-left py-3 px-4 text-indigo-300">Your Goal</th>
+          <th class="text-left py-3 px-4 text-indigo-300">Best Chart</th>
+          <th class="text-left py-3 px-4 text-indigo-300">Example</th>
+         </tr>
+        </thead>
+        <tbody class="text-gray-300">
+         <tr class="border-b border-slate-700">
+          <td class="py-3 px-4">Compare categories</td>
+          <td class="py-3 px-4 text-indigo-200">Bar Chart</td>
+          <td class="py-3 px-4 text-gray-400">Sales by product type</td>
+         </tr>
+         <tr class="border-b border-slate-700">
+          <td class="py-3 px-4">Show trend over time</td>
+          <td class="py-3 px-4 text-blue-200">Line Chart</td>
+          <td class="py-3 px-4 text-gray-400">Monthly revenue growth</td>
+         </tr>
+         <tr class="border-b border-slate-700">
+          <td class="py-3 px-4">Show parts of whole</td>
+          <td class="py-3 px-4 text-pink-200">Pie Chart</td>
+          <td class="py-3 px-4 text-gray-400">Market share by company</td>
+         </tr>
+         <tr class="border-b border-slate-700">
+          <td class="py-3 px-4">Find correlations</td>
+          <td class="py-3 px-4 text-green-200">Scatter Plot</td>
+          <td class="py-3 px-4 text-gray-400">Ad spend vs. conversions</td>
+         </tr>
+         <tr>
+          <td class="py-3 px-4">Show distribution</td>
+          <td class="py-3 px-4 text-amber-200">Histogram</td>
+          <td class="py-3 px-4 text-gray-400">Customer age ranges</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('importance')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('bestpractices')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Best Practices <span>→</span> </button>
+      </div>
+     </section><!-- Section: Best Practices -->
+     <section id="section-bestpractices" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 3</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Visualization Best Practices</h2>
+       <p class="text-xl text-gray-300">Design principles that make your visualizations clear, honest, and impactful.</p>
+      </div><!-- The Golden Rule -->
+      <div class="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 rounded-2xl p-6 border border-yellow-500/30 mb-8">
+       <div class="flex items-center gap-3 mb-4"><span class="text-3xl">⭐</span>
+        <h3 class="heading text-xl font-bold text-yellow-300">The Golden Rule of Visualization</h3>
+       </div>
+       <p class="text-xl text-gray-200 italic">"The purpose of visualization is insight, not pictures."</p>
+       <p class="text-sm text-yellow-200/70 mt-2">— Ben Shneiderman, Pioneer of Information Visualization</p>
+      </div><!-- Best Practice Cards -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8"><!-- Practice 1: Simplicity -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-indigo-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-10 h-10 rounded-lg bg-indigo-500/30 flex items-center justify-center"><span class="text-xl">1️⃣</span>
+         </div>
+         <h4 class="heading font-bold text-white">Keep It Simple</h4>
+        </div>
+        <p class="text-gray-300 text-sm mb-4">Remove <span class="jargon-term text-indigo-300">chart junk<span class="tooltip">Unnecessary visual elements that don't add information (excessive gridlines, decorative images, 3D effects)</span></span> — anything that doesn't help convey your message.</p>
+        <div class="grid grid-cols-2 gap-4">
+         <div class="bg-red-900/20 rounded-lg p-3 border border-red-500/30">
+          <p class="text-xs text-red-300 mb-2">❌ Bad Example</p>
+          <p class="text-xs text-gray-400">3D pie chart with shadows, gradients, and decorative images</p>
+         </div>
+         <div class="bg-green-900/20 rounded-lg p-3 border border-green-500/30">
+          <p class="text-xs text-green-300 mb-2">✓ Good Example</p>
+          <p class="text-xs text-gray-400">Simple 2D bar chart with clear labels</p>
+         </div>
+        </div>
+       </div><!-- Practice 2: Labels -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-purple-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-10 h-10 rounded-lg bg-purple-500/30 flex items-center justify-center"><span class="text-xl">2️⃣</span>
+         </div>
+         <h4 class="heading font-bold text-white">Label Everything</h4>
+        </div>
+        <p class="text-gray-300 text-sm mb-4">Every chart needs: a clear title, axis labels, units of measurement, and a legend if multiple data series exist.</p>
+        <div class="bg-slate-900/60 rounded-lg p-3">
+         <p class="text-xs text-purple-300 mb-1">Essential Labels Checklist:</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>☐ Descriptive chart title</li>
+          <li>☐ X-axis and Y-axis labels</li>
+          <li>☐ Units (%, $, kg, etc.)</li>
+          <li>☐ Legend for multiple series</li>
+          <li>☐ Data source attribution</li>
+         </ul>
+        </div>
+       </div><!-- Practice 3: Colors -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-pink-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-10 h-10 rounded-lg bg-pink-500/30 flex items-center justify-center"><span class="text-xl">3️⃣</span>
+         </div>
+         <h4 class="heading font-bold text-white">Use Color Wisely</h4>
+        </div>
+        <p class="text-gray-300 text-sm mb-4">Colors should enhance understanding, not confuse. Be consistent and consider <span class="jargon-term text-pink-300">color blindness<span class="tooltip">About 8% of men have some form of color blindness. Avoid relying solely on red-green distinctions.</span></span>.</p>
+        <div class="space-y-2">
+         <div class="flex items-center gap-2"><span class="text-green-400 text-sm">✓</span> <span class="text-xs text-gray-300">Use consistent colors for same categories</span>
+         </div>
+         <div class="flex items-center gap-2"><span class="text-green-400 text-sm">✓</span> <span class="text-xs text-gray-300">Limit to 5-7 colors maximum</span>
+         </div>
+         <div class="flex items-center gap-2"><span class="text-green-400 text-sm">✓</span> <span class="text-xs text-gray-300">Use color to highlight key insights</span>
+         </div>
+         <div class="flex items-center gap-2"><span class="text-red-400 text-sm">✗</span> <span class="text-xs text-gray-400">Rainbow palettes that don't mean anything</span>
+         </div>
+        </div>
+       </div><!-- Practice 4: Scale -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-green-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-10 h-10 rounded-lg bg-green-500/30 flex items-center justify-center"><span class="text-xl">4️⃣</span>
+         </div>
+         <h4 class="heading font-bold text-white">Start Y-Axis at Zero</h4>
+        </div>
+        <p class="text-gray-300 text-sm mb-4">A <span class="jargon-term text-green-300">truncated axis<span class="tooltip">When a chart's axis doesn't start at zero, making small differences look dramatic</span></span> can exaggerate differences and mislead viewers.</p>
+        <div class="grid grid-cols-2 gap-4">
+         <div class="bg-red-900/20 rounded-lg p-3 border border-red-500/30">
+          <p class="text-xs text-red-300 mb-2">❌ Misleading</p>
+          <div class="flex items-end gap-1 h-16">
+           <div class="w-6 bg-red-500" style="height: 40%"></div>
+           <div class="w-6 bg-red-500" style="height: 100%"></div>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Y: 98-102 (looks 2.5x bigger)</p>
+         </div>
+         <div class="bg-green-900/20 rounded-lg p-3 border border-green-500/30">
+          <p class="text-xs text-green-300 mb-2">✓ Honest</p>
+          <div class="flex items-end gap-1 h-16">
+           <div class="w-6 bg-green-500" style="height: 96%"></div>
+           <div class="w-6 bg-green-500" style="height: 100%"></div>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Y: 0-102 (actual 4% diff)</p>
+         </div>
+        </div>
+       </div><!-- Practice 5: Data-Ink Ratio -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-amber-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-10 h-10 rounded-lg bg-amber-500/30 flex items-center justify-center"><span class="text-xl">5️⃣</span>
+         </div>
+         <h4 class="heading font-bold text-white">Maximize Data-Ink Ratio</h4>
+        </div>
+        <p class="text-gray-300 text-sm mb-4"><span class="jargon-term text-amber-300">Data-ink ratio<span class="tooltip">Coined by Edward Tufte: the proportion of ink used to display actual data vs. total ink used in the graphic. Higher is better.</span></span> = proportion of ink devoted to displaying actual data. Remove non-essential elements.</p>
+        <div class="bg-slate-900/60 rounded-lg p-3">
+         <p class="text-xs text-amber-300 mb-2">Remove these to improve ratio:</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>• Heavy gridlines → use light or remove</li>
+          <li>• Redundant labels → show once</li>
+          <li>• Decorative borders → simplify</li>
+          <li>• 3D effects → use 2D</li>
+         </ul>
+        </div>
+       </div><!-- Practice 6: Accessibility -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-cyan-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-10 h-10 rounded-lg bg-cyan-500/30 flex items-center justify-center"><span class="text-xl">6️⃣</span>
+         </div>
+         <h4 class="heading font-bold text-white">Design for Accessibility</h4>
+        </div>
+        <p class="text-gray-300 text-sm mb-4">Ensure your visualizations can be understood by everyone, including those with visual impairments.</p>
+        <div class="space-y-2">
+         <div class="flex items-center gap-2"><span class="text-green-400 text-sm">✓</span> <span class="text-xs text-gray-300">Use patterns/shapes with colors</span>
+         </div>
+         <div class="flex items-center gap-2"><span class="text-green-400 text-sm">✓</span> <span class="text-xs text-gray-300">Ensure sufficient contrast</span>
+         </div>
+         <div class="flex items-center gap-2"><span class="text-green-400 text-sm">✓</span> <span class="text-xs text-gray-300">Add alt text for screen readers</span>
+         </div>
+         <div class="flex items-center gap-2"><span class="text-green-400 text-sm">✓</span> <span class="text-xs text-gray-300">Use readable font sizes (12pt+)</span>
+         </div>
+        </div>
+       </div>
+      </div><!-- Common Mistakes -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-red-500/20 mb-8">
+       <h3 class="heading text-lg font-bold text-red-300 mb-4 flex items-center gap-2"><span>⚠️</span> Common Mistakes to Avoid</h3>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-red-900/20 rounded-lg p-4">
+         <p class="font-medium text-red-200 mb-2">3D Charts</p>
+         <p class="text-xs text-gray-400">3D effects make it harder to compare values accurately. Stick to 2D.</p>
+        </div>
+        <div class="bg-red-900/20 rounded-lg p-4">
+         <p class="font-medium text-red-200 mb-2">Too Many Pie Slices</p>
+         <p class="text-xs text-gray-400">More than 5-6 slices? Use a bar chart instead.</p>
+        </div>
+        <div class="bg-red-900/20 rounded-lg p-4">
+         <p class="font-medium text-red-200 mb-2">Missing Context</p>
+         <p class="text-xs text-gray-400">Always include titles, labels, and data sources.</p>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('charts')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('interpret')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Interpretation Tips <span>→</span> </button>
+      </div>
+     </section><!-- Section: Interpretation -->
+     <section id="section-interpret" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 4</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">How to Interpret Visualizations</h2>
+       <p class="text-xl text-gray-300">Reading charts effectively is as important as creating them.</p>
+      </div><!-- The CAPS Framework -->
+      <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/30 mb-8">
+       <h3 class="heading text-xl font-bold text-white mb-4 flex items-center gap-3"><span class="text-2xl">🎓</span> The CAPS Framework for Reading Charts</h3>
+       <p class="text-gray-300 mb-6">Use this 4-step method to systematically interpret any visualization:</p>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-slate-800/60 rounded-xl p-5 border border-indigo-500/20">
+         <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white">
+           C
+          </div>
+          <h4 class="font-bold text-indigo-300">Context</h4>
+         </div>
+         <p class="text-sm text-gray-300 mb-3">What's the big picture?</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>• Read the title first</li>
+          <li>• Check axis labels and units</li>
+          <li>• Note the data source and date</li>
+          <li>• Understand what's being measured</li>
+         </ul>
+        </div>
+        <div class="bg-slate-800/60 rounded-xl p-5 border border-purple-500/20">
+         <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold text-white">
+           A
+          </div>
+          <h4 class="font-bold text-purple-300">Analyze</h4>
+         </div>
+         <p class="text-sm text-gray-300 mb-3">What patterns do you see?</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>• Look for trends (up, down, stable)</li>
+          <li>• Identify the highest/lowest values</li>
+          <li>• Spot any outliers or anomalies</li>
+          <li>• Compare different categories/time periods</li>
+         </ul>
+        </div>
+        <div class="bg-slate-800/60 rounded-xl p-5 border border-pink-500/20">
+         <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center font-bold text-white">
+           P
+          </div>
+          <h4 class="font-bold text-pink-300">Probe</h4>
+         </div>
+         <p class="text-sm text-gray-300 mb-3">What questions should you ask?</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>• Why might this pattern exist?</li>
+          <li>• What's causing the outliers?</li>
+          <li>• Is the scale appropriate?</li>
+          <li>• What's NOT shown in this chart?</li>
+         </ul>
+        </div>
+        <div class="bg-slate-800/60 rounded-xl p-5 border border-green-500/20">
+         <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center font-bold text-white">
+           S
+          </div>
+          <h4 class="font-bold text-green-300">Summarize</h4>
+         </div>
+         <p class="text-sm text-gray-300 mb-3">What's the key takeaway?</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>• State the main finding in one sentence</li>
+          <li>• Note any caveats or limitations</li>
+          <li>• Consider implications for decisions</li>
+          <li>• Think about what additional data you'd need</li>
+         </ul>
+        </div>
+       </div>
+      </div><!-- Practice Example -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-lg font-bold text-white mb-4">🔍 Let's Practice: Interpret This Chart</h3><!-- Sample Chart -->
+       <div class="bg-slate-900/60 rounded-xl p-6 mb-6">
+        <p class="text-sm text-gray-300 mb-2 font-medium">Monthly Active Users (2024) - TechCorp App</p>
+        <p class="text-xs text-gray-500 mb-4">Source: Internal Analytics, Updated Dec 2024</p>
+        <div class="flex items-end justify-around h-40 gap-3">
+         <div class="flex flex-col items-center">
+          <div class="chart-bar w-10 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t" style="height: 45%"></div><span class="text-xs text-gray-400 mt-2">Jan</span> <span class="text-xs text-blue-300">2.3M</span>
+         </div>
+         <div class="flex flex-col items-center">
+          <div class="chart-bar w-10 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t" style="height: 48%"></div><span class="text-xs text-gray-400 mt-2">Feb</span> <span class="text-xs text-blue-300">2.4M</span>
+         </div>
+         <div class="flex flex-col items-center">
+          <div class="chart-bar w-10 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t" style="height: 55%"></div><span class="text-xs text-gray-400 mt-2">Mar</span> <span class="text-xs text-blue-300">2.8M</span>
+         </div>
+         <div class="flex flex-col items-center">
+          <div class="chart-bar w-10 bg-gradient-to-t from-green-600 to-green-400 rounded-t" style="height: 90%"></div><span class="text-xs text-gray-400 mt-2">Apr</span> <span class="text-xs text-green-300">4.5M</span>
+         </div>
+         <div class="flex flex-col items-center">
+          <div class="chart-bar w-10 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t" style="height: 75%"></div><span class="text-xs text-gray-400 mt-2">May</span> <span class="text-xs text-blue-300">3.8M</span>
+         </div>
+         <div class="flex flex-col items-center">
+          <div class="chart-bar w-10 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t" style="height: 72%"></div><span class="text-xs text-gray-400 mt-2">Jun</span> <span class="text-xs text-blue-300">3.6M</span>
+         </div>
+        </div>
+       </div><!-- CAPS Analysis -->
+       <div class="space-y-3">
+        <details class="bg-slate-700/40 rounded-lg"><summary class="p-4 cursor-pointer text-indigo-300 font-medium">📌 C - Context (Click to reveal)</summary>
+         <div class="p-4 pt-0 text-sm text-gray-300">
+          <p><strong>Title:</strong> Monthly Active Users for TechCorp App in 2024</p>
+          <p><strong>Y-axis:</strong> Number of users (in millions)</p>
+          <p><strong>X-axis:</strong> Months (January to June)</p>
+          <p><strong>Source:</strong> Internal Analytics — reliable first-party data</p>
+         </div>
+        </details>
+        <details class="bg-slate-700/40 rounded-lg"><summary class="p-4 cursor-pointer text-purple-300 font-medium">📌 A - Analyze (Click to reveal)</summary>
+         <div class="p-4 pt-0 text-sm text-gray-300">
+          <p><strong>Overall trend:</strong> Growth from Jan-Apr, then slight decline</p>
+          <p><strong>Peak:</strong> April with 4.5M users (highlighted in green)</p>
+          <p><strong>Low point:</strong> January with 2.3M users</p>
+          <p><strong>Pattern:</strong> 95% growth from Jan to Apr, then 20% decline to June</p>
+         </div>
+        </details>
+        <details class="bg-slate-700/40 rounded-lg"><summary class="p-4 cursor-pointer text-pink-300 font-medium">📌 P - Probe (Click to reveal)</summary>
+         <div class="p-4 pt-0 text-sm text-gray-300">
+          <p><strong>Why the April spike?</strong> Possible marketing campaign? New feature launch? Viral moment?</p>
+          <p><strong>Why the decline after?</strong> Users didn't stay — possible retention issue</p>
+          <p><strong>What's missing?</strong> We don't see user retention, revenue, or user engagement depth</p>
+         </div>
+        </details>
+        <details class="bg-slate-700/40 rounded-lg"><summary class="p-4 cursor-pointer text-green-300 font-medium">📌 S - Summarize (Click to reveal)</summary>
+         <div class="p-4 pt-0 text-sm text-gray-300">
+          <p><strong>Key insight:</strong> TechCorp experienced a major user acquisition spike in April but struggled to retain those users, suggesting they should investigate what drove the April growth and improve their retention strategy.</p>
+         </div>
+        </details>
+       </div>
+      </div><!-- Red Flags -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-red-500/20 mb-8">
+       <h3 class="heading text-lg font-bold text-red-300 mb-4 flex items-center gap-2"><span>🚩</span> Red Flags: Signs of Misleading Visualizations</h3>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="flex items-start gap-3 p-3 bg-red-900/20 rounded-lg"><span class="text-red-400 text-lg">⚠️</span>
+         <div>
+          <p class="font-medium text-red-200">Truncated Y-Axis</p>
+          <p class="text-xs text-gray-400">Doesn't start at zero, exaggerating differences</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-red-900/20 rounded-lg"><span class="text-red-400 text-lg">⚠️</span>
+         <div>
+          <p class="font-medium text-red-200">Missing Labels</p>
+          <p class="text-xs text-gray-400">No axis labels, title, or data source</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-red-900/20 rounded-lg"><span class="text-red-400 text-lg">⚠️</span>
+         <div>
+          <p class="font-medium text-red-200">Cherry-Picked Timeframe</p>
+          <p class="text-xs text-gray-400">Shows only data that supports a narrative</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-red-900/20 rounded-lg"><span class="text-red-400 text-lg">⚠️</span>
+         <div>
+          <p class="font-medium text-red-200">Dual Y-Axes Manipulation</p>
+          <p class="text-xs text-gray-400">Different scales that create false correlations</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('bestpractices')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('scenarios')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Real-World Examples <span>→</span> </button>
+      </div>
+     </section><!-- Section: Real-World Scenarios -->
+     <section id="section-scenarios" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 5</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Real-World Examples</h2>
+       <p class="text-xl text-gray-300">See how data visualization solves actual business and social problems.</p>
+      </div><!-- Scenario 1: E-commerce -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-6">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center"><span class="text-2xl">🛒</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Scenario 1: E-Commerce Sales Analysis</h3>
+         <p class="text-sm text-gray-400">ShopEasy Online Store</p>
+        </div>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+        <p class="text-sm text-gray-300 mb-3"><strong>The Situation:</strong></p>
+        <p class="text-gray-400 text-sm">ShopEasy's marketing team needs to present quarterly sales performance to leadership. They have data on sales by product category over 4 quarters.</p>
+       </div>
+       <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+         <p class="text-sm text-indigo-300 mb-2">📊 Raw Data:</p>
+         <div class="bg-slate-900/60 rounded-lg p-3 text-xs font-mono text-gray-400">
+          <p>Electronics: Q1: $45K, Q2: $52K, Q3: $48K, Q4: $78K</p>
+          <p>Clothing: Q1: $32K, Q2: $38K, Q3: $41K, Q4: $55K</p>
+          <p>Home: Q1: $28K, Q2: $31K, Q3: $29K, Q4: $42K</p>
+         </div>
+        </div>
+        <div>
+         <p class="text-sm text-green-300 mb-2">✓ Best Chart Choice: Grouped Bar Chart</p>
+         <p class="text-xs text-gray-400">Why? Allows comparison across categories AND time periods simultaneously.</p>
+        </div>
+       </div>
+       <div class="bg-amber-900/20 rounded-lg p-4 border border-amber-500/30">
+        <p class="text-sm text-amber-200"><strong>💡 Insight:</strong> Electronics dominates sales with a 73% spike in Q4 (holiday season). The company should increase inventory for electronics before Q4 next year.</p>
+       </div>
+      </div><!-- Scenario 2: Healthcare -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20 mb-6">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center"><span class="text-2xl">🏥</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Scenario 2: Public Health Dashboard</h3>
+         <p class="text-sm text-gray-400">City Health Department</p>
+        </div>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+        <p class="text-sm text-gray-300 mb-3"><strong>The Situation:</strong></p>
+        <p class="text-gray-400 text-sm">The health department wants to track flu vaccination rates across different age groups and identify which groups need more outreach.</p>
+       </div>
+       <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+         <p class="text-sm text-purple-300 mb-2">📊 Data Visualization Needed:</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>• Vaccination rates by age group → <strong>Bar Chart</strong></li>
+          <li>• Trend over past 5 years → <strong>Line Chart</strong></li>
+          <li>• Distribution by neighborhood → <strong>Choropleth Map</strong></li>
+         </ul>
+        </div>
+        <div class="flex items-center justify-center">
+         <div class="flex items-end gap-2 h-24">
+          <div class="flex flex-col items-center">
+           <div class="w-8 bg-gradient-to-t from-green-600 to-green-400 rounded-t" style="height: 85%"></div><span class="text-xs text-gray-400 mt-1">65+</span>
+          </div>
+          <div class="flex flex-col items-center">
+           <div class="w-8 bg-gradient-to-t from-teal-600 to-teal-400 rounded-t" style="height: 60%"></div><span class="text-xs text-gray-400 mt-1">50-64</span>
+          </div>
+          <div class="flex flex-col items-center">
+           <div class="w-8 bg-gradient-to-t from-yellow-600 to-yellow-400 rounded-t" style="height: 35%"></div><span class="text-xs text-gray-400 mt-1">18-49</span>
+          </div>
+          <div class="flex flex-col items-center">
+           <div class="w-8 bg-gradient-to-t from-red-600 to-red-400 rounded-t" style="height: 25%"></div><span class="text-xs text-gray-400 mt-1">0-17</span>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-green-900/20 rounded-lg p-4 border border-green-500/30">
+        <p class="text-sm text-green-200"><strong>💡 Insight:</strong> Young adults (18-49) have the lowest vaccination rates. The department should launch targeted social media campaigns for this demographic.</p>
+       </div>
+      </div><!-- Scenario 3: Education -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-pink-500/20 mb-6">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center"><span class="text-2xl">📚</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Scenario 3: Student Performance Analysis</h3>
+         <p class="text-sm text-gray-400">University Academic Office</p>
+        </div>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+        <p class="text-sm text-gray-300 mb-3"><strong>The Situation:</strong></p>
+        <p class="text-gray-400 text-sm">A university wants to understand the relationship between study hours and exam performance to advise students better.</p>
+       </div>
+       <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+         <p class="text-sm text-pink-300 mb-2">📊 Best Choice: Scatter Plot</p>
+         <p class="text-xs text-gray-400 mb-2">Why? Shows correlation between two quantitative variables (study hours vs. scores).</p>
+         <p class="text-xs text-gray-400">Each dot = one student</p>
+        </div>
+        <div class="flex items-center justify-center">
+         <svg viewbox="0 0 120 80" class="w-32"><line x1="10" y1="70" x2="110" y2="70" stroke="#4b5563" stroke-width="1" /> <line x1="10" y1="70" x2="10" y2="10" stroke="#4b5563" stroke-width="1" /> <circle cx="20" cy="60" r="3" fill="#60a5fa" /> <circle cx="30" cy="55" r="3" fill="#60a5fa" /> <circle cx="40" cy="45" r="3" fill="#60a5fa" /> <circle cx="55" cy="40" r="3" fill="#60a5fa" /> <circle cx="65" cy="35" r="3" fill="#60a5fa" /> <circle cx="80" cy="25" r="3" fill="#60a5fa" /> <circle cx="95" cy="20" r="3" fill="#60a5fa" /> <circle cx="50" cy="58" r="3" fill="#f87171" /> <text x="50" y="78" fill="#9ca3af" font-size="6">
+           Study Hours
+          </text>
+         </svg>
+        </div>
+       </div>
+       <div class="bg-blue-900/20 rounded-lg p-4 border border-blue-500/30">
+        <p class="text-sm text-blue-200"><strong>💡 Insight:</strong> Strong positive correlation — students who study more tend to score higher. The red outlier might have test anxiety or other factors worth investigating.</p>
+       </div>
+      </div><!-- Key Takeaways -->
+      <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/30 mb-8">
+       <h4 class="heading text-lg font-semibold text-white mb-4 flex items-center gap-2"><span>🎯</span> Key Takeaways from Real-World Applications</h4>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div class="text-center p-4"><span class="text-3xl mb-2 block">🎯</span>
+         <p class="text-sm text-gray-300">Match the chart to your <strong class="text-indigo-300">question</strong></p>
+        </div>
+        <div class="text-center p-4"><span class="text-3xl mb-2 block">👥</span>
+         <p class="text-sm text-gray-300">Consider your <strong class="text-purple-300">audience</strong></p>
+        </div>
+        <div class="text-center p-4"><span class="text-3xl mb-2 block">💡</span>
+         <p class="text-sm text-gray-300">Focus on <strong class="text-pink-300">actionable insights</strong></p>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('interpret')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('quiz')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Take the Quiz <span>→</span> </button>
+      </div>
+     </section><!-- Section: Quiz -->
+     <section id="section-quiz" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Knowledge Check</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Test Your Understanding</h2>
+       <p class="text-xl text-gray-300">Answer these questions to check your learning. Click on an answer to select it.</p>
+      </div>
+      <div id="quiz-container"><!-- Quiz will be rendered by JavaScript -->
+      </div>
+      <div id="quiz-results" class="hidden bg-gradient-to-r from-green-900/40 to-emerald-900/40 rounded-2xl p-6 border border-green-500/30 mt-8">
+       <h3 class="heading text-xl font-bold text-green-300 mb-2">🎉 Quiz Complete!</h3>
+       <p id="quiz-score" class="text-lg text-gray-300"></p><button onclick="resetQuiz()" class="mt-4 px-6 py-2 bg-green-600 hover:bg-green-500 rounded-lg text-white font-medium transition-all"> Retake Quiz </button>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('scenarios')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('activity')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Activities <span>→</span> </button>
+      </div>
+     </section><!-- Section: Activities -->
+     <section id="section-activity" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Apply Your Learning</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Individual &amp; Group Activities</h2>
+       <p class="text-xl text-gray-300">Put your knowledge into practice with these hands-on exercises.</p>
+      </div><!-- Individual Activity -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center"><span class="text-2xl">👤</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Individual Activity</h3>
+         <p class="text-sm text-gray-400">Work on this independently</p>
+        </div>
+       </div>
+       <div class="bg-indigo-900/20 rounded-xl p-5 mb-6 border border-indigo-500/20">
+        <h4 class="font-bold text-indigo-300 mb-3">📊 Task: Create a Visualization Plan</h4>
+        <p class="text-gray-300 mb-4">You are a data analyst at a coffee shop chain. The manager gives you this data and asks: "What should we focus on to increase sales?"</p>
+        <div class="bg-slate-900/60 rounded-lg p-4 mb-4 font-mono text-sm">
+         <p class="text-gray-300 font-semibold mb-2">Monthly Sales Data (Last 6 Months):</p>
+         <table class="w-full text-xs text-gray-400">
+          <thead>
+           <tr class="border-b border-slate-600">
+            <th class="text-left py-2">Product</th>
+            <th class="text-right py-2">Jan</th>
+            <th class="text-right py-2">Feb</th>
+            <th class="text-right py-2">Mar</th>
+            <th class="text-right py-2">Apr</th>
+            <th class="text-right py-2">May</th>
+            <th class="text-right py-2">Jun</th>
+           </tr>
+          </thead>
+          <tbody>
+           <tr>
+            <td>Coffee</td>
+            <td class="text-right">$8,500</td>
+            <td class="text-right">$7,800</td>
+            <td class="text-right">$6,200</td>
+            <td class="text-right">$5,500</td>
+            <td class="text-right">$4,800</td>
+            <td class="text-right">$4,200</td>
+           </tr>
+           <tr>
+            <td>Iced Drinks</td>
+            <td class="text-right">$2,100</td>
+            <td class="text-right">$2,400</td>
+            <td class="text-right">$3,500</td>
+            <td class="text-right">$5,200</td>
+            <td class="text-right">$6,800</td>
+            <td class="text-right">$7,500</td>
+           </tr>
+           <tr>
+            <td>Pastries</td>
+            <td class="text-right">$3,200</td>
+            <td class="text-right">$3,100</td>
+            <td class="text-right">$3,300</td>
+            <td class="text-right">$3,400</td>
+            <td class="text-right">$3,200</td>
+            <td class="text-right">$3,300</td>
+           </tr>
+           <tr>
+            <td>Sandwiches</td>
+            <td class="text-right">$1,800</td>
+            <td class="text-right">$1,900</td>
+            <td class="text-right">$2,100</td>
+            <td class="text-right">$2,300</td>
+            <td class="text-right">$2,400</td>
+            <td class="text-right">$2,200</td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h5 class="font-semibold text-white mb-2">📝 Your Tasks:</h5>
+         <ol class="text-sm text-gray-300 space-y-3">
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span> <span><strong>Identify 2-3 patterns</strong> you notice in the raw data</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span> <span><strong>Choose the best chart type(s)</strong> to visualize this data. Justify your choice.</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span> <span><strong>Write 3 key insights</strong> you would present to the manager</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span> <span><strong>Recommend one action</strong> the manager should take based on your analysis</span></li>
+         </ol>
+        </div>
+        <details class="bg-slate-700/40 rounded-lg"><summary class="p-4 cursor-pointer text-indigo-300 font-medium">💡 Hints (Click if stuck)</summary>
+         <div class="p-4 pt-0 text-sm text-gray-400">
+          <ul class="space-y-2">
+           <li>• Look at how products change over time (seasonal trends?)</li>
+           <li>• Consider a line chart for trends or stacked bar for composition</li>
+           <li>• Hot coffee ↓ as weather warms; Iced drinks ↑ — seasonal pattern!</li>
+           <li>• Pastries are stable — reliable but not a growth driver</li>
+          </ul>
+         </div>
+        </details>
+       </div>
+      </div><!-- Group Activity -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center"><span class="text-2xl">👥</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Group Activity</h3>
+         <p class="text-sm text-gray-400">Work in teams of 3-4 members</p>
+        </div>
+       </div>
+       <div class="bg-purple-900/20 rounded-xl p-5 mb-6 border border-purple-500/20">
+        <h4 class="font-bold text-purple-300 mb-3">🏢 Task: Dashboard Design Challenge</h4>
+        <p class="text-gray-300 mb-4">Your team has been hired by "FitLife Gym" to create a data dashboard. The gym wants to understand member behavior and improve retention.</p>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-5 mb-6">
+        <h5 class="font-semibold text-white mb-3">📋 Available Data:</h5>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+         <ul class="text-gray-400 space-y-2">
+          <li>• Member sign-ups by month (12 months)</li>
+          <li>• Cancellation rates by membership type</li>
+          <li>• Gym visit frequency (visits per week)</li>
+          <li>• Popular class attendance numbers</li>
+         </ul>
+         <ul class="text-gray-400 space-y-2">
+          <li>• Member age distribution</li>
+          <li>• Revenue by membership tier (Basic, Premium, VIP)</li>
+          <li>• Peak usage hours throughout the day</li>
+          <li>• Equipment usage rates</li>
+         </ul>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h5 class="font-semibold text-white mb-3">📝 Group Tasks:</h5>
+         <ol class="text-sm text-gray-300 space-y-4">
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
+           <div><strong>Select 4-5 metrics</strong> that would be most valuable for the gym manager. 
+            <p class="text-xs text-gray-500 mt-1">Discuss: Which metrics directly impact revenue and retention?</p>
+           </div></li>
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
+           <div><strong>Design a dashboard layout</strong> (sketch on paper or whiteboard) 
+            <p class="text-xs text-gray-500 mt-1">Include: What chart type for each metric? How are they arranged?</p>
+           </div></li>
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
+           <div><strong>Identify 3 questions</strong> your dashboard helps answer 
+            <p class="text-xs text-gray-500 mt-1">Example: "Which membership tier has the highest churn rate?"</p>
+           </div></li>
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
+           <div><strong>Present to the class</strong> (3-5 minutes per group) 
+            <p class="text-xs text-gray-500 mt-1">Explain your design decisions and expected insights</p>
+           </div></li>
+         </ol>
+        </div>
+        <div class="bg-gradient-to-r from-pink-900/30 to-purple-900/30 rounded-lg p-4 border border-pink-500/20">
+         <h5 class="font-semibold text-pink-300 mb-2">🎯 Evaluation Criteria:</h5>
+         <div class="grid md:grid-cols-2 gap-2 text-xs text-gray-400">
+          <div>
+           • Appropriate chart selection (25%)
+          </div>
+          <div>
+           • Clear visual hierarchy (25%)
+          </div>
+          <div>
+           • Actionable insights (25%)
+          </div>
+          <div>
+           • Presentation clarity (25%)
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Submission Checklist -->
+      <div class="bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 mb-8">
+       <h4 class="heading text-lg font-semibold text-green-300 mb-4 flex items-center gap-2"><span>✅</span> Before You Submit - Checklist</h4>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div>
+         <p class="text-sm font-medium text-white mb-2">Individual Activity:</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>☐ Identified at least 2 patterns</li>
+          <li>☐ Justified chart type choice</li>
+          <li>☐ Written 3 clear insights</li>
+          <li>☐ Provided actionable recommendation</li>
+         </ul>
+        </div>
+        <div>
+         <p class="text-sm font-medium text-white mb-2">Group Activity:</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>☐ Selected relevant metrics</li>
+          <li>☐ Dashboard sketch complete</li>
+          <li>☐ Answered 3 business questions</li>
+          <li>☐ Presentation rehearsed</li>
+         </ul>
+        </div>
+       </div>
+      </div><!-- Final Summary -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <h4 class="heading text-xl font-bold text-white mb-4 flex items-center gap-2"><span>🎓</span> Lesson Summary</h4>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div class="text-center p-4 bg-indigo-900/30 rounded-xl"><span class="text-2xl mb-2 block">💡</span>
+         <p class="text-sm text-indigo-200 font-medium">ILO 1 ✓</p>
+         <p class="text-xs text-gray-400">Explained why visualization matters for analysis</p>
+        </div>
+        <div class="text-center p-4 bg-purple-900/30 rounded-xl"><span class="text-2xl mb-2 block">📊</span>
+         <p class="text-sm text-purple-200 font-medium">ILO 2 ✓</p>
+         <p class="text-xs text-gray-400">Learned to create appropriate charts for datasets</p>
+        </div>
+        <div class="text-center p-4 bg-pink-900/30 rounded-xl"><span class="text-2xl mb-2 block">✨</span>
+         <p class="text-sm text-pink-200 font-medium">ILO 3 ✓</p>
+         <p class="text-xs text-gray-400">Applied visualization best practices</p>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('quiz')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back to Quiz </button> <button onclick="showSection('intro')" class="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-green-500/30 flex items-center gap-2"> 🔄 Review Lesson </button>
+      </div>
+     </section>
+    </div>
+   </main>
+  </div>
+  <script>
+    // Configuration
+    const defaultConfig = {
+      course_code: 'ADV08',
+      instructor_name: 'MKDB',
+      week_info: 'Midterm Week 1',
+      background_color: '#1a1a2e',
+      surface_color: '#1e293b',
+      text_color: '#e2e8f0',
+      primary_action_color: '#6366f1',
+      secondary_action_color: '#818cf8'
+    };
+    
+    let config = { ...defaultConfig };
+    
+    // Section navigation
+    const sections = ['intro', 'importance', 'charts', 'bestpractices', 'interpret', 'scenarios', 'quiz', 'activity'];
+    let currentSectionIndex = 0;
+    let visitedSections = new Set(['intro']);
+    
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      
+      // Show target section
+      const targetSection = document.getElementById(`section-${sectionId}`);
+      if (targetSection) {
+        targetSection.classList.remove('hidden');
+        targetSection.classList.add('fade-in');
+      }
+      
+      // Update navigation
+      document.querySelectorAll('.nav-item').forEach(nav => {
+        nav.classList.remove('active', 'bg-indigo-500/20', 'border-l-indigo-400');
+        if (nav.dataset.section === sectionId) {
+          nav.classList.add('active', 'bg-indigo-500/20');
+          nav.style.borderLeftColor = '#818cf8';
+        } else {
+          nav.style.borderLeftColor = 'transparent';
+        }
+      });
+      
+      // Update progress
+      visitedSections.add(sectionId);
+      currentSectionIndex = sections.indexOf(sectionId);
+      updateProgress();
+      
+      // Initialize quiz if needed
+      if (sectionId === 'quiz') {
+        initQuiz();
+      }
+      
+      // Scroll to top of main content
+      document.querySelector('main').scrollTop = 0;
+    }
+    
+    function updateProgress() {
+      const progress = Math.round((visitedSections.size / sections.length) * 100);
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      
+      if (progressBar) progressBar.style.width = `${progress}%`;
+      if (progressText) progressText.textContent = `${progress}%`;
+    }
+    
+    // Chart type explorer
+    function showChartType(chartType) {
+      // Hide all chart content
+      document.querySelectorAll('.chart-content').forEach(c => c.classList.add('hidden'));
+      
+      // Show selected chart
+      const chartContent = document.getElementById(`chart-${chartType}`);
+      if (chartContent) {
+        chartContent.classList.remove('hidden');
+      }
+      
+      // Update button states
+      document.querySelectorAll('.chart-type-btn').forEach(btn => {
+        if (btn.dataset.chart === chartType) {
+          btn.classList.remove('bg-slate-700', 'hover:bg-slate-600', 'text-gray-300');
+          btn.classList.add('bg-indigo-600', 'text-white');
+        } else {
+          btn.classList.remove('bg-indigo-600', 'text-white');
+          btn.classList.add('bg-slate-700', 'hover:bg-slate-600', 'text-gray-300');
+        }
+      });
+    }
+    
+    // Quiz functionality
+    const quizQuestions = [
+      {
+        question: "A company wants to show how their market share is divided among 4 competitors. Which chart is BEST?",
+        options: ["Line Chart", "Pie Chart", "Scatter Plot", "Histogram"],
+        correct: 1,
+        explanation: "Pie charts are ideal for showing parts of a whole when you have few categories (4-6 max)."
+      },
+      {
+        question: "What does 'chart junk' refer to?",
+        options: [
+          "Incorrect data in a chart",
+          "Charts with too few data points",
+          "Unnecessary visual elements that don't add information",
+          "Charts exported in low quality"
+        ],
+        correct: 2,
+        explanation: "Chart junk includes decorative elements like 3D effects, excessive gridlines, and images that don't convey data."
+      },
+      {
+        question: "You want to analyze if there's a relationship between advertising spend and sales revenue. Which chart should you use?",
+        options: ["Bar Chart", "Pie Chart", "Scatter Plot", "Line Chart"],
+        correct: 2,
+        explanation: "Scatter plots show correlation between two quantitative variables, perfect for relationship analysis."
+      },
+      {
+        question: "Why is it important to start the Y-axis at zero in most bar charts?",
+        options: [
+          "It looks more professional",
+          "It prevents exaggerating differences between values",
+          "It makes the chart load faster",
+          "It's required by data privacy laws"
+        ],
+        correct: 1,
+        explanation: "A truncated Y-axis can make small differences appear dramatic, potentially misleading viewers."
+      },
+      {
+        question: "What is the 'data-ink ratio' principle about?",
+        options: [
+          "Using more colors makes better charts",
+          "The proportion of ink devoted to displaying actual data should be high",
+          "Charts should always be printed, not digital",
+          "Data should be hidden in chart backgrounds"
+        ],
+        correct: 1,
+        explanation: "Edward Tufte's principle: maximize the proportion of ink used for actual data, minimize decorative elements."
+      }
+    ];
+    
+    let quizAnswers = {};
+    let quizInitialized = false;
+    
+    function initQuiz() {
+      if (quizInitialized) return;
+      
+      const container = document.getElementById('quiz-container');
+      if (!container) return;
+      
+      container.innerHTML = quizQuestions.map((q, idx) => `
+        <div class="bg-slate-800/60 backdrop-blur rounded-xl p-6 mb-4 border border-slate-600/50" id="question-${idx}">
+          <p class="font-semibold text-white mb-4">
+            <span class="text-indigo-400">${idx + 1}.</span> ${q.question}
+          </p>
+          <div class="space-y-2">
+            ${q.options.map((opt, optIdx) => `
+              <button 
+                onclick="selectAnswer(${idx}, ${optIdx})"
+                class="quiz-option w-full text-left p-3 rounded-lg border border-slate-600 text-gray-300 hover:text-white transition-all"
+                data-question="${idx}"
+                data-option="${optIdx}"
+              >
+                <span class="inline-block w-6 h-6 rounded-full bg-slate-700 text-center text-sm mr-3">${String.fromCharCode(65 + optIdx)}</span>
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="explanation-${idx}" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+        </div>
+      `).join('');
+      
+      quizInitialized = true;
+    }
+    
+    function selectAnswer(questionIdx, optionIdx) {
+      const question = quizQuestions[questionIdx];
+      const isCorrect = optionIdx === question.correct;
+      
+      // Store answer
+      quizAnswers[questionIdx] = optionIdx;
+      
+      // Update button states
+      const buttons = document.querySelectorAll(`[data-question="${questionIdx}"]`);
+      buttons.forEach((btn, idx) => {
+        btn.classList.remove('correct', 'incorrect');
+        btn.classList.add('selected');
+        btn.disabled = true;
+        
+        if (idx === question.correct) {
+          btn.classList.add('correct');
+        } else if (idx === optionIdx && !isCorrect) {
+          btn.classList.add('incorrect');
+        }
+      });
+      
+      // Show explanation
+      const explanation = document.getElementById(`explanation-${questionIdx}`);
+      if (explanation) {
+        explanation.classList.remove('hidden');
+        explanation.className = `mt-4 p-3 rounded-lg text-sm ${isCorrect ? 'bg-green-900/30 text-green-200' : 'bg-amber-900/30 text-amber-200'}`;
+        explanation.innerHTML = `<strong>${isCorrect ? '✓ Correct!' : '✗ Not quite.'}</strong> ${question.explanation}`;
+      }
+      
+      // Check if quiz is complete
+      if (Object.keys(quizAnswers).length === quizQuestions.length) {
+        showQuizResults();
+      }
+    }
+    
+    function showQuizResults() {
+      const correct = Object.entries(quizAnswers).filter(
+        ([idx, ans]) => ans === quizQuestions[parseInt(idx)].correct
+      ).length;
+      
+      const resultsDiv = document.getElementById('quiz-results');
+      const scoreText = document.getElementById('quiz-score');
+      
+      if (resultsDiv && scoreText) {
+        resultsDiv.classList.remove('hidden');
+        scoreText.textContent = `You got ${correct} out of ${quizQuestions.length} questions correct (${Math.round(correct/quizQuestions.length*100)}%)`;
+      }
+    }
+    
+    function resetQuiz() {
+      quizAnswers = {};
+      quizInitialized = false;
+      
+      const resultsDiv = document.getElementById('quiz-results');
+      if (resultsDiv) resultsDiv.classList.add('hidden');
+      
+      initQuiz();
+    }
+    
+    // Elements SDK Integration
+    async function onConfigChange(updatedConfig) {
+      config = { ...config, ...updatedConfig };
+      
+      // Update course badge
+      const courseBadge = document.getElementById('course-badge');
+      if (courseBadge) courseBadge.textContent = config.course_code || defaultConfig.course_code;
+      
+      // Update instructor display
+      const instructorDisplay = document.getElementById('instructor-display');
+      if (instructorDisplay) instructorDisplay.textContent = config.instructor_name || defaultConfig.instructor_name;
+      
+      // Update week display
+      const weekDisplay = document.getElementById('week-display');
+      if (weekDisplay) weekDisplay.textContent = config.week_info || defaultConfig.week_info;
+    }
+    
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              config.surface_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ surface_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              config.primary_action_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ primary_action_color: value });
+            }
+          },
+          {
+            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+            set: (value) => {
+              config.secondary_action_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ secondary_action_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+    
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['course_code', config.course_code || defaultConfig.course_code],
+        ['instructor_name', config.instructor_name || defaultConfig.instructor_name],
+        ['week_info', config.week_info || defaultConfig.week_info]
+      ]);
+    }
+    
+    // Initialize
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+    
+    // Initialize first section
+    showSection('intro');
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d7501d9f6998d03',t:'MTc3MjY3MDU3Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
