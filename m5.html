@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction to Clustering - ADV08</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4, .heading { font-family: 'Space Grotesk', sans-serif; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    
+    .card-glow {
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.1);
+    }
+    
+    .nav-item {
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background: rgba(99, 102, 241, 0.2);
+      border-left-color: #818cf8;
+    }
+    
+    .tip-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .tip-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .quiz-option {
+      transition: all 0.3s ease;
+    }
+    
+    .quiz-option:hover:not(.selected) {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: #818cf8;
+    }
+    
+    .quiz-option.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+    }
+    
+    .quiz-option.incorrect {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .workflow-step {
+      position: relative;
+      animation: slideIn 0.6s ease forwards;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .workflow-step:nth-child(1) { animation-delay: 0.1s; }
+    .workflow-step:nth-child(2) { animation-delay: 0.2s; }
+    .workflow-step:nth-child(3) { animation-delay: 0.3s; }
+    .workflow-step:nth-child(4) { animation-delay: 0.4s; }
+    .workflow-step:nth-child(5) { animation-delay: 0.5s; }
+    
+    .jargon-term {
+      border-bottom: 2px dashed #818cf8;
+      cursor: help;
+      position: relative;
+    }
+    
+    .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1e3f;
+      color: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      width: max-content;
+      max-width: 250px;
+      z-index: 100;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .jargon-term:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    
+    .cluster-visualization {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-end;
+      margin: 1rem 0;
+    }
+    
+    .cluster-point {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .distance-demo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #1a1a2e;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 4px;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg text-gray-100">
+  <div class="h-full w-full flex flex-col lg:flex-row overflow-auto">
+   <aside class="lg:w-72 w-full bg-slate-900/50 backdrop-blur-sm border-b lg:border-b-0 lg:border-r border-indigo-500/20 flex-shrink-0">
+    <div class="p-6">
+     <div class="mb-8">
+      <div class="flex items-center gap-3 mb-2">
+       <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+        <span class="text-xl">🔗</span>
+       </div>
+       <div>
+        <span id="course-badge" class="text-xs font-semibold bg-indigo-500/30 text-indigo-300 px-2 py-1 rounded">ADV08</span>
+       </div>
+      </div>
+      <h1 class="heading text-xl font-bold text-white mt-3">Data Mining</h1>
+      <p class="text-sm text-gray-400">Instructor: <span id="instructor-display" class="text-indigo-300">MKDB</span></p>
+      <p id="week-display" class="text-xs text-gray-500 mt-1">Midterm Week 5</p>
+     </div>
+     <div class="mb-6">
+      <div class="flex justify-between text-sm mb-2">
+       <span class="text-gray-400">Lesson Progress</span> <span id="progress-text" class="text-indigo-300">0%</span>
+      </div>
+      <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+       <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 0%"></div>
+      </div>
+     </div>
+     <nav class="space-y-1"><button onclick="showSection('intro')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="intro"> <span class="text-lg">🎯</span>
+       <div>
+        <div class="font-medium">
+         Introduction
+        </div>
+        <div class="text-xs text-gray-500">
+         Learning Objectives
+        </div>
+       </div></button> <button onclick="showSection('whatclustering')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="whatclustering"> <span class="text-lg">🔍</span>
+       <div>
+        <div class="font-medium">
+         What is Clustering?
+        </div>
+        <div class="text-xs text-gray-500">
+         Core Concept
+        </div>
+       </div></button> <button onclick="showSection('distance')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="distance"> <span class="text-lg">📏</span>
+       <div>
+        <div class="font-medium">
+         Distance Measures
+        </div>
+        <div class="text-xs text-gray-500">
+         How Close are Things?
+        </div>
+       </div></button> <button onclick="showSection('applications')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="applications"> <span class="text-lg">🏢</span>
+       <div>
+        <div class="font-medium">
+         Business Applications
+        </div>
+        <div class="text-xs text-gray-500">
+         Real-World Examples
+        </div>
+       </div></button> <button onclick="showSection('algorithms')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="algorithms"> <span class="text-lg">⚙️</span>
+       <div>
+        <div class="font-medium">
+         Clustering Algorithms
+        </div>
+        <div class="text-xs text-gray-500">
+         Methods &amp; Approaches
+        </div>
+       </div></button> <button onclick="showSection('workflow')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="workflow"> <span class="text-lg">🔄</span>
+       <div>
+        <div class="font-medium">
+         Clustering Workflow
+        </div>
+        <div class="text-xs text-gray-500">
+         Step-by-Step Process
+        </div>
+       </div></button> <button onclick="showSection('realworld')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="realworld"> <span class="text-lg">🌍</span>
+       <div>
+        <div class="font-medium">
+         Real-World Scenarios
+        </div>
+        <div class="text-xs text-gray-500">
+         Case Studies
+        </div>
+       </div></button> <button onclick="showSection('quiz')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="quiz"> <span class="text-lg">📝</span>
+       <div>
+        <div class="font-medium">
+         Knowledge Check
+        </div>
+        <div class="text-xs text-gray-500">
+         Interactive Quiz
+        </div>
+       </div></button> <button onclick="showSection('activities')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="activities"> <span class="text-lg">🎓</span>
+       <div>
+        <div class="font-medium">
+         Activities
+        </div>
+        <div class="text-xs text-gray-500">
+         Individual &amp; Group
+        </div>
+       </div></button>
+     </nav>
+    </div>
+   </aside>
+   <main class="flex-1 overflow-auto">
+    <div class="max-w-4xl mx-auto p-6 lg:p-10"><!-- Section: Introduction -->
+     <section id="section-intro" class="section fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Module Overview</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Introduction to Clustering</h2>
+       <p class="text-xl text-gray-300 leading-relaxed">Discover how machines automatically group similar data together. Learn why clustering matters in business and master the distance measures that make it work.</p>
+      </div>
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+         <span class="text-2xl">🎯</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Intended Learning Outcomes (ILOs)</h3>
+         <p class="text-sm text-gray-400">What you'll master by the end of this lesson</p>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-indigo-500/30 flex items-center justify-center flex-shrink-0">
+          <span class="text-indigo-300 font-bold">1</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Explain clustering and its business value</h4>
+          <p class="text-sm text-gray-400 mt-1">Understand why companies use clustering to segment customers, find patterns, and make decisions</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-purple-500/30 flex items-center justify-center flex-shrink-0">
+          <span class="text-purple-300 font-bold">2</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Describe distance measures used in clustering</h4>
+          <p class="text-sm text-gray-400 mt-1">Calculate and understand Euclidean, Manhattan, and other distance metrics that determine similarity</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-pink-500/30 flex items-center justify-center flex-shrink-0">
+          <span class="text-pink-300 font-bold">3</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Differentiate clustering from classification</h4>
+          <p class="text-sm text-gray-400 mt-1">Know when to use unsupervised clustering versus supervised classification</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/20">
+       <h4 class="heading text-lg font-semibold text-white mb-4">📚 Key Concepts You'll Learn</h4>
+       <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-indigo-300">Unsupervised Learning</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-purple-300">Similarity Metrics</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-pink-300">Distance Measures</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-blue-300">Customer Segmentation</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-green-300">Pattern Discovery</span>
+       </div>
+      </div>
+      <div class="mt-8 text-center"><button onclick="showSection('whatclustering')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 inline-flex items-center gap-2"> Start Learning <span>→</span> </button>
+      </div>
+     </section><!-- Section: What is Clustering -->
+     <section id="section-whatclustering" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 1: Foundations</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">What is Clustering? 🔍</h2>
+       <p class="text-xl text-gray-300">Automatically grouping similar items together without being told what the groups are.</p>
+      </div>
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-2xl font-bold text-white mb-4">The Core Idea</h3>
+       <div class="bg-slate-900/60 rounded-xl p-6 mb-4">
+        <p class="text-lg text-gray-300 mb-4">Clustering is the process of <strong class="text-indigo-300">grouping similar data points together</strong> based on their characteristics, without being told in advance what the groups should be.</p>
+        <p class="text-sm text-gray-400 italic">Think of it like sorting a pile of unlabeled photos: without being told "these are dogs, these are cats," you naturally group photos that look similar together.</p>
+       </div>
+      </div>
+      <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/30 mb-8">
+       <h3 class="heading text-lg font-bold text-white mb-4">🔑 Clustering vs Classification: The Key Difference</h3>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-slate-800/60 rounded-xl p-5">
+         <h4 class="font-bold text-indigo-300 mb-3">✅ Classification (Supervised)</h4>
+         <ul class="text-sm text-gray-300 space-y-2">
+          <li class="flex items-start gap-2"><span class="text-indigo-300 font-bold">•</span> <span>You have labels ready (Spam/Not Spam)</span></li>
+          <li class="flex items-start gap-2"><span class="text-indigo-300 font-bold">•</span> <span>Model learns from labeled examples</span></li>
+          <li class="flex items-start gap-2"><span class="text-indigo-300 font-bold">•</span> <span>Predicts category for new data</span></li>
+          <li class="flex items-start gap-2"><span class="text-indigo-300 font-bold">•</span> <span>Example: "Is this email spam?"</span></li>
+         </ul>
+        </div>
+        <div class="bg-slate-800/60 rounded-xl p-5">
+         <h4 class="font-bold text-purple-300 mb-3">❓ Clustering (Unsupervised)</h4>
+         <ul class="text-sm text-gray-300 space-y-2">
+          <li class="flex items-start gap-2"><span class="text-purple-300 font-bold">•</span> <span>No labels exist yet</span></li>
+          <li class="flex items-start gap-2"><span class="text-purple-300 font-bold">•</span> <span>Model finds natural groups itself</span></li>
+          <li class="flex items-start gap-2"><span class="text-purple-300 font-bold">•</span> <span>Discovers patterns in unlabeled data</span></li>
+          <li class="flex items-start gap-2"><span class="text-purple-300 font-bold">•</span> <span>Example: "What groups exist in this data?"</span></li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-green-500/20">
+        <div class="text-4xl mb-3">
+         👥
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Customer Groups</h4>
+        <p class="text-sm text-gray-300">Automatically find customer segments by behavior patterns</p>
+        <p class="text-xs text-gray-500 mt-2">Amazon groups shoppers by purchase history without labels</p>
+       </div>
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-blue-500/20">
+        <div class="text-4xl mb-3">
+         🧬
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Gene Classification</h4>
+        <p class="text-sm text-gray-300">Find genes with similar expression patterns</p>
+        <p class="text-xs text-gray-500 mt-2">Scientists discover related genes without prior knowledge</p>
+       </div>
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-purple-500/20">
+        <div class="text-4xl mb-3">
+         📍
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Geographic Zones</h4>
+        <p class="text-sm text-gray-300">Group locations with similar properties</p>
+        <p class="text-xs text-gray-500 mt-2">Urban planners discover neighborhoods by characteristics</p>
+       </div>
+      </div>
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-xl font-bold text-white mb-6">📊 Visual Example: Movies</h3>
+       <div class="bg-slate-900/60 rounded-xl p-6">
+        <p class="text-sm text-gray-300 mb-4"><strong>Without clustering (Messy):</strong> 1000 random movies all mixed up</p>
+        <div class="bg-slate-800/40 rounded-lg p-4 mb-4 text-xs text-gray-400 font-mono">
+         <div>
+          🎬 Movie A (Action), 🎭 Movie B (Drama), 🎬 Movie C (Action), 🎭 Movie D (Drama)...
+         </div>
+         <div class="text-gray-500 mt-2">
+          (Random order, hard to find what you like)
+         </div>
+        </div>
+        <p class="text-sm text-gray-300 mb-4"><strong>With clustering (Organized):</strong> Movies naturally grouped</p>
+        <div class="bg-slate-800/40 rounded-lg p-4 text-xs text-gray-400">
+         <div class="mb-2">
+          <strong class="text-indigo-300">Cluster 1 - Action Movies:</strong> 🎬 Fast, car chases, explosions
+         </div>
+         <div class="mb-2">
+          <strong class="text-purple-300">Cluster 2 - Drama Movies:</strong> 🎭 Emotional, relationships, dialogue
+         </div>
+         <div>
+          <strong class="text-pink-300">Cluster 3 - Comedy Movies:</strong> 😂 Funny, lighthearted, humor
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('intro')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('distance')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Distance Measures <span>→</span> </button>
+      </div>
+     </section><!-- Section: Distance Measures -->
+     <section id="section-distance" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 2: Core Tools</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Distance Measures 📏</h2>
+       <p class="text-xl text-gray-300">How do computers decide which items are "similar"? They use distance metrics.</p>
+      </div>
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-2xl font-bold text-white mb-4">Why Distance Matters</h3>
+       <div class="bg-slate-900/60 rounded-xl p-6">
+        <p class="text-gray-300 mb-4">Clustering groups points that are <strong class="text-indigo-300">close together</strong> and separates points that are <strong class="text-indigo-300">far apart</strong>. But how do we measure "close" or "far"?</p>
+        <p class="text-sm text-gray-400 italic mb-4">That's where distance measures come in. They calculate the similarity between two data points as a number.</p>
+        <div class="bg-indigo-900/30 rounded-lg p-4 border border-indigo-500/20">
+         <p class="text-sm text-indigo-300"><strong>Key Idea:</strong> Smaller distance = more similar. Larger distance = less similar.</p>
+        </div>
+       </div>
+      </div>
+      <div class="space-y-6 mb-8"><!-- Euclidean Distance -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20">
+        <h4 class="heading font-bold text-indigo-300 mb-3 text-lg">📐 Euclidean Distance (Most Common)</h4>
+        <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+         <p class="text-sm text-gray-300 mb-3">The straight-line distance between two points, like measuring with a ruler on a map.</p>
+         <div class="bg-slate-800/40 rounded-lg p-3 font-mono text-sm text-blue-300 mb-3">
+          distance = √[(x₂-x₁)² + (y₂-y₁)²]
+         </div>
+         <p class="text-xs text-gray-400"><strong>In English:</strong> Find the difference in each direction, square them, add them up, and take the square root.</p>
+        </div>
+        <div class="bg-indigo-900/30 rounded-lg p-4 border border-indigo-500/20">
+         <p class="text-sm text-indigo-300 mb-2"><strong>Example:</strong> Two students</p>
+         <p class="text-sm text-gray-300 mb-1">Student A: 70 hours studied, 85 test score</p>
+         <p class="text-sm text-gray-300 mb-2">Student B: 75 hours studied, 90 test score</p>
+         <p class="text-xs text-gray-400">Distance = √[(75-70)² + (90-85)²] = √[25 + 25] = √50 = <strong class="text-indigo-300">7.07</strong></p>
+         <p class="text-xs text-gray-500 mt-2">Lower number = more similar study patterns</p>
+        </div>
+        <div class="mt-4 p-3 bg-slate-700/40 rounded-lg">
+         <p class="text-sm font-semibold text-white">✓ Best for:</p>
+         <p class="text-xs text-gray-400">Continuous numerical data (age, height, test scores, prices)</p>
+        </div>
+       </div><!-- Manhattan Distance -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20">
+        <h4 class="heading font-bold text-purple-300 mb-3 text-lg">🏙️ Manhattan Distance (City Blocks)</h4>
+        <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+         <p class="text-sm text-gray-300 mb-3">Distance like walking around city blocks instead of cutting diagonally. Also called "taxicab distance."</p>
+         <div class="bg-slate-800/40 rounded-lg p-3 font-mono text-sm text-blue-300 mb-3">
+          distance = |x₂-x₁| + |y₂-y₁|
+         </div>
+         <p class="text-xs text-gray-400"><strong>In English:</strong> Find the difference in each direction (absolute value), then add them together.</p>
+        </div>
+        <div class="bg-purple-900/30 rounded-lg p-4 border border-purple-500/20">
+         <p class="text-sm text-purple-300 mb-2"><strong>Example:</strong> Same two students</p>
+         <p class="text-sm text-gray-300 mb-1">Student A: 70 hours studied, 85 test score</p>
+         <p class="text-sm text-gray-300 mb-2">Student B: 75 hours studied, 90 test score</p>
+         <p class="text-xs text-gray-400">Distance = |75-70| + |90-85| = 5 + 5 = <strong class="text-purple-300">10</strong></p>
+         <p class="text-xs text-gray-500 mt-2">Usually larger than Euclidean (doesn't cut diagonals)</p>
+        </div>
+        <div class="mt-4 p-3 bg-slate-700/40 rounded-lg">
+         <p class="text-sm font-semibold text-white">✓ Best for:</p>
+         <p class="text-xs text-gray-400">When you can only move in straight lines (city grids, inventory paths)</p>
+        </div>
+       </div><!-- Cosine Similarity -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-pink-500/20">
+        <h4 class="heading font-bold text-pink-300 mb-3 text-lg">📄 Cosine Similarity (Text &amp; Angles)</h4>
+        <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+         <p class="text-sm text-gray-300 mb-3">Measures the angle between two vectors. Perfect for comparing text documents or preferences.</p>
+         <div class="bg-slate-800/40 rounded-lg p-3 font-mono text-sm text-blue-300 mb-3">
+          similarity = (A · B) / (|A| × |B|) <br>
+           distance = 1 - similarity
+         </div>
+         <p class="text-xs text-gray-400"><strong>In English:</strong> Measures how aligned two directions are (0° = same direction, 90° = perpendicular)</p>
+        </div>
+        <div class="bg-pink-900/30 rounded-lg p-4 border border-pink-500/20">
+         <p class="text-sm text-pink-300 mb-2"><strong>Example:</strong> Movie preferences</p>
+         <p class="text-sm text-gray-300 mb-1">Person A: Likes [Action:9, Drama:3, Comedy:2]</p>
+         <p class="text-sm text-gray-300 mb-2">Person B: Likes [Action:8, Drama:4, Comedy:1]</p>
+         <p class="text-xs text-gray-400">High cosine similarity = similar taste in movies</p>
+         <p class="text-xs text-gray-500 mt-2">Not about actual values, but about direction/pattern</p>
+        </div>
+        <div class="mt-4 p-3 bg-slate-700/40 rounded-lg">
+         <p class="text-sm font-semibold text-white">✓ Best for:</p>
+         <p class="text-xs text-gray-400">Text documents, user preferences, recommendation systems</p>
+        </div>
+       </div><!-- Hamming Distance -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-green-500/20">
+        <h4 class="heading font-bold text-green-300 mb-3 text-lg">🔤 Hamming Distance (Categories)</h4>
+        <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+         <p class="text-sm text-gray-300 mb-3">Counts how many positions are different between two strings or categories.</p>
+         <div class="bg-slate-800/40 rounded-lg p-3 font-mono text-sm text-blue-300 mb-3">
+          distance = number of different positions
+         </div>
+        </div>
+        <div class="bg-green-900/30 rounded-lg p-4 border border-green-500/20">
+         <p class="text-sm text-green-300 mb-2"><strong>Example:</strong> DNA sequences</p>
+         <p class="text-sm text-gray-300 mb-1">DNA A: AGGTAB</p>
+         <p class="text-sm text-gray-300 mb-2">DNA B: AGGTAC</p>
+         <p class="text-xs text-gray-400">Distance = 1 (only the last letter is different)</p>
+        </div>
+        <div class="mt-4 p-3 bg-slate-700/40 rounded-lg">
+         <p class="text-sm font-semibold text-white">✓ Best for:</p>
+         <p class="text-xs text-gray-400">Categorical data, strings, DNA sequences, binary attributes</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-r from-amber-900/40 to-orange-900/40 rounded-2xl p-6 border border-amber-500/30 mb-8">
+       <h4 class="heading text-lg font-bold text-white mb-4">🎯 Which Distance to Choose?</h4>
+       <div class="space-y-3 text-sm">
+        <div class="bg-slate-800/60 rounded-lg p-3">
+         <p class="text-amber-300 font-semibold mb-1">Customer Demographics (age, income, location):</p>
+         <p class="text-gray-300">Use <strong>Euclidean Distance</strong></p>
+        </div>
+        <div class="bg-slate-800/60 rounded-lg p-3">
+         <p class="text-amber-300 font-semibold mb-1">Movie/Music Recommendations:</p>
+         <p class="text-gray-300">Use <strong>Cosine Similarity</strong></p>
+        </div>
+        <div class="bg-slate-800/60 rounded-lg p-3">
+         <p class="text-amber-300 font-semibold mb-1">Gene Sequences or DNA:</p>
+         <p class="text-gray-300">Use <strong>Hamming Distance</strong></p>
+        </div>
+        <div class="bg-slate-800/60 rounded-lg p-3">
+         <p class="text-amber-300 font-semibold mb-1">GPS Routing or Urban Planning:</p>
+         <p class="text-gray-300">Use <strong>Manhattan Distance</strong></p>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('whatclustering')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('applications')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Business Applications <span>→</span> </button>
+      </div>
+     </section><!-- Section: Applications -->
+     <section id="section-applications" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 3: Real Impact</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Business Applications 🏢</h2>
+       <p class="text-xl text-gray-300">Where clustering creates real value for companies.</p>
+      </div>
+      <div class="space-y-6 mb-8"><!-- Retail -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
+          <span class="text-2xl">🛍️</span>
+         </div>
+         <div>
+          <h3 class="heading text-xl font-bold text-white">Retail: Customer Segmentation</h3>
+          <p class="text-sm text-gray-400">Finding customer groups to boost sales</p>
+         </div>
+        </div>
+        <div class="bg-indigo-900/20 rounded-xl p-5 border border-indigo-500/20">
+         <p class="text-sm text-gray-300 mb-4"><strong>Challenge:</strong> Walmart has 100 million shoppers. They're all different. How do we market to them effectively?</p>
+         <div class="space-y-3">
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-indigo-300 mb-1">What Clustering Finds:</p>
+           <div class="text-xs text-gray-400 space-y-1">
+            <p>🏃 Cluster 1 - "Budget Hunters": Shop on weekends, use coupons, buy generic brands</p>
+            <p>💎 Cluster 2 - "Premium Buyers": Shop weekdays, prefer organic/quality, pay full price</p>
+            <p>🎓 Cluster 3 - "College Students": Buy instant food, cheap snacks, shop late at night</p>
+           </div>
+          </div>
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-green-300 mb-1">Business Impact:</p>
+           <p class="text-xs text-gray-400">Send targeted coupons to Budget Hunters. Show organic food ads to Premium Buyers. Recommend instant meals to Students. <strong class="text-green-300">Result: 25% higher response rate</strong></p>
+          </div>
+         </div>
+        </div>
+       </div><!-- Healthcare -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+          <span class="text-2xl">🏥</span>
+         </div>
+         <div>
+          <h3 class="heading text-xl font-bold text-white">Healthcare: Disease Subtypes</h3>
+          <p class="text-sm text-gray-400">Finding different types of cancer</p>
+         </div>
+        </div>
+        <div class="bg-purple-900/20 rounded-xl p-5 border border-purple-500/20">
+         <p class="text-sm text-gray-300 mb-4"><strong>Challenge:</strong> Two patients have "breast cancer," but they respond differently to treatment. Why?</p>
+         <div class="space-y-3">
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-purple-300 mb-1">What Clustering Finds:</p>
+           <div class="text-xs text-gray-400 space-y-1">
+            <p>Cluster 1 - ER+ Cancer: Hormone-sensitive, treatment with estrogen blockers works</p>
+            <p>Cluster 2 - HER2+ Cancer: Different protein markers, requires different therapy</p>
+            <p>Cluster 3 - Triple Negative: Most aggressive, needs stronger chemotherapy</p>
+           </div>
+          </div>
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-green-300 mb-1">Medical Impact:</p>
+           <p class="text-xs text-gray-400"><strong class="text-green-300">Personalized medicine:</strong> Each subtype gets the right treatment. Survival rates improve dramatically because doctors match therapy to cancer type.</p>
+          </div>
+         </div>
+        </div>
+       </div><!-- Entertainment -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-pink-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-red-600 flex items-center justify-center">
+          <span class="text-2xl">🎬</span>
+         </div>
+         <div>
+          <h3 class="heading text-xl font-bold text-white">Entertainment: Content Recommendation</h3>
+          <p class="text-sm text-gray-400">Finding similar movies and shows</p>
+         </div>
+        </div>
+        <div class="bg-pink-900/20 rounded-xl p-5 border border-pink-500/20">
+         <p class="text-sm text-gray-300 mb-4"><strong>Challenge:</strong> Netflix has 200,000 titles. How do we recommend what to watch next?</p>
+         <div class="space-y-3">
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-pink-300 mb-1">What Clustering Does:</p>
+           <div class="text-xs text-gray-400 space-y-1">
+            <p>Groups similar movies by: genre, actors, directors, tone, length, audience rating</p>
+            <p>Clusters shows you watched with shows similar viewers enjoyed</p>
+           </div>
+          </div>
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-green-300 mb-1">Business Impact:</p>
+           <p class="text-xs text-gray-400">60% of Netflix views come from recommendations. Better clustering = more watch time = lower churn (people cancel less).</p>
+          </div>
+         </div>
+        </div>
+       </div><!-- Finance -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-green-500/20">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+          <span class="text-2xl">💳</span>
+         </div>
+         <div>
+          <h3 class="heading text-xl font-bold text-white">Finance: Fraud Detection</h3>
+          <p class="text-sm text-gray-400">Finding unusual spending patterns</p>
+         </div>
+        </div>
+        <div class="bg-green-900/20 rounded-xl p-5 border border-green-500/20">
+         <p class="text-sm text-gray-300 mb-4"><strong>Challenge:</strong> A fraudster tries to blend in. How do we spot unusual clusters of activity?</p>
+         <div class="space-y-3">
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-green-300 mb-1">What Clustering Reveals:</p>
+           <div class="text-xs text-gray-400 space-y-1">
+            <p>Normal Cluster: Jane's usual spending (groceries $50-100, gas $40-60, restaurants $20-30)</p>
+            <p>Anomaly: Sudden $2000 electronics purchase at midnight in another country</p>
+            <p>Alert: This transaction is FAR from Jane's cluster → likely fraud</p>
+           </div>
+          </div>
+          <div class="bg-slate-900/60 rounded-lg p-3">
+           <p class="text-xs font-semibold text-green-300 mb-1">Business Impact:</p>
+           <p class="text-xs text-gray-400">Detects fraud in real-time by spotting transactions that don't fit the cluster. Saves millions in fraudulent charges.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('distance')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('algorithms')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Clustering Algorithms <span>→</span> </button>
+      </div>
+     </section><!-- Section: Algorithms -->
+     <section id="section-algorithms" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 4: Methods</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Clustering Algorithms ⚙️</h2>
+       <p class="text-xl text-gray-300">Different ways to find groups in data.</p>
+      </div>
+      <div class="space-y-6 mb-8"><!-- K-Means -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20">
+        <h4 class="heading font-bold text-indigo-300 mb-3 text-lg">🎯 K-Means: Centroid-Based</h4>
+        <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+         <p class="text-sm text-gray-300 mb-3">Divides data into k clusters by finding the center of each group and assigning points to the nearest center.</p>
+        </div>
+        <div class="bg-indigo-900/30 rounded-lg p-4 border border-indigo-500/20 mb-4">
+         <p class="text-sm text-indigo-300 mb-2"><strong>How it works (Simple):</strong></p>
+         <ol class="text-xs text-gray-400 space-y-1 ml-4">
+          <li>1. Pick k random starting points (cluster centers)</li>
+          <li>2. Assign each data point to the nearest center</li>
+          <li>3. Move centers to the middle of their assigned points</li>
+          <li>4. Repeat steps 2-3 until clusters stop changing</li>
+         </ol>
+        </div>
+        <div class="grid md:grid-cols-2 gap-3">
+         <div class="bg-slate-700/40 rounded-lg p-3">
+          <p class="text-xs font-semibold text-green-300 mb-1">✓ Pros:</p>
+          <p class="text-xs text-gray-400">Fast, simple, works well with medium datasets</p>
+         </div>
+         <div class="bg-slate-700/40 rounded-lg p-3">
+          <p class="text-xs font-semibold text-red-300 mb-1">✗ Cons:</p>
+          <p class="text-xs text-gray-400">Need to specify k, finds spherical clusters only</p>
+         </div>
+        </div>
+       </div><!-- Hierarchical -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20">
+        <h4 class="heading font-bold text-purple-300 mb-3 text-lg">🌳 Hierarchical Clustering: Tree Structure</h4>
+        <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+         <p class="text-sm text-gray-300 mb-3">Creates a tree (dendrogram) showing how data points and clusters group together at different levels.</p>
+        </div>
+        <div class="bg-purple-900/30 rounded-lg p-4 border border-purple-500/20 mb-4">
+         <p class="text-sm text-purple-300 mb-2"><strong>How it works:</strong></p>
+         <div class="text-xs text-gray-400">
+          <p>Bottom-up approach: Start with each point as its own cluster, then merge closest clusters</p>
+          <p class="mt-2">Result: Tree showing relationships at all distances</p>
+         </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-3">
+         <div class="bg-slate-700/40 rounded-lg p-3">
+          <p class="text-xs font-semibold text-green-300 mb-1">✓ Pros:</p>
+          <p class="text-xs text-gray-400">See structure at all levels, don't need to specify k</p>
+         </div>
+         <div class="bg-slate-700/40 rounded-lg p-3">
+          <p class="text-xs font-semibold text-red-300 mb-1">✗ Cons:</p>
+          <p class="text-xs text-gray-400">Slower, harder to interpret for large datasets</p>
+         </div>
+        </div>
+       </div><!-- DBSCAN -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-pink-500/20">
+        <h4 class="heading font-bold text-pink-300 mb-3 text-lg">🌀 DBSCAN: Density-Based</h4>
+        <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+         <p class="text-sm text-gray-300 mb-3">Groups together points that are close in dense regions. Great for finding irregular shapes.</p>
+        </div>
+        <div class="bg-pink-900/30 rounded-lg p-4 border border-pink-500/20 mb-4">
+         <p class="text-sm text-pink-300 mb-2"><strong>Key idea:</strong></p>
+         <p class="text-xs text-gray-400">A cluster is a group of nearby points. Points in empty space are considered noise (outliers).</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-3">
+         <div class="bg-slate-700/40 rounded-lg p-3">
+          <p class="text-xs font-semibold text-green-300 mb-1">✓ Pros:</p>
+          <p class="text-xs text-gray-400">Finds any shape, detects outliers automatically</p>
+         </div>
+         <div class="bg-slate-700/40 rounded-lg p-3">
+          <p class="text-xs font-semibold text-red-300 mb-1">✗ Cons:</p>
+          <p class="text-xs text-gray-400">Hard to tune parameters, slower</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('applications')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('workflow')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Clustering Workflow <span>→</span> </button>
+      </div>
+     </section><!-- Section: Workflow -->
+     <section id="section-workflow" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 5: Process</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Clustering Workflow 🔄</h2>
+       <p class="text-xl text-gray-300">Step-by-step process from raw data to meaningful groups.</p>
+      </div>
+      <div class="space-y-4 mb-8">
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-indigo-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-indigo-500/30 flex items-center justify-center flex-shrink-0 font-bold text-indigo-300">
+          1
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🗂️ Collect Data</h4>
+          <p class="text-gray-300 text-sm">Gather data about items you want to group (customer behavior, product features, gene expressions, etc.)</p>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-purple-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-purple-500/30 flex items-center justify-center flex-shrink-0 font-bold text-purple-300">
+          2
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🧹 Clean &amp; Normalize</h4>
+          <p class="text-gray-300 text-sm">Remove missing values, handle outliers, scale features to similar ranges (so height doesn't dominate income)</p>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-pink-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-pink-500/30 flex items-center justify-center flex-shrink-0 font-bold text-pink-300">
+          3
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">📏 Choose Distance Measure</h4>
+          <p class="text-gray-300 text-sm">Pick the right metric (Euclidean for numbers, Cosine for text, Hamming for categories)</p>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-blue-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-blue-500/30 flex items-center justify-center flex-shrink-0 font-bold text-blue-300">
+          4
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">⚙️ Select Algorithm</h4>
+          <p class="text-gray-300 text-sm">Choose K-Means (fast, simple), Hierarchical (see all levels), or DBSCAN (any shape)</p>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-green-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-green-500/30 flex items-center justify-center flex-shrink-0 font-bold text-green-300">
+          5
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🎯 Tune Parameters</h4>
+          <p class="text-gray-300 text-sm">For K-Means: decide on k (number of clusters). Use elbow method or silhouette scores</p>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-amber-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-amber-500/30 flex items-center justify-center flex-shrink-0 font-bold text-amber-300">
+          6
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🚀 Run Clustering</h4>
+          <p class="text-gray-300 text-sm">Execute the algorithm. Get cluster assignments for each data point</p>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-cyan-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-cyan-500/30 flex items-center justify-center flex-shrink-0 font-bold text-cyan-300">
+          7
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">📊 Visualize &amp; Interpret</h4>
+          <p class="text-gray-300 text-sm">Plot clusters, examine characteristics of each group, give them meaningful names</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('algorithms')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('realworld')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Real-World Scenario <span>→</span> </button>
+      </div>
+     </section><!-- Section: Real-World Scenario -->
+     <section id="section-realworld" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 6: Deep Dive</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Real-World Scenario 🌍</h2>
+       <p class="text-xl text-gray-300">Complete example: A coffee company wants to understand its customers.</p>
+      </div>
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-2xl font-bold text-white mb-6">☕ Case Study: Starbucks Customer Segmentation</h3>
+       <div class="bg-indigo-900/20 rounded-xl p-6 border border-indigo-500/20 mb-6">
+        <p class="text-gray-300 mb-4"><strong>The Problem:</strong> Starbucks has 30 million customers worldwide. The company wants to:</p>
+        <ul class="text-sm text-gray-400 space-y-2 ml-4">
+         <li>• Send better personalized offers</li>
+         <li>• Improve in-store experience for different customer types</li>
+         <li>• Reduce waste by stocking what each segment likes</li>
+        </ul>
+       </div>
+       <div class="space-y-6"><!-- Step 1 -->
+        <div class="bg-slate-900/60 rounded-xl p-6">
+         <h4 class="heading font-bold text-indigo-300 mb-3">Step 1️⃣: Data Collection</h4>
+         <div class="text-sm text-gray-300 space-y-2">
+          <p><strong>What data do they collect?</strong></p>
+          <ul class="ml-4 space-y-1 text-gray-400">
+           <li>• Purchase frequency (daily, weekly, monthly?)</li>
+           <li>• Average spend per visit ($)</li>
+           <li>• Favorite drink type (espresso, latte, frappuccino?)</li>
+           <li>• Time of day (morning rush, afternoon break, evening?)</li>
+           <li>• Add-ons bought (pastries, sandwiches, merch?)</li>
+           <li>• Loyalty program status (gold member, new?)</li>
+          </ul>
+         </div>
+        </div><!-- Step 2 -->
+        <div class="bg-slate-900/60 rounded-xl p-6">
+         <h4 class="heading font-bold text-purple-300 mb-3">Step 2️⃣: Clean &amp; Normalize</h4>
+         <div class="text-sm text-gray-300">
+          <p><strong>Sample raw data:</strong></p>
+          <div class="bg-slate-800/40 rounded-lg p-3 font-mono text-xs text-gray-400 mt-2">
+           <div>
+            Customer A: visits=52/year, spend=$3.50/visit, favorite=latte, time=morning
+           </div>
+           <div>
+            Customer B: visits=200/year, spend=$5.00/visit, favorite=frappuccino, time=afternoon
+           </div>
+           <div>
+            Customer C: visits=10/year, spend=$12/visit, favorite=cold-brew, time=evening
+           </div>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">They normalize: visits (0-365), spend (0-20), time (0-24 hours)</p>
+         </div>
+        </div><!-- Step 3 -->
+        <div class="bg-slate-900/60 rounded-xl p-6">
+         <h4 class="heading font-bold text-pink-300 mb-3">Step 3️⃣: Choose Distance (Euclidean)</h4>
+         <div class="text-sm text-gray-300">
+          <p><strong>Why Euclidean?</strong> All features are numerical (frequency, price, time)</p>
+          <p class="text-xs text-gray-500 mt-2">Calculate distance between customers based on their profile</p>
+         </div>
+        </div><!-- Step 4 -->
+        <div class="bg-slate-900/60 rounded-xl p-6">
+         <h4 class="heading font-bold text-blue-300 mb-3">Step 4️⃣: Pick Algorithm (K-Means)</h4>
+         <p class="text-sm text-gray-300">Use K-Means because it's fast for millions of customers and finds clear groups</p>
+        </div><!-- Step 5 -->
+        <div class="bg-slate-900/60 rounded-xl p-6">
+         <h4 class="heading font-bold text-green-300 mb-3">Step 5️⃣: Decide on k</h4>
+         <div class="text-sm text-gray-300">
+          <p><strong>Testing different k values:</strong></p>
+          <ul class="ml-4 space-y-1 text-gray-400 text-xs mt-2">
+           <li>• k=2: Too broad, misses important differences</li>
+           <li>• k=4: Good! Makes sense and shows clear patterns ✓</li>
+           <li>• k=8: Too many, hard to manage and interpret</li>
+          </ul>
+          <p class="text-xs text-gray-500 mt-3"><strong>Decision:</strong> Use k=4 clusters</p>
+         </div>
+        </div><!-- Results -->
+        <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-xl p-6 border border-indigo-500/20">
+         <h4 class="heading font-bold text-white mb-4">🎯 Step 6️⃣: Results - The 4 Customer Segments</h4>
+         <div class="space-y-3">
+          <div class="bg-slate-800/60 rounded-lg p-4">
+           <p class="text-indigo-300 font-bold mb-1">💼 Cluster 1: "Business Professionals"</p>
+           <p class="text-xs text-gray-400"><strong>Profile:</strong> Visit daily, spend $4/visit, always espresso or americano, rush hour, high loyalty</p>
+           <p class="text-xs text-gray-500 mt-1"><strong>Size:</strong> 8M customers | <strong>Revenue:</strong> High ($600M/year)</p>
+           <p class="text-xs text-gray-500"><strong>Strategy:</strong> Morning rush express line, loyalty rewards, "double shot" deals</p>
+          </div>
+          <div class="bg-slate-800/60 rounded-lg p-4">
+           <p class="text-purple-300 font-bold mb-1">👨‍👩‍👧‍👦 Cluster 2: "Social Visitors"</p>
+           <p class="text-xs text-gray-400"><strong>Profile:</strong> Visit 2x/week, spend $6/visit, love lattes &amp; pastries, afternoon/weekend, medium loyalty</p>
+           <p class="text-xs text-gray-500 mt-1"><strong>Size:</strong> 12M customers | <strong>Revenue:</strong> Very high ($720M/year)</p>
+           <p class="text-xs text-gray-500"><strong>Strategy:</strong> Comfy seating, wifi, food promotions, group discounts</p>
+          </div>
+          <div class="bg-slate-800/60 rounded-lg p-4">
+           <p class="text-pink-300 font-bold mb-1">🎓 Cluster 3: "Students"</p>
+           <p class="text-xs text-gray-400"><strong>Profile:</strong> Visit 3x/week, spend $2.50/visit, frappuccinos &amp; pastries, long stays, low loyalty</p>
+           <p class="text-xs text-gray-500 mt-1"><strong>Size:</strong> 7M customers | <strong>Revenue:</strong> Medium ($260M/year)</p>
+           <p class="text-xs text-gray-500"><strong>Strategy:</strong> Student discounts, study-hour promo, happy hour drinks</p>
+          </div>
+          <div class="bg-slate-800/60 rounded-lg p-4">
+           <p class="text-green-300 font-bold mb-1">💎 Cluster 4: "Premium Enthusiasts"</p>
+           <p class="text-xs text-gray-400"><strong>Profile:</strong> Visit rarely (1x/month), spend $12/visit, specialty drinks, any time, very high loyalty</p>
+           <p class="text-xs text-gray-500 mt-1"><strong>Size:</strong> 3M customers | <strong>Revenue:</strong> High ($432M/year)</p>
+           <p class="text-xs text-gray-500"><strong>Strategy:</strong> VIP lounge, exclusive flavors, personalized recommendations</p>
+          </div>
+         </div>
+        </div>
+        <div class="bg-green-900/20 rounded-xl p-6 border border-green-500/20 mt-6">
+         <h4 class="font-bold text-green-300 mb-3">💰 Business Results</h4>
+         <ul class="text-sm text-gray-300 space-y-2">
+          <li class="flex items-start gap-2"><span class="text-green-300">✓</span> <span>Targeted campaigns: 40% increase in offer acceptance</span></li>
+          <li class="flex items-start gap-2"><span class="text-green-300">✓</span> <span>Inventory optimization: Reduced waste by 20%</span></li>
+          <li class="flex items-start gap-2"><span class="text-green-300">✓</span> <span>Revenue growth: $2B additional annual revenue from better targeting</span></li>
+          <li class="flex items-start gap-2"><span class="text-green-300">✓</span> <span>Customer satisfaction: Higher NPS (net promoter score) across all segments</span></li>
+         </ul>
+        </div>
+       </div>
+       <div class="flex justify-between items-center mt-8"><button onclick="showSection('workflow')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('quiz')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Take the Quiz <span>→</span> </button>
+       </div>
+      </div>
+     </section><!-- Section: Quiz -->
+     <section id="section-quiz" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Knowledge Check</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Test Your Understanding 📝</h2>
+       <p class="text-xl text-gray-300">Answer these questions to check your learning.</p>
+      </div>
+      <div id="quiz-container"></div>
+      <div id="quiz-results" class="hidden bg-gradient-to-r from-green-900/40 to-emerald-900/40 rounded-2xl p-6 border border-green-500/30 mt-8">
+       <h3 class="heading text-xl font-bold text-green-300 mb-2">🎉 Quiz Complete!</h3>
+       <p id="quiz-score" class="text-lg text-gray-300"></p><button onclick="resetQuiz()" class="mt-4 px-6 py-2 bg-green-600 hover:bg-green-500 rounded-lg text-white font-medium transition-all">Retake Quiz</button>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('realworld')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('activities')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Activities <span>→</span> </button>
+      </div>
+     </section><!-- Section: Activities -->
+     <section id="section-activities" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Apply Your Learning</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Individual &amp; Group Activities 🎓</h2>
+       <p class="text-xl text-gray-300">Put clustering concepts into practice with hands-on exercises.</p>
+      </div><!-- Individual Activity -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
+         <span class="text-2xl">👤</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Individual Activity</h3>
+         <p class="text-sm text-gray-400">Work on this independently</p>
+        </div>
+       </div>
+       <div class="bg-indigo-900/20 rounded-xl p-5 mb-6 border border-indigo-500/20">
+        <h4 class="font-bold text-indigo-300 mb-3">📊 Task: Distance Calculator &amp; Clustering</h4>
+        <p class="text-gray-300 mb-4">You're given data about 5 restaurants. Calculate distances and manually identify clusters.</p>
+        <div class="bg-slate-900/60 rounded-lg p-4 mb-4 text-xs">
+         <p class="text-indigo-300 font-bold mb-2">Restaurant Data:</p>
+         <table class="w-full text-gray-400">
+          <thead>
+           <tr class="text-gray-300">
+            <th class="text-left">Restaurant</th>
+            <th class="text-right">Price ($)</th>
+            <th class="text-right">Wait Time (min)</th>
+           </tr>
+          </thead>
+          <tbody class="text-gray-500">
+           <tr>
+            <td>A (Fast Food)</td>
+            <td class="text-right">5</td>
+            <td class="text-right">5</td>
+           </tr>
+           <tr>
+            <td>B (Fast Casual)</td>
+            <td class="text-right">12</td>
+            <td class="text-right">15</td>
+           </tr>
+           <tr>
+            <td>C (Cheap Eats)</td>
+            <td class="text-right">6</td>
+            <td class="text-right">8</td>
+           </tr>
+           <tr>
+            <td>D (Fine Dining)</td>
+            <td class="text-right">50</td>
+            <td class="text-right">30</td>
+           </tr>
+           <tr>
+            <td>E (Upscale Casual)</td>
+            <td class="text-right">45</td>
+            <td class="text-right">25</td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h5 class="font-semibold text-white mb-2">📝 Your Tasks:</h5>
+         <ol class="text-sm text-gray-300 space-y-3">
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span> <span><strong>Calculate Euclidean distances</strong> between all pairs (e.g., A to B, A to C, etc.)</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span> <span><strong>Find similar restaurants</strong> (low distance = similar)</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span> <span><strong>Identify clusters:</strong> Group restaurants that are similar (e.g., Budget Restaurants, Fine Dining)</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span> <span><strong>Name each cluster</strong> based on what they have in common</span></li>
+         </ol>
+        </div>
+        <details class="bg-slate-700/40 rounded-lg"><summary class="p-4 cursor-pointer text-indigo-300 font-medium">💡 Calculation Hints</summary>
+         <div class="p-4 pt-0 text-xs text-gray-400 space-y-2 font-mono">
+          <p><strong>Distance A to B:</strong> √[(12-5)² + (15-5)²] = √[49 + 100] = √149 ≈ 12.2</p>
+          <p><strong>Distance A to C:</strong> √[(6-5)² + (8-5)²] = √[1 + 9] = √10 ≈ 3.2</p>
+          <p class="mt-2">Complete all pairs and compare to find clusters!</p>
+         </div>
+        </details>
+       </div>
+      </div><!-- Group Activity -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+         <span class="text-2xl">👥</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Group Activity</h3>
+         <p class="text-sm text-gray-400">Teams of 3-4 members</p>
+        </div>
+       </div>
+       <div class="bg-purple-900/20 rounded-xl p-5 mb-6 border border-purple-500/20">
+        <h4 class="font-bold text-purple-300 mb-3">🛒 Task: Retail Store Customer Clustering</h4>
+        <p class="text-gray-300 mb-4">Your team manages a clothing store. You have customer purchase data. Design a clustering strategy to improve marketing and inventory.</p>
+       </div>
+       <div class="space-y-4">
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h5 class="font-semibold text-white mb-3">📋 Team Responsibilities:</h5>
+         <div class="space-y-3 text-sm">
+          <div class="flex items-start gap-2">
+           <span class="text-purple-300 font-bold min-w-fit">Role 1 - Data Analyst:</span> <span class="text-gray-300">What customer features should we collect? (age, spend, purchase frequency, preferred brands?)</span>
+          </div>
+          <div class="flex items-start gap-2">
+           <span class="text-purple-300 font-bold min-w-fit">Role 2 - Distance Expert:</span> <span class="text-gray-300">Which distance measure should we use? Why? (Euclidean, Cosine, Hamming?)</span>
+          </div>
+          <div class="flex items-start gap-2">
+           <span class="text-purple-300 font-bold min-w-fit">Role 3 - Algorithm Selector:</span> <span class="text-gray-300">Which algorithm is best? (K-Means, Hierarchical, DBSCAN?) and why?</span>
+          </div>
+          <div class="flex items-start gap-2">
+           <span class="text-purple-300 font-bold min-w-fit">Role 4 - Business Strategist:</span> <span class="text-gray-300">What customer segments emerge? What's each segment's strategy?</span>
+          </div>
+         </div>
+         <div class="bg-slate-700/40 rounded-lg p-4">
+          <h5 class="font-semibold text-white mb-2">🎯 Deliverables:</h5>
+          <ul class="text-sm text-gray-300 space-y-2">
+           <li>1. List of features to collect (5-7 features)</li>
+           <li>2. Distance measure choice with justification</li>
+           <li>3. Algorithm choice and why it's best</li>
+           <li>4. Predicted customer segments (3-5 clusters)</li>
+           <li>5. Marketing strategy for each segment</li>
+           <li>6. 5-minute presentation to class</li>
+          </ul>
+         </div>
+         <div class="bg-gradient-to-r from-pink-900/30 to-purple-900/30 rounded-lg p-4 border border-pink-500/20">
+          <h5 class="font-semibold text-pink-300 mb-2">💭 Discussion Questions:</h5>
+          <ul class="text-sm text-gray-300 space-y-1">
+           <li>• What makes customers similar? Price sensitivity? Brand loyalty? Fashion sense?</li>
+           <li>• If K-Means gives 4 clusters, is that good? Should we try 5 or 3?</li>
+           <li>• How would you explain each cluster to the store manager?</li>
+           <li>• What offers would work best for each segment?</li>
+          </ul>
+         </div>
+        </div>
+       </div><!-- Grading Rubric -->
+       <div class="bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 mb-8">
+        <h4 class="heading text-lg font-semibold text-green-300 mb-4 flex items-center gap-2"><span>✅</span> Grading Rubric</h4>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div>
+          <p class="text-sm font-medium text-white mb-2">Individual Activity:</p>
+          <ul class="text-xs text-gray-300 space-y-1">
+           <li>☐ Distances calculated correctly (40%)</li>
+           <li>☐ Clusters logically identified (30%)</li>
+           <li>☐ Clear explanations (20%)</li>
+           <li>☐ Work shown (10%)</li>
+          </ul>
+         </div>
+         <div>
+          <p class="text-sm font-medium text-white mb-2">Group Activity:</p>
+          <ul class="text-xs text-gray-300 space-y-1">
+           <li>☐ Feature selection justified (20%)</li>
+           <li>☐ Distance measure justified (20%)</li>
+           <li>☐ Algorithm choice explained (25%)</li>
+           <li>☐ Business strategy clear (25%)</li>
+           <li>☐ Presentation quality (10%)</li>
+          </ul>
+         </div>
+        </div>
+       </div><!-- Summary -->
+       <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+        <h4 class="heading text-xl font-bold text-white mb-4 flex items-center gap-2"><span>🎓</span> Lesson Summary</h4>
+        <div class="grid md:grid-cols-3 gap-4">
+         <div class="text-center p-4 bg-indigo-900/30 rounded-xl"><span class="text-2xl mb-2 block">🔍</span>
+          <p class="text-sm text-indigo-200 font-medium">ILO 1 ✓</p>
+          <p class="text-xs text-gray-400">Explained clustering concept and business value</p>
+         </div>
+         <div class="text-center p-4 bg-purple-900/30 rounded-xl"><span class="text-2xl mb-2 block">📏</span>
+          <p class="text-sm text-purple-200 font-medium">ILO 2 ✓</p>
+          <p class="text-xs text-gray-400">Described distance measures and their uses</p>
+         </div>
+         <div class="text-center p-4 bg-pink-900/30 rounded-xl"><span class="text-2xl mb-2 block">⚙️</span>
+          <p class="text-sm text-pink-200 font-medium">ILO 3 ✓</p>
+          <p class="text-xs text-gray-400">Applied clustering workflow to real scenarios</p>
+         </div>
+        </div>
+       </div>
+       <div class="flex justify-between items-center mt-8"><button onclick="showSection('quiz')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back to Quiz </button> <button onclick="showSection('intro')" class="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-green-500/30 flex items-center gap-2"> 🔄 Review Lesson </button>
+       </div>
+      </div>
+     </section>
+    </div>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      course_code: 'ADV08',
+      instructor_name: 'MKDB',
+      week_info: 'Midterm Week 5'
+    };
+    
+    let config = { ...defaultConfig };
+    const sections = ['intro', 'whatclustering', 'distance', 'applications', 'algorithms', 'workflow', 'realworld', 'quiz', 'activities'];
+    let visitedSections = new Set(['intro']);
+    
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      const targetSection = document.getElementById(`section-${sectionId}`);
+      if (targetSection) {
+        targetSection.classList.remove('hidden');
+        targetSection.classList.add('fade-in');
+      }
+      
+      document.querySelectorAll('.nav-item').forEach(nav => {
+        nav.classList.remove('active', 'bg-indigo-500/20');
+        if (nav.dataset.section === sectionId) {
+          nav.classList.add('active', 'bg-indigo-500/20');
+          nav.style.borderLeftColor = '#818cf8';
+        } else {
+          nav.style.borderLeftColor = 'transparent';
+        }
+      });
+      
+      visitedSections.add(sectionId);
+      updateProgress();
+      
+      if (sectionId === 'quiz') {
+        initQuiz();
+      }
+      
+      document.querySelector('main').scrollTop = 0;
+    }
+    
+    function updateProgress() {
+      const progress = Math.round((visitedSections.size / sections.length) * 100);
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      if (progressBar) progressBar.style.width = `${progress}%`;
+      if (progressText) progressText.textContent = `${progress}%`;
+    }
+
+    const quizQuestions = [
+      {
+        question: "What is the main difference between clustering and classification?",
+        options: [
+          "Clustering is supervised, classification is unsupervised",
+          "Clustering is unsupervised (no labels), classification is supervised (has labels)",
+          "They are exactly the same thing",
+          "Clustering only works with text data"
+        ],
+        correct: 1,
+        explanation: "Clustering finds natural groups without labels (unsupervised). Classification predicts predefined categories using labeled training data (supervised)."
+      },
+      {
+        question: "When would you use Euclidean distance?",
+        options: [
+          "Only for text documents",
+          "For continuous numerical data like age, price, test scores",
+          "For DNA sequences",
+          "Only in retail applications"
+        ],
+        correct: 1,
+        explanation: "Euclidean distance is the straight-line distance between numerical data points, perfect for continuous variables like demographics."
+      },
+      {
+        question: "Which algorithm works best when you don't know how many clusters exist?",
+        options: [
+          "K-Means (you must specify k)",
+          "Hierarchical clustering (shows all levels)",
+          "Both need to know k in advance",
+          "Neither works without knowing k"
+        ],
+        correct: 1,
+        explanation: "Hierarchical clustering creates a tree showing all possible cluster levels, so you don't need to specify k in advance."
+      },
+      {
+        question: "In the Starbucks example, what defined the 'Business Professionals' cluster?",
+        options: [
+          "Low spend, evening visits",
+          "High frequency, low spend, morning visits, high loyalty",
+          "Rare visits, very high spend",
+          "Irregular pattern, medium frequency"
+        ],
+        correct: 1,
+        explanation: "Business Professionals visited daily, spent $4/visit, preferred espresso, came during rush hour, and had high loyalty."
+      },
+      {
+        question: "What is the main advantage of DBSCAN over K-Means?",
+        options: [
+          "It's always faster",
+          "It can find any cluster shape and detect outliers automatically",
+          "It works better for small datasets",
+          "It requires fewer parameters to tune"
+        ],
+        correct: 1,
+        explanation: "DBSCAN is density-based, so it finds irregular cluster shapes and identifies noise/outliers, unlike K-Means which finds spherical clusters."
+      }
+    ];
+    
+    let quizAnswers = {};
+    let quizInitialized = false;
+    
+    function initQuiz() {
+      if (quizInitialized) return;
+      
+      const container = document.getElementById('quiz-container');
+      if (!container) return;
+      
+      container.innerHTML = quizQuestions.map((q, idx) => `
+        <div class="bg-slate-800/60 backdrop-blur rounded-xl p-6 mb-4 border border-slate-600/50">
+          <p class="font-semibold text-white mb-4">
+            <span class="text-indigo-400">${idx + 1}.</span> ${q.question}
+          </p>
+          <div class="space-y-2">
+            ${q.options.map((opt, optIdx) => `
+              <button 
+                onclick="selectAnswer(${idx}, ${optIdx})"
+                class="quiz-option w-full text-left p-3 rounded-lg border border-slate-600 text-gray-300 hover:text-white transition-all"
+                data-question="${idx}"
+                data-option="${optIdx}"
+              >
+                <span class="inline-block w-6 h-6 rounded-full bg-slate-700 text-center text-sm mr-3">${String.fromCharCode(65 + optIdx)}</span>
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="explanation-${idx}" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+        </div>
+      `).join('');
+      
+      quizInitialized = true;
+    }
+    
+    function selectAnswer(questionIdx, optionIdx) {
+      const question = quizQuestions[questionIdx];
+      const isCorrect = optionIdx === question.correct;
+      
+      quizAnswers[questionIdx] = optionIdx;
+      
+      const buttons = document.querySelectorAll(`[data-question="${questionIdx}"]`);
+      buttons.forEach((btn, idx) => {
+        btn.classList.remove('correct', 'incorrect');
+        btn.classList.add('selected');
+        btn.disabled = true;
+        
+        if (idx === question.correct) {
+          btn.classList.add('correct');
+        } else if (idx === optionIdx && !isCorrect) {
+          btn.classList.add('incorrect');
+        }
+      });
+      
+      const explanation = document.getElementById(`explanation-${questionIdx}`);
+      if (explanation) {
+        explanation.classList.remove('hidden');
+        explanation.className = `mt-4 p-3 rounded-lg text-sm ${isCorrect ? 'bg-green-900/30 text-green-200' : 'bg-amber-900/30 text-amber-200'}`;
+        explanation.innerHTML = `<strong>${isCorrect ? '✓ Correct!' : '✗ Not quite.'}</strong> ${question.explanation}`;
+      }
+      
+      if (Object.keys(quizAnswers).length === quizQuestions.length) {
+        showQuizResults();
+      }
+    }
+    
+    function showQuizResults() {
+      const correct = Object.entries(quizAnswers).filter(
+        ([idx, ans]) => ans === quizQuestions[parseInt(idx)].correct
+      ).length;
+      
+      const resultsDiv = document.getElementById('quiz-results');
+      const scoreText = document.getElementById('quiz-score');
+      
+      if (resultsDiv && scoreText) {
+        resultsDiv.classList.remove('hidden');
+        scoreText.textContent = `You got ${correct} out of ${quizQuestions.length} questions correct (${Math.round(correct/quizQuestions.length*100)}%)`;
+      }
+    }
+    
+    function resetQuiz() {
+      quizAnswers = {};
+      quizInitialized = false;
+      const resultsDiv = document.getElementById('quiz-results');
+      if (resultsDiv) resultsDiv.classList.add('hidden');
+      initQuiz();
+    }
+
+    async function onConfigChange(updatedConfig) {
+      config = { ...config, ...updatedConfig };
+      const courseBadge = document.getElementById('course-badge');
+      if (courseBadge) courseBadge.textContent = config.course_code || defaultConfig.course_code;
+      const instructorDisplay = document.getElementById('instructor-display');
+      if (instructorDisplay) instructorDisplay.textContent = config.instructor_name || defaultConfig.instructor_name;
+      const weekDisplay = document.getElementById('week-display');
+      if (weekDisplay) weekDisplay.textContent = config.week_info || defaultConfig.week_info;
+    }
+    
+    function mapToCapabilities(config) {
+      return { recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined };
+    }
+    
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['course_code', config.course_code || defaultConfig.course_code],
+        ['instructor_name', config.instructor_name || defaultConfig.instructor_name],
+        ['week_info', config.week_info || defaultConfig.week_info]
+      ]);
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({ defaultConfig, onConfigChange, mapToCapabilities, mapToEditPanelValues });
+    }
+    
+    showSection('intro');
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d755580033784d9',t:'MTc3MjY3NDAwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
