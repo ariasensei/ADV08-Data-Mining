@@ -1,0 +1,1304 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classification in Data Mining - ADV08</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4, .heading { font-family: 'Space Grotesk', sans-serif; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    
+    .card-glow {
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.1);
+    }
+    
+    .nav-item {
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background: rgba(99, 102, 241, 0.2);
+      border-left-color: #818cf8;
+    }
+    
+    .tip-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .tip-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .quiz-option {
+      transition: all 0.3s ease;
+    }
+    
+    .quiz-option:hover:not(.selected) {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: #818cf8;
+    }
+    
+    .quiz-option.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+    }
+    
+    .quiz-option.incorrect {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .workflow-step {
+      position: relative;
+      animation: slideIn 0.6s ease forwards;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .workflow-step:nth-child(1) { animation-delay: 0.1s; }
+    .workflow-step:nth-child(2) { animation-delay: 0.2s; }
+    .workflow-step:nth-child(3) { animation-delay: 0.3s; }
+    .workflow-step:nth-child(4) { animation-delay: 0.4s; }
+    .workflow-step:nth-child(5) { animation-delay: 0.5s; }
+    
+    .data-split-visual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .confusion-matrix {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr;
+      grid-template-rows: auto 1fr 1fr;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .jargon-term {
+      border-bottom: 2px dashed #818cf8;
+      cursor: help;
+      position: relative;
+    }
+    
+    .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1e3f;
+      color: #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      width: max-content;
+      max-width: 250px;
+      z-index: 100;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .jargon-term:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #1a1a2e;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 4px;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg text-gray-100">
+  <div class="h-full w-full flex flex-col lg:flex-row overflow-auto">
+   <aside class="lg:w-72 w-full bg-slate-900/50 backdrop-blur-sm border-b lg:border-b-0 lg:border-r border-indigo-500/20 flex-shrink-0">
+    <div class="p-6">
+     <div class="mb-8">
+      <div class="flex items-center gap-3 mb-2">
+       <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+        <span class="text-xl">🤖</span>
+       </div>
+       <div>
+        <span id="course-badge" class="text-xs font-semibold bg-indigo-500/30 text-indigo-300 px-2 py-1 rounded">ADV08</span>
+       </div>
+      </div>
+      <h1 class="heading text-xl font-bold text-white mt-3">Data Mining</h1>
+      <p class="text-sm text-gray-400">Instructor: <span id="instructor-display" class="text-indigo-300">MKDB</span></p>
+      <p id="week-display" class="text-xs text-gray-500 mt-1">Midterm Week 2</p>
+     </div>
+     <div class="mb-6">
+      <div class="flex justify-between text-sm mb-2">
+       <span class="text-gray-400">Lesson Progress</span> <span id="progress-text" class="text-indigo-300">0%</span>
+      </div>
+      <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+       <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 0%"></div>
+      </div>
+     </div>
+     <nav class="space-y-1"><button onclick="showSection('intro')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="intro"> <span class="text-lg">🎯</span>
+       <div>
+        <div class="font-medium">
+         Introduction
+        </div>
+        <div class="text-xs text-gray-500">
+         Learning Objectives
+        </div>
+       </div></button> <button onclick="showSection('whatisclass')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="whatisclass"> <span class="text-lg">🔮</span>
+       <div>
+        <div class="font-medium">
+         What is Classification?
+        </div>
+        <div class="text-xs text-gray-500">
+         Core Concepts
+        </div>
+       </div></button> <button onclick="showSection('traintest')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="traintest"> <span class="text-lg">🎓</span>
+       <div>
+        <div class="font-medium">
+         Train vs Test Data
+        </div>
+        <div class="text-xs text-gray-500">
+         The Split Strategy
+        </div>
+       </div></button> <button onclick="showSection('workflow')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="workflow"> <span class="text-lg">⚙️</span>
+       <div>
+        <div class="font-medium">
+         Classification Workflow
+        </div>
+        <div class="text-xs text-gray-500">
+         Step-by-Step Process
+        </div>
+       </div></button> <button onclick="showSection('algorithms')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="algorithms"> <span class="text-lg">🤖</span>
+       <div>
+        <div class="font-medium">
+         Classification Algorithms
+        </div>
+        <div class="text-xs text-gray-500">
+         Popular Methods
+        </div>
+       </div></button> <button onclick="showSection('scenarios')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="scenarios"> <span class="text-lg">🌍</span>
+       <div>
+        <div class="font-medium">
+         Real-World Examples
+        </div>
+        <div class="text-xs text-gray-500">
+         Case Studies
+        </div>
+       </div></button> <button onclick="showSection('quiz')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="quiz"> <span class="text-lg">📝</span>
+       <div>
+        <div class="font-medium">
+         Knowledge Check
+        </div>
+        <div class="text-xs text-gray-500">
+         Interactive Quiz
+        </div>
+       </div></button> <button onclick="showSection('activity')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent text-gray-300 hover:text-white flex items-center gap-3" data-section="activity"> <span class="text-lg">🎓</span>
+       <div>
+        <div class="font-medium">
+         Activities
+        </div>
+        <div class="text-xs text-gray-500">
+         Individual &amp; Group
+        </div>
+       </div></button>
+     </nav>
+    </div>
+   </aside>
+   <main class="flex-1 overflow-auto">
+    <div class="max-w-4xl mx-auto p-6 lg:p-10"><!-- Section: Introduction -->
+     <section id="section-intro" class="section fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Module Overview</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Introduction to Classification</h2>
+       <p class="text-xl text-gray-300 leading-relaxed">Learn how machines predict categories. Classification is the foundation of many AI applications—from spam detection to medical diagnosis.</p>
+      </div>
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+         <span class="text-2xl">🎯</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Intended Learning Outcomes (ILOs)</h3>
+         <p class="text-sm text-gray-400">What you'll master by the end of this lesson</p>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-indigo-500/30 flex items-center justify-center flex-shrink-0">
+          <span class="text-indigo-300 font-bold">1</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Explain the concept of classification in data mining</h4>
+          <p class="text-sm text-gray-400 mt-1">Understand what classification is and why it matters in real-world applications</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-purple-500/30 flex items-center justify-center flex-shrink-0">
+          <span class="text-purple-300 font-bold">2</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Distinguish between training and testing datasets</h4>
+          <p class="text-sm text-gray-400 mt-1">Learn the critical difference and why this split is essential for building reliable models</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-4 p-4 bg-slate-700/40 rounded-xl">
+         <div class="w-8 h-8 rounded-lg bg-pink-500/30 flex items-center justify-center flex-shrink-0">
+          <span class="text-pink-300 font-bold">3</span>
+         </div>
+         <div>
+          <h4 class="font-semibold text-white">Demonstrate a basic classification workflow</h4>
+          <p class="text-sm text-gray-400 mt-1">Execute a step-by-step process from data preparation to model evaluation</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/20">
+       <h4 class="heading text-lg font-semibold text-white mb-4 flex items-center gap-2"><span>📚</span> Key Terms You'll Learn</h4>
+       <div class="flex flex-wrap gap-2"><span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-indigo-300">Classification</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-purple-300">Training Data</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-pink-300">Testing Data</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-blue-300">Features</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-green-300">Labels</span> <span class="px-3 py-1 bg-slate-700/60 rounded-full text-sm text-yellow-300">Model Accuracy</span>
+       </div>
+      </div>
+      <div class="mt-8 text-center"><button onclick="showSection('whatisclass')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 inline-flex items-center gap-2"> Start Learning <span>→</span> </button>
+      </div>
+     </section><!-- Section: What is Classification -->
+     <section id="section-whatisclass" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 1</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">What is Classification?</h2>
+       <p class="text-xl text-gray-300">A machine learning task that predicts categories or classes based on input data.</p>
+      </div><!-- Definition Card -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-2xl font-bold text-white mb-4 flex items-center gap-3"><span class="text-3xl">🔮</span> Classification Explained</h3>
+       <div class="bg-slate-900/60 rounded-xl p-6 mb-4">
+        <p class="text-lg text-gray-300 mb-4">Classification is the process of <strong class="text-indigo-300">predicting which category or class</strong> a new piece of data belongs to, based on patterns learned from historical data.</p>
+        <p class="text-sm text-gray-400 italic">Think of it like a teacher grading a test: after seeing many student answers, they learn patterns that help them predict if a new student will get an A, B, C, etc.</p>
+       </div>
+      </div><!-- Real Examples -->
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-green-500/20">
+        <div class="text-4xl mb-3">
+         📧
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Spam Detection</h4>
+        <p class="text-sm text-gray-300"><strong class="text-green-300">Categories:</strong> Spam or Not Spam</p>
+        <p class="text-xs text-gray-400 mt-2">Email system classifies incoming emails based on sender, content, keywords</p>
+       </div>
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-blue-500/20">
+        <div class="text-4xl mb-3">
+         🏥
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Disease Diagnosis</h4>
+        <p class="text-sm text-gray-300"><strong class="text-blue-300">Categories:</strong> Disease Present or Absent</p>
+        <p class="text-xs text-gray-400 mt-2">Medical model classifies patients based on symptoms and test results</p>
+       </div>
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-purple-500/20">
+        <div class="text-4xl mb-3">
+         🎬
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Movie Ratings</h4>
+        <p class="text-sm text-gray-300"><strong class="text-purple-300">Categories:</strong> 1-5 Stars or Thumbs Up/Down</p>
+        <p class="text-xs text-gray-400 mt-2">Netflix predicts if you'll like a movie based on your history</p>
+       </div>
+      </div><!-- Key Components -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-xl font-bold text-white mb-6">🔑 Core Concepts</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <h4 class="font-bold text-indigo-300 mb-2 flex items-center gap-2"><span>📊</span> Features</h4>
+         <p class="text-sm text-gray-300 mb-3">The <span class="jargon-term text-indigo-300">input variables<span class="tooltip">Characteristics or attributes of the data used to make predictions (e.g., email length, sender address, subject keywords)</span></span> used to make predictions</p>
+         <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+          <p><strong>Example:</strong> In spam detection, features include: sender email, word count, presence of links, capital letters percentage</p>
+         </div>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <h4 class="font-bold text-purple-300 mb-2 flex items-center gap-2"><span>🏷️</span> Labels (Target)</h4>
+         <p class="text-sm text-gray-300 mb-3">The <span class="jargon-term text-purple-300">category we want to predict<span class="tooltip">The output or dependent variable that the model tries to predict (e.g., "Spam" or "Not Spam")</span></span></p>
+         <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+          <p><strong>Example:</strong> For spam detection, the label is either "Spam" or "Not Spam"</p>
+         </div>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <h4 class="font-bold text-pink-300 mb-2 flex items-center gap-2"><span>🧠</span> Model</h4>
+         <p class="text-sm text-gray-300 mb-3">The algorithm that learns patterns from training data and makes predictions</p>
+         <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+          <p><strong>Example:</strong> Decision Trees, Random Forests, Logistic Regression, Neural Networks</p>
+         </div>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <h4 class="font-bold text-green-300 mb-2 flex items-center gap-2"><span>✅</span> Accuracy</h4>
+         <p class="text-sm text-gray-300 mb-3">How often the model makes correct predictions</p>
+         <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+          <p><strong>Example:</strong> "Model is 95% accurate = 95 out of 100 predictions are correct"</p>
+         </div>
+        </div>
+       </div>
+      </div><!-- Binary vs Multi-class -->
+      <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/30 mb-8">
+       <h3 class="heading text-lg font-bold text-white mb-4">🌳 Types of Classification</h3>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-slate-800/60 rounded-xl p-4">
+         <h4 class="font-bold text-indigo-300 mb-2">Binary Classification</h4>
+         <p class="text-sm text-gray-300 mb-2">Exactly 2 possible categories</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>✓ Spam / Not Spam</li>
+          <li>✓ Pass / Fail</li>
+          <li>✓ Disease / Healthy</li>
+          <li>✓ Approved / Rejected</li>
+         </ul>
+        </div>
+        <div class="bg-slate-800/60 rounded-xl p-4">
+         <h4 class="font-bold text-purple-300 mb-2">Multi-class Classification</h4>
+         <p class="text-sm text-gray-300 mb-2">3 or more categories</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>✓ Fruit type (Apple, Orange, Banana)</li>
+          <li>✓ Customer segment (Bronze, Silver, Gold)</li>
+          <li>✓ Sentiment (Positive, Neutral, Negative)</li>
+          <li>✓ Grade (A, B, C, D, F)</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('intro')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('traintest')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Train vs Test <span>→</span> </button>
+      </div>
+     </section><!-- Section: Train vs Test -->
+     <section id="section-traintest" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 2</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Training vs Testing Data</h2>
+       <p class="text-xl text-gray-300">The critical split that determines if your model really works or just memorized answers.</p>
+      </div><!-- The Problem -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-red-500/20 mb-8">
+       <h3 class="heading text-xl font-bold text-white mb-4 flex items-center gap-3"><span class="text-2xl">⚠️</span> The Problem: Overfitting</h3>
+       <div class="bg-red-900/20 rounded-xl p-5 mb-4 border border-red-500/20">
+        <p class="text-gray-300 mb-3">Imagine a student who memorizes test answers but doesn't understand the material. When they see a slightly different question, they fail.</p>
+        <p class="text-gray-300"><strong class="text-red-300">This is what happens</strong> when we train and test on the same data!</p>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-4">
+        <p class="text-sm text-gray-400">The model gets <span class="jargon-term text-red-300">artificially inflated accuracy<span class="tooltip">Accuracy measured on training data is often much higher than real-world performance because the model has "seen" these examples before</span></span> because it's testing itself on the same data it learned from.</p>
+       </div>
+      </div><!-- The Solution -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-green-500/20 mb-8">
+       <h3 class="heading text-xl font-bold text-white mb-4 flex items-center gap-3"><span class="text-2xl">✓</span> The Solution: Data Splitting</h3>
+       <p class="text-gray-300 mb-6">Divide your data into separate training and testing sets so the model learns from one and is evaluated on another.</p><!-- Visual Split -->
+       <div class="bg-slate-900/60 rounded-xl p-6 mb-6">
+        <p class="text-sm text-gray-400 mb-4">Common 70/30 or 80/20 split:</p>
+        <div class="space-y-4">
+         <div class="flex items-center gap-4">
+          <div class="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-lg py-8 text-center">
+           <p class="font-bold text-white">70% Training Data</p>
+           <p class="text-sm text-indigo-200">Model learns here</p>
+          </div><span class="text-2xl text-gray-400">|</span>
+          <div class="flex-1 bg-gradient-to-r from-green-600 to-green-500 rounded-lg py-8 text-center">
+           <p class="font-bold text-white">30% Testing Data</p>
+           <p class="text-sm text-green-200">Model evaluated here</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-indigo-900/20 rounded-xl p-5 border border-indigo-500/20">
+         <h4 class="font-bold text-indigo-300 mb-2">🎓 Training Data</h4>
+         <p class="text-sm text-gray-300 mb-3">Used to <strong>teach the model</strong></p>
+         <ul class="text-xs text-gray-400 space-y-2">
+          <li>• Model sees the features AND labels</li>
+          <li>• Learns patterns and relationships</li>
+          <li>• Adjusts its internal parameters</li>
+          <li>• Like a textbook for learning</li>
+         </ul>
+        </div>
+        <div class="bg-green-900/20 rounded-xl p-5 border border-green-500/20">
+         <h4 class="font-bold text-green-300 mb-2">✅ Testing Data</h4>
+         <p class="text-sm text-gray-300 mb-3">Used to <strong>evaluate the model</strong></p>
+         <ul class="text-xs text-gray-400 space-y-2">
+          <li>• Model sees features, predicts labels</li>
+          <li>• True labels hidden until evaluation</li>
+          <li>• Tests if model generalizes</li>
+          <li>• Like a final exam</li>
+         </ul>
+        </div>
+       </div>
+      </div><!-- Real Example -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-8 card-glow border border-amber-500/20 mb-8">
+       <h3 class="heading text-lg font-bold text-amber-300 mb-4 flex items-center gap-2"><span>💼</span> Real Example: Email Spam Detector</h3>
+       <div class="bg-slate-900/60 rounded-xl p-5">
+        <div class="space-y-4">
+         <div class="bg-indigo-900/30 rounded-lg p-4">
+          <p class="text-sm font-semibold text-indigo-300 mb-2">Training Phase (1000 emails):</p>
+          <p class="text-xs text-gray-400">You show the model 700 emails (some spam, some legitimate). For each email, you provide the correct answer: "This is spam" or "This is not spam." The model learns patterns like common spam keywords, sender info, etc.</p>
+         </div>
+         <div class="bg-green-900/30 rounded-lg p-4">
+          <p class="text-sm font-semibold text-green-300 mb-2">Testing Phase (300 emails):</p>
+          <p class="text-xs text-gray-400">You show the model 300 NEW emails it has never seen. The model makes predictions but doesn't know if they're right. You compare its predictions to the true answers and calculate accuracy.</p>
+         </div>
+         <div class="bg-amber-900/30 rounded-lg p-4">
+          <p class="text-sm font-semibold text-amber-300 mb-2">Result:</p>
+          <p class="text-xs text-gray-400">If training accuracy = 99% but testing accuracy = 78%, the model is <strong>overfitting</strong>. It memorized training data but can't predict new emails well.</p>
+         </div>
+        </div>
+       </div>
+      </div><!-- Cross-Validation -->
+      <div class="bg-gradient-to-r from-purple-900/40 to-pink-900/40 rounded-2xl p-6 border border-purple-500/30">
+       <h3 class="heading text-lg font-bold text-white mb-4">🔄 Advanced: K-Fold Cross-Validation</h3>
+       <p class="text-sm text-gray-300 mb-4">A more robust method: split data into 5 or 10 parts, train and test multiple times:</p>
+       <div class="flex items-center justify-around gap-2 text-xs text-gray-400 mb-4 p-3 bg-slate-800/60 rounded-lg">
+        <div>
+         Fold 1: Train on 4/5, Test on 1/5
+        </div><span>→</span>
+        <div>
+         Fold 2: Train on 4/5, Test on 1/5
+        </div><span>→</span>
+        <div>
+         Fold 3: Train on 4/5, Test on 1/5
+        </div><span>...</span>
+       </div>
+       <p class="text-xs text-gray-400">Average all results for more reliable accuracy estimate</p>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('whatisclass')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('workflow')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Classification Workflow <span>→</span> </button>
+      </div>
+     </section><!-- Section: Workflow -->
+     <section id="section-workflow" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 3</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Classification Workflow</h2>
+       <p class="text-xl text-gray-300">Step-by-step process from raw data to predictions.</p>
+      </div><!-- Workflow Steps -->
+      <div class="space-y-4 mb-8">
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-indigo-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-indigo-500/30 flex items-center justify-center flex-shrink-0 font-bold text-indigo-300">
+          1
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🗂️ Data Collection</h4>
+          <p class="text-gray-300 text-sm mb-3">Gather raw data with features and labels</p>
+          <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+           <p><strong>Example:</strong> Collect 10,000 emails with features (word count, sender, links) and labels (Spam/Not Spam)</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-purple-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-purple-500/30 flex items-center justify-center flex-shrink-0 font-bold text-purple-300">
+          2
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🧹 Data Preprocessing</h4>
+          <p class="text-gray-300 text-sm mb-3">Clean and prepare data for modeling</p>
+          <ul class="text-xs text-gray-400 space-y-1">
+           <li>• Remove duplicates and missing values</li>
+           <li>• Convert text to numbers (encoding)</li>
+           <li>• Scale features to similar ranges</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-pink-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-pink-500/30 flex items-center justify-center flex-shrink-0 font-bold text-pink-300">
+          3
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">✂️ Train/Test Split</h4>
+          <p class="text-gray-300 text-sm mb-3">Divide data into training and testing sets</p>
+          <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+           <p>Split: 70% training (7,000 emails) + 30% testing (3,000 emails)</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-blue-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-blue-500/30 flex items-center justify-center flex-shrink-0 font-bold text-blue-300">
+          4
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🤖 Model Selection &amp; Training</h4>
+          <p class="text-gray-300 text-sm mb-3">Choose an algorithm and train it on training data</p>
+          <ul class="text-xs text-gray-400 space-y-1">
+           <li>• Choose algorithm (Decision Tree, Random Forest, etc.)</li>
+           <li>• Feed training data to algorithm</li>
+           <li>• Model learns patterns from 7,000 emails</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-green-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-green-500/30 flex items-center justify-center flex-shrink-0 font-bold text-green-300">
+          5
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">📊 Model Evaluation</h4>
+          <p class="text-gray-300 text-sm mb-3">Test model on unseen data and measure performance</p>
+          <ul class="text-xs text-gray-400 space-y-1">
+           <li>• Use 3,000 test emails (model has never seen these)</li>
+           <li>• Model makes predictions</li>
+           <li>• Compare predictions to true labels</li>
+           <li>• Calculate accuracy, precision, recall, F1-score</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-amber-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-amber-500/30 flex items-center justify-center flex-shrink-0 font-bold text-amber-300">
+          6
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🔧 Hyperparameter Tuning</h4>
+          <p class="text-gray-300 text-sm mb-3">Adjust settings to improve performance (optional)</p>
+          <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+           <p>If accuracy is low (e.g., 75%), try different algorithm parameters and retrain. Repeat until satisfied.</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="workflow-step bg-slate-800/60 backdrop-blur rounded-xl p-6 border-l-4 border-cyan-500 card-glow">
+        <div class="flex items-start gap-4">
+         <div class="w-12 h-12 rounded-xl bg-cyan-500/30 flex items-center justify-center flex-shrink-0 font-bold text-cyan-300">
+          7
+         </div>
+         <div class="flex-1">
+          <h4 class="heading text-lg font-bold text-white mb-2">🚀 Deployment</h4>
+          <p class="text-gray-300 text-sm mb-3">Use trained model to make predictions on new, unseen data</p>
+          <div class="bg-slate-900/60 rounded-lg p-3 text-xs text-gray-400">
+           <p>Your email classifier now runs on Gmail's servers, automatically predicting if new incoming emails are spam!</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Flowchart Visual -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <h3 class="heading text-lg font-bold text-white mb-4">📈 Complete Workflow Diagram</h3>
+       <div class="bg-slate-900/60 rounded-xl p-4 overflow-x-auto">
+        <svg viewbox="0 0 800 200" class="w-full min-h-48"><!-- Boxes --> <rect x="10" y="20" width="100" height="60" fill="#4f46e5" rx="8" /> <text x="60" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Raw Data
+         </text> <rect x="140" y="20" width="100" height="60" fill="#7c3aed" rx="8" /> <text x="190" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Clean &amp;
+         </text> <text x="190" y="60" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Preprocess
+         </text> <rect x="270" y="20" width="100" height="60" fill="#db2777" rx="8" /> <text x="320" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Split 70/30
+         </text> <text x="320" y="60" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Train/Test
+         </text> <rect x="400" y="20" width="100" height="60" fill="#2563eb" rx="8" /> <text x="450" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Train
+         </text> <text x="450" y="60" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Model
+         </text> <rect x="530" y="20" width="100" height="60" fill="#059669" rx="8" /> <text x="580" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Evaluate
+         </text> <text x="580" y="60" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Model
+         </text> <rect x="660" y="20" width="100" height="60" fill="#d97706" rx="8" /> <text x="710" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">
+          Predictions
+         </text> <!-- Arrows --> <path d="M 110 50 L 140 50" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)" /> <path d="M 240 50 L 270 50" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)" /> <path d="M 370 50 L 400 50" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)" /> <path d="M 500 50 L 530 50" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)" /> <path d="M 630 50 L 660 50" stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)" /> <!-- Labels --> <text x="320" y="130" text-anchor="middle" fill="#9ca3af" font-size="11">
+          Training Data (70%)
+         </text> <text x="320" y="145" text-anchor="middle" fill="#9ca3af" font-size="11">
+          Testing Data (30%)
+         </text> <text x="580" y="130" text-anchor="middle" fill="#9ca3af" font-size="11">
+          Accuracy, Precision,
+         </text> <text x="580" y="145" text-anchor="middle" fill="#9ca3af" font-size="11">
+          Recall, F1-Score
+         </text> <defs>
+          <marker id="arrowhead" markerwidth="10" markerheight="10" refx="5" refy="5" orient="auto">
+           <polygon points="0 0, 10 5, 0 10" fill="#6b7280" />
+          </marker>
+         </defs>
+        </svg>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('traintest')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('algorithms')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Algorithms <span>→</span> </button>
+      </div>
+     </section><!-- Section: Algorithms -->
+     <section id="section-algorithms" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 4</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Popular Classification Algorithms</h2>
+       <p class="text-xl text-gray-300">Different approaches to solve classification problems.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6 mb-8"><!-- Decision Trees -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-indigo-500/20">
+        <div class="text-3xl mb-3">
+         🌳
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Decision Trees</h4>
+        <p class="text-sm text-gray-300 mb-3">Makes decisions by asking a series of yes/no questions</p>
+        <div class="bg-slate-900/60 rounded-lg p-3 mb-3 text-xs text-gray-400">
+         <p><strong>How it works:</strong> "Is word count &gt; 100?" → "Does it have links?" → "Prediction: Spam"</p>
+        </div>
+        <div class="flex gap-2">
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-green-300">✓ Pros:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Easy to understand</li>
+           <li>• Fast prediction</li>
+          </ul>
+         </div>
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-red-300">✗ Cons:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Can overfit easily</li>
+           <li>• Unstable</li>
+          </ul>
+         </div>
+        </div>
+       </div><!-- Random Forest -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-purple-500/20">
+        <div class="text-3xl mb-3">
+         🌲
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Random Forest</h4>
+        <p class="text-sm text-gray-300 mb-3">Combines many decision trees for better predictions</p>
+        <div class="bg-slate-900/60 rounded-lg p-3 mb-3 text-xs text-gray-400">
+         <p><strong>How it works:</strong> Creates 100 decision trees, each votes, final prediction = majority vote</p>
+        </div>
+        <div class="flex gap-2">
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-green-300">✓ Pros:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Very accurate</li>
+           <li>• Resists overfitting</li>
+          </ul>
+         </div>
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-red-300">✗ Cons:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Slower to predict</li>
+           <li>• Hard to interpret</li>
+          </ul>
+         </div>
+        </div>
+       </div><!-- Logistic Regression -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-pink-500/20">
+        <div class="text-3xl mb-3">
+         📈
+        </div>
+        <h4 class="heading font-bold text-white mb-2">Logistic Regression</h4>
+        <p class="text-sm text-gray-300 mb-3">Uses a mathematical formula to predict probabilities</p>
+        <div class="bg-slate-900/60 rounded-lg p-3 mb-3 text-xs text-gray-400">
+         <p><strong>How it works:</strong> Calculates probability of being spam: 0.0 (definitely not) to 1.0 (definitely spam)</p>
+        </div>
+        <div class="flex gap-2">
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-green-300">✓ Pros:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Fast &amp; simple</li>
+           <li>• Interpretable</li>
+          </ul>
+         </div>
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-red-300">✗ Cons:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Linear relationships only</li>
+           <li>• Limited accuracy</li>
+          </ul>
+         </div>
+        </div>
+       </div><!-- K-Nearest Neighbors -->
+       <div class="tip-card bg-slate-800/60 backdrop-blur rounded-xl p-6 border border-green-500/20">
+        <div class="text-3xl mb-3">
+         👥
+        </div>
+        <h4 class="heading font-bold text-white mb-2">K-Nearest Neighbors (KNN)</h4>
+        <p class="text-sm text-gray-300 mb-3">Predicts by finding similar historical examples</p>
+        <div class="bg-slate-900/60 rounded-lg p-3 mb-3 text-xs text-gray-400">
+         <p><strong>How it works:</strong> Finds 5 most similar emails, predicts based on their categories</p>
+        </div>
+        <div class="flex gap-2">
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-green-300">✓ Pros:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Simple concept</li>
+           <li>• Flexible</li>
+          </ul>
+         </div>
+         <div class="flex-1">
+          <p class="text-xs font-semibold text-red-300">✗ Cons:</p>
+          <ul class="text-xs text-gray-400 space-y-1 mt-1">
+           <li>• Slow predictions</li>
+           <li>• Needs lots of memory</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+      </div><!-- Comparison Table -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8 overflow-x-auto">
+       <h3 class="heading text-lg font-bold text-white mb-4">📊 Algorithm Comparison</h3>
+       <table class="w-full text-sm">
+        <thead>
+         <tr class="border-b border-slate-600">
+          <th class="text-left py-3 px-4 text-indigo-300">Algorithm</th>
+          <th class="text-center py-3 px-4 text-indigo-300">Speed</th>
+          <th class="text-center py-3 px-4 text-indigo-300">Accuracy</th>
+          <th class="text-center py-3 px-4 text-indigo-300">Interpretability</th>
+          <th class="text-left py-3 px-4 text-indigo-300">Best For</th>
+         </tr>
+        </thead>
+        <tbody class="text-gray-300">
+         <tr class="border-b border-slate-700">
+          <td class="py-3 px-4">Decision Tree</td>
+          <td class="text-center py-3">⭐⭐⭐⭐⭐</td>
+          <td class="text-center py-3">⭐⭐⭐</td>
+          <td class="text-center py-3">⭐⭐⭐⭐⭐</td>
+          <td class="py-3 px-4 text-gray-400">Learning, simple problems</td>
+         </tr>
+         <tr class="border-b border-slate-700">
+          <td class="py-3 px-4">Random Forest</td>
+          <td class="text-center py-3">⭐⭐⭐</td>
+          <td class="text-center py-3">⭐⭐⭐⭐⭐</td>
+          <td class="text-center py-3">⭐⭐</td>
+          <td class="py-3 px-4 text-gray-400">Most real-world problems</td>
+         </tr>
+         <tr class="border-b border-slate-700">
+          <td class="py-3 px-4">Logistic Regression</td>
+          <td class="text-center py-3">⭐⭐⭐⭐⭐</td>
+          <td class="text-center py-3">⭐⭐⭐</td>
+          <td class="text-center py-3">⭐⭐⭐⭐</td>
+          <td class="py-3 px-4 text-gray-400">Binary problems, interpretability</td>
+         </tr>
+         <tr>
+          <td class="py-3 px-4">KNN</td>
+          <td class="text-center py-3">⭐⭐</td>
+          <td class="text-center py-3">⭐⭐⭐⭐</td>
+          <td class="text-center py-3">⭐⭐⭐</td>
+          <td class="py-3 px-4 text-gray-400">Small datasets, similarity</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('workflow')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('scenarios')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Real-World Examples <span>→</span> </button>
+      </div>
+     </section><!-- Section: Real-World Scenarios -->
+     <section id="section-scenarios" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Part 5</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Real-World Classification Examples</h2>
+       <p class="text-xl text-gray-300">See how classification solves actual business problems.</p>
+      </div><!-- Scenario 1 -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-6">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+         <span class="text-2xl">🏦</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Scenario 1: Credit Card Fraud Detection</h3>
+         <p class="text-sm text-gray-400">Bank Classification Challenge</p>
+        </div>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+        <p class="text-sm text-gray-300 mb-3"><strong>Problem:</strong> Detect fraudulent transactions before they harm customers</p>
+        <p class="text-sm text-gray-300 mb-3"><strong>Features used:</strong> Transaction amount, merchant category, location, time of day, card history</p>
+        <p class="text-sm text-gray-300"><strong>Labels:</strong> Legitimate or Fraudulent</p>
+       </div>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-indigo-900/20 rounded-lg p-4">
+         <p class="text-sm font-semibold text-indigo-300 mb-2">Training Data:</p>
+         <p class="text-xs text-gray-400">100,000 historical transactions with known fraud status</p>
+        </div>
+        <div class="bg-green-900/20 rounded-lg p-4">
+         <p class="text-sm font-semibold text-green-300 mb-2">Result:</p>
+         <p class="text-xs text-gray-400">Model catches 98% of fraud, reduces false alerts to 1%</p>
+        </div>
+       </div>
+      </div><!-- Scenario 2 -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20 mb-6">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+         <span class="text-2xl">🏥</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Scenario 2: Disease Classification</h3>
+         <p class="text-sm text-gray-400">Healthcare Application</p>
+        </div>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+        <p class="text-sm text-gray-300 mb-3"><strong>Problem:</strong> Predict if patient has diabetes based on medical tests</p>
+        <p class="text-sm text-gray-300 mb-3"><strong>Features used:</strong> Blood glucose, blood pressure, BMI, age, family history</p>
+        <p class="text-sm text-gray-300"><strong>Labels:</strong> Has Diabetes or No Diabetes</p>
+       </div>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-purple-900/20 rounded-lg p-4">
+         <p class="text-sm font-semibold text-purple-300 mb-2">Training Data:</p>
+         <p class="text-xs text-gray-400">5,000 patient records with confirmed diagnoses</p>
+        </div>
+        <div class="bg-green-900/20 rounded-lg p-4">
+         <p class="text-sm font-semibold text-green-300 mb-2">Impact:</p>
+         <p class="text-xs text-gray-400">Early detection enables preventive treatment and lifestyle changes</p>
+        </div>
+       </div>
+      </div><!-- Scenario 3 -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-pink-500/20 mb-6">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+         <span class="text-2xl">🍕</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Scenario 3: Customer Sentiment Analysis</h3>
+         <p class="text-sm text-gray-400">Restaurant Reviews Classification</p>
+        </div>
+       </div>
+       <div class="bg-slate-900/60 rounded-xl p-5 mb-4">
+        <p class="text-sm text-gray-300 mb-3"><strong>Problem:</strong> Automatically classify customer reviews as positive, negative, or neutral</p>
+        <p class="text-sm text-gray-300 mb-3"><strong>Features used:</strong> Words used, review length, punctuation, exclamation marks</p>
+        <p class="text-sm text-gray-300"><strong>Labels:</strong> Positive / Negative / Neutral</p>
+       </div>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-pink-900/20 rounded-lg p-4">
+         <p class="text-sm font-semibold text-pink-300 mb-2">Training Data:</p>
+         <p class="text-xs text-gray-400">10,000 manually labeled customer reviews</p>
+        </div>
+        <div class="bg-green-900/20 rounded-lg p-4">
+         <p class="text-sm font-semibold text-green-300 mb-2">Use Case:</p>
+         <p class="text-xs text-gray-400">Monitor customer satisfaction, identify improvement areas</p>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('algorithms')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('quiz')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Take the Quiz <span>→</span> </button>
+      </div>
+     </section><!-- Section: Quiz -->
+     <section id="section-quiz" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Knowledge Check</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Test Your Understanding</h2>
+       <p class="text-xl text-gray-300">Answer these questions to check your learning.</p>
+      </div>
+      <div id="quiz-container"></div>
+      <div id="quiz-results" class="hidden bg-gradient-to-r from-green-900/40 to-emerald-900/40 rounded-2xl p-6 border border-green-500/30 mt-8">
+       <h3 class="heading text-xl font-bold text-green-300 mb-2">🎉 Quiz Complete!</h3>
+       <p id="quiz-score" class="text-lg text-gray-300"></p><button onclick="resetQuiz()" class="mt-4 px-6 py-2 bg-green-600 hover:bg-green-500 rounded-lg text-white font-medium transition-all">Retake Quiz</button>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('scenarios')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back </button> <button onclick="showSection('activity')" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-indigo-500/30 flex items-center gap-2"> Activities <span>→</span> </button>
+      </div>
+     </section><!-- Section: Activities -->
+     <section id="section-activity" class="section hidden fade-in">
+      <div class="mb-8"><span class="text-sm font-medium text-indigo-400 uppercase tracking-wider">Apply Your Learning</span>
+       <h2 class="heading text-4xl font-bold text-white mt-2 mb-4">Individual &amp; Group Activities</h2>
+       <p class="text-xl text-gray-300">Apply classification concepts to real problems.</p>
+      </div><!-- Individual Activity -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center">
+         <span class="text-2xl">👤</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Individual Activity</h3>
+         <p class="text-sm text-gray-400">Work on this independently</p>
+        </div>
+       </div>
+       <div class="bg-indigo-900/20 rounded-xl p-5 mb-6 border border-indigo-500/20">
+        <h4 class="font-bold text-indigo-300 mb-3">📊 Task: Build a Simple Classification Plan</h4>
+        <p class="text-gray-300 mb-4">Your task: Design a classification system to predict whether a student will pass or fail a course based on their performance data.</p>
+        <div class="bg-slate-900/60 rounded-lg p-4 mb-4">
+         <p class="text-sm font-semibold text-indigo-300 mb-2">Available Student Data:</p>
+         <table class="w-full text-xs text-gray-400">
+          <tbody>
+           <tr class="border-b border-slate-600">
+            <td class="py-2">Student</td>
+            <td class="py-2 text-right">Attendance %</td>
+            <td class="py-2 text-right">Avg Quiz Score</td>
+            <td class="py-2 text-right">Midterm Score</td>
+            <td class="py-2 text-right">Result</td>
+           </tr>
+           <tr class="border-b border-slate-700">
+            <td class="py-2">Alex</td>
+            <td class="py-2 text-right">95%</td>
+            <td class="py-2 text-right">85</td>
+            <td class="py-2 text-right">88</td>
+            <td class="py-2 text-right">✓ Pass</td>
+           </tr>
+           <tr class="border-b border-slate-700">
+            <td class="py-2">Jordan</td>
+            <td class="py-2 text-right">45%</td>
+            <td class="py-2 text-right">60</td>
+            <td class="py-2 text-right">55</td>
+            <td class="py-2 text-right">✗ Fail</td>
+           </tr>
+           <tr class="border-b border-slate-700">
+            <td class="py-2">Sam</td>
+            <td class="py-2 text-right">78%</td>
+            <td class="py-2 text-right">72</td>
+            <td class="py-2 text-right">75</td>
+            <td class="py-2 text-right">✓ Pass</td>
+           </tr>
+           <tr>
+            <td class="py-2">Casey</td>
+            <td class="py-2 text-right">55%</td>
+            <td class="py-2 text-right">68</td>
+            <td class="py-2 text-right">58</td>
+            <td class="py-2 text-right">✗ Fail</td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h5 class="font-semibold text-white mb-2">📝 Your Tasks:</h5>
+         <ol class="text-sm text-gray-300 space-y-3">
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span> <span><strong>Identify features and labels:</strong> What are the input features? What is the target label?</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span> <span><strong>Suggest a training/test split:</strong> How would you split the student data? What percentage for each?</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span> <span><strong>Choose an algorithm:</strong> Which algorithm would you use? Why? (Decision Tree, Random Forest, Logistic Regression?)</span></li>
+          <li class="flex items-start gap-2"><span class="bg-indigo-500/30 text-indigo-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span> <span><strong>Predict a new case:</strong> Using patterns from the data above, predict if a student with 80% attendance, 77 quiz avg, and 73 midterm score will pass or fail. Explain your reasoning.</span></li>
+         </ol>
+        </div>
+        <details class="bg-slate-700/40 rounded-lg"><summary class="p-4 cursor-pointer text-indigo-300 font-medium">💡 Hints (Click if stuck)</summary>
+         <div class="p-4 pt-0 text-sm text-gray-400 space-y-2">
+          <p>• Features = inputs used to predict. Labels = what we predict (Pass/Fail)</p>
+          <p>• 70/30 split is common: ~3 students for training, 1 for testing (small dataset)</p>
+          <p>• Decision Tree might be best for easy interpretation here</p>
+          <p>• Look for patterns: higher attendance/scores → Pass, lower → Fail</p>
+         </div>
+        </details>
+       </div>
+      </div><!-- Group Activity -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-purple-500/20 mb-8">
+       <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+         <span class="text-2xl">👥</span>
+        </div>
+        <div>
+         <h3 class="heading text-xl font-bold text-white">Group Activity</h3>
+         <p class="text-sm text-gray-400">Work in teams of 3-4 members</p>
+        </div>
+       </div>
+       <div class="bg-purple-900/20 rounded-xl p-5 mb-6 border border-purple-500/20">
+        <h4 class="font-bold text-purple-300 mb-3">🛍️ Task: E-Commerce Recommendation System</h4>
+        <p class="text-gray-300 mb-4">Your team is designing a classification system for an online store to predict whether customers will buy a product they're viewing (binary classification: Buy / Don't Buy).</p>
+       </div>
+       <div class="space-y-4">
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h5 class="font-semibold text-white mb-3">📝 Group Tasks:</h5>
+         <ol class="text-sm text-gray-300 space-y-4">
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
+           <div><strong>Brainstorm features (15 min):</strong> What customer behaviors and product characteristics should predict purchases? 
+            <p class="text-xs text-gray-500 mt-1">Examples: time on page, product rating, price, customer history, season...</p>
+           </div></li>
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
+           <div><strong>Plan the workflow (15 min):</strong> Map out 5-7 steps from raw data to predictions 
+            <p class="text-xs text-gray-500 mt-1">Include: data collection, preprocessing, train/test split, model selection, evaluation</p>
+           </div></li>
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
+           <div><strong>Choose an algorithm (10 min):</strong> Which classification algorithm would work best? Justify your choice. 
+            <p class="text-xs text-gray-500 mt-1">Consider: speed, accuracy, interpretability needs</p>
+           </div></li>
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
+           <div><strong>Discuss success metrics (10 min):</strong> How would you measure if the model works? 
+            <p class="text-xs text-gray-500 mt-1">Should you optimize for accuracy, precision, recall? Why?</p>
+           </div></li>
+          <li class="flex items-start gap-3"><span class="bg-purple-500/30 text-purple-300 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold">5</span>
+           <div><strong>Present to class (3-5 min):</strong> Share your classification system design 
+            <p class="text-xs text-gray-500 mt-1">Explain: features, workflow, algorithm choice, success metrics</p>
+           </div></li>
+         </ol>
+        </div>
+        <div class="bg-gradient-to-r from-pink-900/30 to-purple-900/30 rounded-lg p-4 border border-pink-500/20">
+         <h5 class="font-semibold text-pink-300 mb-2">🎯 Evaluation Criteria:</h5>
+         <div class="grid md:grid-cols-2 gap-2 text-xs text-gray-400">
+          <div>
+           • Feature relevance (25%)
+          </div>
+          <div>
+           • Workflow completeness (25%)
+          </div>
+          <div>
+           • Algorithm justification (25%)
+          </div>
+          <div>
+           • Presentation clarity (25%)
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- Submission Checklist -->
+      <div class="bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 mb-8">
+       <h4 class="heading text-lg font-semibold text-green-300 mb-4 flex items-center gap-2"><span>✅</span> Before You Submit - Checklist</h4>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div>
+         <p class="text-sm font-medium text-white mb-2">Individual Activity:</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>☐ Identified features and labels clearly</li>
+          <li>☐ Justified train/test split percentage</li>
+          <li>☐ Chose algorithm with reasoning</li>
+          <li>☐ Made prediction with explanation</li>
+         </ul>
+        </div>
+        <div>
+         <p class="text-sm font-medium text-white mb-2">Group Activity:</p>
+         <ul class="text-xs text-gray-400 space-y-1">
+          <li>☐ Listed 5+ relevant features</li>
+          <li>☐ Complete 7-step workflow diagram</li>
+          <li>☐ Algorithm choice justified</li>
+          <li>☐ Presentation rehearsed</li>
+         </ul>
+        </div>
+       </div>
+      </div><!-- Summary -->
+      <div class="bg-slate-800/60 backdrop-blur rounded-2xl p-6 card-glow border border-indigo-500/20 mb-8">
+       <h4 class="heading text-xl font-bold text-white mb-4 flex items-center gap-2"><span>🎓</span> Lesson Summary</h4>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div class="text-center p-4 bg-indigo-900/30 rounded-xl"><span class="text-2xl mb-2 block">🔮</span>
+         <p class="text-sm text-indigo-200 font-medium">ILO 1 ✓</p>
+         <p class="text-xs text-gray-400">Explained classification and its importance</p>
+        </div>
+        <div class="text-center p-4 bg-purple-900/30 rounded-xl"><span class="text-2xl mb-2 block">✂️</span>
+         <p class="text-sm text-purple-200 font-medium">ILO 2 ✓</p>
+         <p class="text-xs text-gray-400">Distinguished train vs test data</p>
+        </div>
+        <div class="text-center p-4 bg-pink-900/30 rounded-xl"><span class="text-2xl mb-2 block">⚙️</span>
+         <p class="text-sm text-pink-200 font-medium">ILO 3 ✓</p>
+         <p class="text-xs text-gray-400">Demonstrated classification workflow</p>
+        </div>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mt-8"><button onclick="showSection('quiz')" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-all flex items-center gap-2"> <span>←</span> Back to Quiz </button> <button onclick="showSection('intro')" class="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-xl font-semibold text-white transition-all shadow-lg shadow-green-500/30 flex items-center gap-2"> 🔄 Review Lesson </button>
+      </div>
+     </section>
+    </div>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      course_code: 'ADV08',
+      instructor_name: 'MKDB',
+      week_info: 'Midterm Week 2'
+    };
+    
+    let config = { ...defaultConfig };
+    const sections = ['intro', 'whatisclass', 'traintest', 'workflow', 'algorithms', 'scenarios', 'quiz', 'activity'];
+    let currentSectionIndex = 0;
+    let visitedSections = new Set(['intro']);
+    
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      const targetSection = document.getElementById(`section-${sectionId}`);
+      if (targetSection) {
+        targetSection.classList.remove('hidden');
+        targetSection.classList.add('fade-in');
+      }
+      
+      document.querySelectorAll('.nav-item').forEach(nav => {
+        nav.classList.remove('active', 'bg-indigo-500/20');
+        if (nav.dataset.section === sectionId) {
+          nav.classList.add('active', 'bg-indigo-500/20');
+          nav.style.borderLeftColor = '#818cf8';
+        } else {
+          nav.style.borderLeftColor = 'transparent';
+        }
+      });
+      
+      visitedSections.add(sectionId);
+      currentSectionIndex = sections.indexOf(sectionId);
+      updateProgress();
+      
+      if (sectionId === 'quiz') {
+        initQuiz();
+      }
+      
+      document.querySelector('main').scrollTop = 0;
+    }
+    
+    function updateProgress() {
+      const progress = Math.round((visitedSections.size / sections.length) * 100);
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      if (progressBar) progressBar.style.width = `${progress}%`;
+      if (progressText) progressText.textContent = `${progress}%`;
+    }
+
+    const quizQuestions = [
+      {
+        question: "What is the main goal of classification in data mining?",
+        options: [
+          "To find trends in numerical data over time",
+          "To predict which category or class new data belongs to",
+          "To reduce the amount of data in a dataset",
+          "To calculate the average value of data"
+        ],
+        correct: 1,
+        explanation: "Classification is a supervised learning task that predicts categories or classes based on learned patterns from training data."
+      },
+      {
+        question: "Why is it important to split data into training and testing sets?",
+        options: [
+          "To make the analysis faster",
+          "To prevent overfitting and measure real-world model performance",
+          "To reduce storage requirements",
+          "Because more data always gives better predictions"
+        ],
+        correct: 1,
+        explanation: "Splitting data prevents the model from memorizing training data. Testing on unseen data gives a true measure of how well the model will perform in real-world situations."
+      },
+      {
+        question: "In a 70/30 train/test split with 1,000 records, how many records would be used for training?",
+        options: ["300 records", "700 records", "500 records", "200 records"],
+        correct: 1,
+        explanation: "70% of 1,000 = 700 records for training. The remaining 30% (300 records) is used for testing."
+      },
+      {
+        question: "Which algorithm is BEST for quick, interpretable binary classification?",
+        options: [
+          "Neural Networks",
+          "Logistic Regression",
+          "K-Nearest Neighbors",
+          "Random Forest"
+        ],
+        correct: 1,
+        explanation: "Logistic Regression is fast, easy to understand, and works well for binary classification. Other options are slower or less interpretable."
+      },
+      {
+        question: "What is 'overfitting' in the context of classification?",
+        options: [
+          "Training with too few data points",
+          "Model memorizes training data but fails on new data",
+          "Using too many features",
+          "Having training accuracy higher than testing accuracy"
+        ],
+        correct: 3,
+        explanation: "Overfitting occurs when a model performs much better on training data than testing data, indicating it memorized patterns rather than learning generalizable rules."
+      }
+    ];
+    
+    let quizAnswers = {};
+    let quizInitialized = false;
+    
+    function initQuiz() {
+      if (quizInitialized) return;
+      
+      const container = document.getElementById('quiz-container');
+      if (!container) return;
+      
+      container.innerHTML = quizQuestions.map((q, idx) => `
+        <div class="bg-slate-800/60 backdrop-blur rounded-xl p-6 mb-4 border border-slate-600/50">
+          <p class="font-semibold text-white mb-4">
+            <span class="text-indigo-400">${idx + 1}.</span> ${q.question}
+          </p>
+          <div class="space-y-2">
+            ${q.options.map((opt, optIdx) => `
+              <button 
+                onclick="selectAnswer(${idx}, ${optIdx})"
+                class="quiz-option w-full text-left p-3 rounded-lg border border-slate-600 text-gray-300 hover:text-white transition-all"
+                data-question="${idx}"
+                data-option="${optIdx}"
+              >
+                <span class="inline-block w-6 h-6 rounded-full bg-slate-700 text-center text-sm mr-3">${String.fromCharCode(65 + optIdx)}</span>
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="explanation-${idx}" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+        </div>
+      `).join('');
+      
+      quizInitialized = true;
+    }
+    
+    function selectAnswer(questionIdx, optionIdx) {
+      const question = quizQuestions[questionIdx];
+      const isCorrect = optionIdx === question.correct;
+      
+      quizAnswers[questionIdx] = optionIdx;
+      
+      const buttons = document.querySelectorAll(`[data-question="${questionIdx}"]`);
+      buttons.forEach((btn, idx) => {
+        btn.classList.remove('correct', 'incorrect');
+        btn.classList.add('selected');
+        btn.disabled = true;
+        
+        if (idx === question.correct) {
+          btn.classList.add('correct');
+        } else if (idx === optionIdx && !isCorrect) {
+          btn.classList.add('incorrect');
+        }
+      });
+      
+      const explanation = document.getElementById(`explanation-${questionIdx}`);
+      if (explanation) {
+        explanation.classList.remove('hidden');
+        explanation.className = `mt-4 p-3 rounded-lg text-sm ${isCorrect ? 'bg-green-900/30 text-green-200' : 'bg-amber-900/30 text-amber-200'}`;
+        explanation.innerHTML = `<strong>${isCorrect ? '✓ Correct!' : '✗ Not quite.'}</strong> ${question.explanation}`;
+      }
+      
+      if (Object.keys(quizAnswers).length === quizQuestions.length) {
+        showQuizResults();
+      }
+    }
+    
+    function showQuizResults() {
+      const correct = Object.entries(quizAnswers).filter(
+        ([idx, ans]) => ans === quizQuestions[parseInt(idx)].correct
+      ).length;
+      
+      const resultsDiv = document.getElementById('quiz-results');
+      const scoreText = document.getElementById('quiz-score');
+      
+      if (resultsDiv && scoreText) {
+        resultsDiv.classList.remove('hidden');
+        scoreText.textContent = `You got ${correct} out of ${quizQuestions.length} questions correct (${Math.round(correct/quizQuestions.length*100)}%)`;
+      }
+    }
+    
+    function resetQuiz() {
+      quizAnswers = {};
+      quizInitialized = false;
+      const resultsDiv = document.getElementById('quiz-results');
+      if (resultsDiv) resultsDiv.classList.add('hidden');
+      initQuiz();
+    }
+
+    async function onConfigChange(updatedConfig) {
+      config = { ...config, ...updatedConfig };
+      const courseBadge = document.getElementById('course-badge');
+      if (courseBadge) courseBadge.textContent = config.course_code || defaultConfig.course_code;
+      const instructorDisplay = document.getElementById('instructor-display');
+      if (instructorDisplay) instructorDisplay.textContent = config.instructor_name || defaultConfig.instructor_name;
+      const weekDisplay = document.getElementById('week-display');
+      if (weekDisplay) weekDisplay.textContent = config.week_info || defaultConfig.week_info;
+    }
+    
+    function mapToCapabilities(config) {
+      return { recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined };
+    }
+    
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['course_code', config.course_code || defaultConfig.course_code],
+        ['instructor_name', config.instructor_name || defaultConfig.instructor_name],
+        ['week_info', config.week_info || defaultConfig.week_info]
+      ]);
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({ defaultConfig, onConfigChange, mapToCapabilities, mapToEditPanelValues });
+    }
+    
+    showSection('intro');
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d750d1ed0e34553',t:'MTc3MjY3MTAzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
