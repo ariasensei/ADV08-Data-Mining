@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADV08 - Data Mining Finals</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+  <style>
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { font-family: 'DM Sans', sans-serif; }
+
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes pulse-dot { 0%,100%{opacity:.4;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
+@keyframes dash { to { stroke-dashoffset: 0; } }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes spin-slow { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+@keyframes wave { 0%,100%{transform:translateY(0)} 25%{transform:translateY(-6px)} 75%{transform:translateY(6px)} }
+@keyframes connect { 0%{stroke-dashoffset:100} 100%{stroke-dashoffset:0} }
+
+.anim-float { animation: float 3s ease-in-out infinite; }
+.anim-float-d1 { animation: float 3s ease-in-out 0.3s infinite; }
+.anim-float-d2 { animation: float 3s ease-in-out 0.6s infinite; }
+.anim-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+.anim-fade-in { animation: fadeInUp 0.5s ease forwards; }
+.anim-spin-slow { animation: spin-slow 12s linear infinite; }
+.anim-wave { animation: wave 2s ease-in-out infinite; }
+.anim-wave-d1 { animation: wave 2s ease-in-out 0.2s infinite; }
+.anim-wave-d2 { animation: wave 2s ease-in-out 0.4s infinite; }
+.anim-wave-d3 { animation: wave 2s ease-in-out 0.6s infinite; }
+.anim-connect { stroke-dasharray: 100; stroke-dashoffset: 100; animation: connect 2s ease forwards; }
+
+.tab-active { background: var(--c-primary); color: #fff; }
+.tab-inactive { background: var(--c-surface); color: var(--c-text); }
+.tab-inactive:hover { background: var(--c-secondary-action); color: #fff; }
+
+.quiz-option { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
+.quiz-option:hover { border-color: var(--c-primary); }
+.quiz-option.selected { border-color: var(--c-primary); background: color-mix(in srgb, var(--c-primary) 10%, transparent); }
+.quiz-option.correct { border-color: #22c55e; background: #f0fdf4; }
+.quiz-option.wrong { border-color: #ef4444; background: #fef2f2; }
+
+.cluster-dot { transition: all 1s cubic-bezier(.4,0,.2,1); }
+.card-hover { transition: transform 0.2s, box-shadow 0.2s; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+
+:root {
+  --c-bg: #0f172a;
+  --c-surface: #1e293b;
+  --c-text: #e2e8f0;
+  --c-primary: #6366f1;
+  --c-secondary-action: #475569;
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 6px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--c-secondary-action); border-radius: 3px; }
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full" style="background:var(--c-bg);color:var(--c-text);">
+  <div id="app" class="h-full w-full flex flex-col overflow-auto scrollbar-thin"><!-- Header -->
+   <header class="w-full px-4 sm:px-8 py-5 flex items-center justify-between flex-shrink-0" style="background:var(--c-surface);border-bottom:1px solid rgba(255,255,255,0.08);">
+    <div class="flex items-center gap-3">
+     <div class="w-10 h-10 rounded-lg flex items-center justify-center anim-spin-slow" style="background:var(--c-primary);"><i data-lucide="database" style="width:20px;height:20px;color:#fff;"></i>
+     </div>
+     <div>
+      <h1 id="el-course-title" class="text-lg font-bold" style="font-family:'Space Mono',monospace;">ADV08 — Data Mining</h1>
+      <p class="text-xs opacity-60">Finals Period • Instructor: <span id="el-instructor">MKDB</span></p>
+     </div>
+    </div>
+    <div class="hidden sm:flex items-center gap-2 text-xs opacity-50"><i data-lucide="calendar" style="width:14px;height:14px;"></i> <span>Week 1–5 Finals</span>
+    </div>
+   </header><!-- Week Tabs -->
+   <nav class="w-full px-4 sm:px-8 py-3 flex gap-2 overflow-x-auto flex-shrink-0" style="background:var(--c-surface);border-bottom:1px solid rgba(255,255,255,0.05);"><button onclick="switchWeek(1)" id="tab-1" class="tab-active px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all">Week 1</button> <button onclick="switchWeek(2)" id="tab-2" class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all">Week 2</button> <button onclick="switchWeek(3)" id="tab-3" class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all">Week 3</button> <button onclick="switchWeek(4)" id="tab-4" class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all">Week 4</button> <button onclick="switchWeek(5)" id="tab-5" class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all">Week 5</button>
+   </nav><!-- Content Area -->
+   <main id="content-area" class="flex-1 w-full px-4 sm:px-8 py-6">
+   </main>
+  </div>
+  <script>
+// ===== CONFIG & SDK =====
+const defaultConfig = {
+  course_title: 'ADV08 — Data Mining',
+  instructor_name: 'MKDB',
+  background_color: '#0f172a',
+  surface_color: '#1e293b',
+  text_color: '#e2e8f0',
+  primary_color: '#6366f1',
+  secondary_action_color: '#475569',
+  font_family: 'DM Sans',
+  font_size: 16
+};
+
+function applyConfig(config) {
+  document.documentElement.style.setProperty('--c-bg', config.background_color || defaultConfig.background_color);
+  document.documentElement.style.setProperty('--c-surface', config.surface_color || defaultConfig.surface_color);
+  document.documentElement.style.setProperty('--c-text', config.text_color || defaultConfig.text_color);
+  document.documentElement.style.setProperty('--c-primary', config.primary_color || defaultConfig.primary_color);
+  document.documentElement.style.setProperty('--c-secondary-action', config.secondary_action_color || defaultConfig.secondary_action_color);
+
+  document.body.style.background = config.background_color || defaultConfig.background_color;
+  document.body.style.color = config.text_color || defaultConfig.text_color;
+  document.body.style.fontFamily = `${config.font_family || defaultConfig.font_family}, sans-serif`;
+
+  const bs = config.font_size || defaultConfig.font_size;
+  document.body.style.fontSize = bs + 'px';
+
+  const t = document.getElementById('el-course-title');
+  if(t) t.textContent = config.course_title || defaultConfig.course_title;
+  const i = document.getElementById('el-instructor');
+  if(i) i.textContent = config.instructor_name || defaultConfig.instructor_name;
+}
+
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange: async (config) => { applyConfig(config); },
+  mapToCapabilities: (config) => ({
+    recolorables: [
+      { get:()=>config.background_color||defaultConfig.background_color, set:(v)=>{config.background_color=v;window.elementSdk.setConfig({background_color:v})} },
+      { get:()=>config.surface_color||defaultConfig.surface_color, set:(v)=>{config.surface_color=v;window.elementSdk.setConfig({surface_color:v})} },
+      { get:()=>config.text_color||defaultConfig.text_color, set:(v)=>{config.text_color=v;window.elementSdk.setConfig({text_color:v})} },
+      { get:()=>config.primary_color||defaultConfig.primary_color, set:(v)=>{config.primary_color=v;window.elementSdk.setConfig({primary_color:v})} },
+      { get:()=>config.secondary_action_color||defaultConfig.secondary_action_color, set:(v)=>{config.secondary_action_color=v;window.elementSdk.setConfig({secondary_action_color:v})} }
+    ],
+    borderables: [],
+    fontEditable: { get:()=>config.font_family||defaultConfig.font_family, set:(v)=>{config.font_family=v;window.elementSdk.setConfig({font_family:v})} },
+    fontSizeable: { get:()=>config.font_size||defaultConfig.font_size, set:(v)=>{config.font_size=v;window.elementSdk.setConfig({font_size:v})} }
+  }),
+  mapToEditPanelValues: (config) => new Map([
+    ['course_title', config.course_title || defaultConfig.course_title],
+    ['instructor_name', config.instructor_name || defaultConfig.instructor_name]
+  ])
+});
+
+// ===== WEEK DATA =====
+const weeks = {
+  1: {
+    title: 'Clustering Techniques',
+    ilo: ['Apply K-Means clustering to datasets.','Interpret clustering results.'],
+    sections: [
+      {
+        heading: 'What is Clustering?',
+        content: `<p class="mb-3">Clustering is an <strong>unsupervised learning</strong> technique that groups similar data points together without predefined labels. Think of it as sorting a pile of mixed candies by color — you don't need someone to tell you the categories; you discover them naturally.</p>
+        <p class="mb-3">Clustering helps us find hidden structure in data. It's used in customer segmentation, image compression, anomaly detection, and much more.</p>`,
+        illustration: 'clustering-intro'
+      },
+      {
+        heading: 'K-Means Clustering',
+        content: `<p class="mb-3"><strong>K-Means</strong> is the most popular clustering algorithm. It partitions data into <em>K</em> clusters by repeatedly assigning points to the nearest center (centroid) and updating centroids.</p>
+        <div class="p-4 rounded-lg mb-4" style="background:rgba(99,102,241,0.1);border-left:4px solid var(--c-primary);">
+          <p class="font-bold mb-2">Algorithm Steps:</p>
+          <ol class="list-decimal pl-5 space-y-1 text-sm">
+            <li>Choose K (number of clusters)</li>
+            <li>Randomly initialize K centroids</li>
+            <li>Assign each point to nearest centroid</li>
+            <li>Recalculate centroids as mean of assigned points</li>
+            <li>Repeat steps 3–4 until centroids stabilize</li>
+          </ol>
+        </div>`,
+        illustration: 'kmeans-interactive'
+      },
+      {
+        heading: 'Real-World Scenario: Customer Segmentation',
+        content: `<p class="mb-3">🏬 <strong>Scenario:</strong> A retail company wants to segment its customers based on annual spending and frequency of purchases to create targeted marketing campaigns.</p>
+        <p class="mb-3">Using K-Means with K=3, they discover three segments:</p>
+        <ul class="list-disc pl-5 space-y-1 mb-3 text-sm">
+          <li><strong style="color:#ef4444;">High-Value:</strong> Frequent buyers, high spending → VIP rewards</li>
+          <li><strong style="color:#3b82f6;">Regular:</strong> Moderate frequency & spending → Loyalty programs</li>
+          <li><strong style="color:#22c55e;">Occasional:</strong> Rare visits, low spending → Re-engagement offers</li>
+        </ul>`,
+        illustration: 'customer-segments'
+      },
+      {
+        heading: 'Hierarchical Clustering (Overview)',
+        content: `<p class="mb-3">Unlike K-Means, <strong>hierarchical clustering</strong> builds a tree-like structure (dendrogram) showing how clusters merge or split at different levels. You don't need to specify K in advance.</p>
+        <p class="mb-3"><strong>Two approaches:</strong></p>
+        <ul class="list-disc pl-5 space-y-1 mb-3 text-sm">
+          <li><strong>Agglomerative (bottom-up):</strong> Start with individual points, merge closest pairs</li>
+          <li><strong>Divisive (top-down):</strong> Start with one cluster, split recursively</li>
+        </ul>
+        <p class="text-sm opacity-70">Hierarchical clustering is useful when you want to explore different levels of grouping — e.g., classifying biological species or organizing documents.</p>`,
+        illustration: 'dendrogram'
+      }
+    ],
+    activities: {
+      individual: {
+        title: '📝 Individual Activity: Cluster the Students',
+        description: `<p class="mb-2">Given the following dataset of student study hours (x) and exam scores (y), manually perform K-Means clustering with K=2 for one iteration:</p>
+        <table class="w-full text-sm mb-3 border-collapse">
+          <thead><tr style="background:rgba(99,102,241,0.15);"><th class="p-2 text-left rounded-tl-lg">Student</th><th class="p-2 text-left">Hours</th><th class="p-2 text-left rounded-tr-lg">Score</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td class="p-2">A</td><td class="p-2">2</td><td class="p-2">55</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td class="p-2">B</td><td class="p-2">3</td><td class="p-2">60</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td class="p-2">C</td><td class="p-2">8</td><td class="p-2">90</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td class="p-2">D</td><td class="p-2">9</td><td class="p-2">85</td></tr>
+            <tr><td class="p-2">E</td><td class="p-2">5</td><td class="p-2">72</td></tr>
+          </tbody>
+        </table>
+        <p class="text-sm"><strong>Task:</strong> Using initial centroids at Student A (2,55) and Student C (8,90), assign each student to the nearest cluster and calculate new centroids. Show your work.</p>`
+      },
+      group: {
+        title: '👥 Group Activity: Segment Real Customers',
+        description: `<p class="mb-2">In groups of 3–4, choose one of these real-world datasets:</p>
+        <ol class="list-decimal pl-5 space-y-1 mb-3 text-sm">
+          <li>Mall customer spending data (age, income, spending score)</li>
+          <li>University students (GPA, study hours, extracurricular activities)</li>
+          <li>Social media users (posts/day, followers, engagement rate)</li>
+        </ol>
+        <p class="text-sm mb-2"><strong>Deliverables:</strong></p>
+        <ul class="list-disc pl-5 space-y-1 text-sm">
+          <li>Create a mock dataset of at least 15 entries</li>
+          <li>Apply K-Means with K=2 and K=3, compare results</li>
+          <li>Create a visual scatter plot (hand-drawn or digital)</li>
+          <li>Present 3-minute summary: What patterns did you find?</li>
+        </ul>`
+      }
+    },
+    quiz: [
+      { q:'What type of learning is clustering?', opts:['Supervised','Unsupervised','Reinforcement','Semi-supervised'], ans:1 },
+      { q:'In K-Means, what does K represent?', opts:['Number of features','Number of iterations','Number of clusters','Number of data points'], ans:2 },
+      { q:'After assigning points to clusters, the next step is:', opts:['Stop the algorithm','Recalculate centroids','Add more data','Remove outliers'], ans:1 },
+      { q:'Which clustering method creates a dendrogram?', opts:['K-Means','DBSCAN','Hierarchical','Random Forest'], ans:2 }
+    ]
+  },
+  2: {
+    title: 'Association Rule Mining',
+    ilo: ['Explain association rule mining concepts.','Interpret support, confidence, and lift measures.','Apply association rule mining to datasets.'],
+    sections: [
+      {
+        heading: 'What is Association Rule Mining?',
+        content: `<p class="mb-3">Association rule mining discovers interesting <strong>relationships between variables</strong> in large datasets. The classic example: "Customers who buy bread often also buy butter."</p>
+        <p class="mb-3">This technique is fundamental in <strong>market basket analysis</strong> — understanding what items are frequently purchased together to optimize store layouts, promotions, and recommendations.</p>`,
+        illustration: 'basket'
+      },
+      {
+        heading: 'Key Measures: Support, Confidence, Lift',
+        content: `<div class="space-y-4">
+          <div class="p-4 rounded-lg" style="background:rgba(99,102,241,0.1);border-left:4px solid #6366f1;">
+            <p class="font-bold">📊 Support</p>
+            <p class="text-sm mt-1">How frequently an itemset appears in the dataset.</p>
+            <p class="text-sm mt-1 font-mono" style="color:var(--c-primary);">Support(A) = (Transactions containing A) / (Total transactions)</p>
+          </div>
+          <div class="p-4 rounded-lg" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;">
+            <p class="font-bold">🎯 Confidence</p>
+            <p class="text-sm mt-1">How often the rule is true — if A is bought, what's the probability B is also bought?</p>
+            <p class="text-sm mt-1 font-mono" style="color:#3b82f6;">Confidence(A→B) = Support(A∪B) / Support(A)</p>
+          </div>
+          <div class="p-4 rounded-lg" style="background:rgba(34,197,94,0.1);border-left:4px solid #22c55e;">
+            <p class="font-bold">🚀 Lift</p>
+            <p class="text-sm mt-1">How much more likely A and B are bought together vs. independently.</p>
+            <p class="text-sm mt-1 font-mono" style="color:#22c55e;">Lift(A→B) = Confidence(A→B) / Support(B)</p>
+            <p class="text-sm mt-1 opacity-70">Lift > 1 = positive association, Lift = 1 = independent, Lift < 1 = negative</p>
+          </div>
+        </div>`,
+        illustration: 'metrics-calc'
+      },
+      {
+        heading: 'Real-World Scenario: Grocery Store Analysis',
+        content: `<p class="mb-3">🛒 <strong>Scenario:</strong> A supermarket analyzed 1,000 transactions and found:</p>
+        <ul class="list-disc pl-5 space-y-1 mb-3 text-sm">
+          <li>400 transactions contain Bread</li>
+          <li>300 transactions contain Butter</li>
+          <li>200 transactions contain both Bread and Butter</li>
+        </ul>
+        <p class="mb-1 text-sm"><strong>Support(Bread→Butter)</strong> = 200/1000 = <strong>0.20 (20%)</strong></p>
+        <p class="mb-1 text-sm"><strong>Confidence(Bread→Butter)</strong> = 200/400 = <strong>0.50 (50%)</strong></p>
+        <p class="mb-3 text-sm"><strong>Lift(Bread→Butter)</strong> = 0.50/0.30 = <strong>1.67</strong> → Positive association!</p>
+        <p class="text-sm opacity-80">💡 <em>Action:</em> Place bread and butter near each other; bundle discount on both items.</p>`,
+        illustration: 'grocery-viz'
+      },
+      {
+        heading: 'Apriori Algorithm (Conceptual)',
+        content: `<p class="mb-3">The <strong>Apriori algorithm</strong> efficiently finds frequent itemsets by using the principle: <em>"If an itemset is infrequent, all its supersets must also be infrequent."</em></p>
+        <div class="p-4 rounded-lg mb-3" style="background:rgba(99,102,241,0.1);border-left:4px solid var(--c-primary);">
+          <p class="font-bold mb-2">How Apriori Works:</p>
+          <ol class="list-decimal pl-5 space-y-1 text-sm">
+            <li>Set a minimum support threshold</li>
+            <li>Find all single items meeting the threshold</li>
+            <li>Generate candidate pairs from frequent items</li>
+            <li>Prune pairs below the threshold</li>
+            <li>Continue combining into larger sets until no more frequent sets</li>
+          </ol>
+        </div>
+        <p class="text-sm opacity-70">This "level-wise" approach dramatically reduces computation compared to checking every possible combination.</p>`,
+        illustration: 'apriori-flow'
+      }
+    ],
+    activities: {
+      individual: {
+        title: '📝 Individual Activity: Calculate Metrics',
+        description: `<p class="mb-2">An online bookstore has 500 transactions:</p>
+        <ul class="list-disc pl-5 space-y-1 mb-3 text-sm">
+          <li>200 contain "Fiction Novels"</li>
+          <li>150 contain "Bookmarks"</li>
+          <li>100 contain both</li>
+        </ul>
+        <p class="text-sm mb-2"><strong>Tasks:</strong></p>
+        <ol class="list-decimal pl-5 space-y-1 text-sm">
+          <li>Calculate Support for {Fiction Novels, Bookmarks}</li>
+          <li>Calculate Confidence for Fiction Novels → Bookmarks</li>
+          <li>Calculate Lift. Is this a positive association?</li>
+          <li>What business recommendation would you give?</li>
+        </ol>`
+      },
+      group: {
+        title: '👥 Group Activity: Market Basket Investigation',
+        description: `<p class="mb-2">In groups of 3–4, pick a store type (fast food, electronics, clothing) and:</p>
+        <ol class="list-decimal pl-5 space-y-1 text-sm">
+          <li>Create a mock transaction dataset of 20 transactions with 5+ item types</li>
+          <li>Identify the top 3 most frequent item pairs</li>
+          <li>Calculate Support, Confidence, and Lift for each pair</li>
+          <li>Create a poster/slide showing: findings, rules discovered, and marketing recommendations</li>
+          <li>Present in 5 minutes to the class</li>
+        </ol>`
+      }
+    },
+    quiz: [
+      { q:'Association rule mining is commonly used in:', opts:['Image recognition','Market basket analysis','Speech synthesis','Video editing'], ans:1 },
+      { q:'If Lift = 1.0, the items are:', opts:['Positively associated','Negatively associated','Independent','Always bought together'], ans:2 },
+      { q:'Confidence(A→B) measures:', opts:['How often A appears','How often B appears given A','Total transactions','Number of items'], ans:1 },
+      { q:'The Apriori principle states:', opts:['All supersets of frequent sets are frequent','If an itemset is infrequent, its supersets are infrequent','Larger sets are always frequent','Support always increases with set size'], ans:1 }
+    ]
+  },
+  3: {
+    title: 'Data Mining for Business Decision Making',
+    ilo: ['Interpret data mining models and patterns.','Translate analytical results into business insights.','Support data-driven decision making.'],
+    sections: [
+      {
+        heading: 'From Patterns to Decisions',
+        content: `<p class="mb-3">Data mining produces models and patterns, but their real value lies in <strong>translating them into actionable business insights</strong>. A model is only useful if decision-makers can understand and act on it.</p>
+        <p class="mb-3">The bridge between analysis and action involves: <strong>interpretation → communication → implementation</strong>.</p>`,
+        illustration: 'pipeline'
+      },
+      {
+        heading: 'Interpreting Patterns & Models',
+        content: `<p class="mb-3">Key questions when interpreting results:</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <div class="p-3 rounded-lg" style="background:rgba(99,102,241,0.08);">
+            <p class="font-bold text-sm">🔍 Validity</p>
+            <p class="text-xs mt-1">Is the pattern statistically significant or just noise?</p>
+          </div>
+          <div class="p-3 rounded-lg" style="background:rgba(59,130,246,0.08);">
+            <p class="font-bold text-sm">📏 Magnitude</p>
+            <p class="text-xs mt-1">How large is the effect? Is it practically important?</p>
+          </div>
+          <div class="p-3 rounded-lg" style="background:rgba(34,197,94,0.08);">
+            <p class="font-bold text-sm">🎯 Actionability</p>
+            <p class="text-xs mt-1">Can we do something about it? What's the next step?</p>
+          </div>
+          <div class="p-3 rounded-lg" style="background:rgba(234,179,8,0.08);">
+            <p class="font-bold text-sm">⚠️ Context</p>
+            <p class="text-xs mt-1">Does domain knowledge support this finding?</p>
+          </div>
+        </div>`,
+        illustration: 'interpret'
+      },
+      {
+        heading: 'Real-World Scenario: Reducing Churn',
+        content: `<p class="mb-3">📱 <strong>Scenario:</strong> A telecom company uses a classification model to predict customer churn. The model reveals:</p>
+        <ul class="list-disc pl-5 space-y-1 mb-3 text-sm">
+          <li>Customers with contract month-to-month are 3x more likely to churn</li>
+          <li>Customers who called support > 4 times have 72% churn rate</li>
+          <li>High data users with slow plans churn within 3 months</li>
+        </ul>
+        <p class="mb-2 text-sm font-bold">Business Actions:</p>
+        <ul class="list-disc pl-5 space-y-1 text-sm">
+          <li>Offer annual plan discounts to month-to-month users</li>
+          <li>Proactive outreach after 3rd support call</li>
+          <li>Automatic plan upgrade suggestions for data-heavy users</li>
+        </ul>`,
+        illustration: 'churn'
+      },
+      {
+        heading: 'Ethical Issues & Data Privacy',
+        content: `<p class="mb-3">Data-driven decisions must consider ethical implications:</p>
+        <div class="space-y-2 mb-3">
+          <div class="flex items-start gap-2 p-3 rounded-lg" style="background:rgba(239,68,68,0.08);">
+            <span>⚖️</span>
+            <div><p class="font-bold text-sm">Fairness</p><p class="text-xs">Do models treat all demographic groups equitably?</p></div>
+          </div>
+          <div class="flex items-start gap-2 p-3 rounded-lg" style="background:rgba(234,179,8,0.08);">
+            <span>🔒</span>
+            <div><p class="font-bold text-sm">Privacy</p><p class="text-xs">Is personal data collected and used responsibly?</p></div>
+          </div>
+          <div class="flex items-start gap-2 p-3 rounded-lg" style="background:rgba(99,102,241,0.08);">
+            <span>🪟</span>
+            <div><p class="font-bold text-sm">Transparency</p><p class="text-xs">Can stakeholders understand how decisions are made?</p></div>
+          </div>
+          <div class="flex items-start gap-2 p-3 rounded-lg" style="background:rgba(34,197,94,0.08);">
+            <span>✅</span>
+            <div><p class="font-bold text-sm">Consent</p><p class="text-xs">Did users agree to how their data is used?</p></div>
+          </div>
+        </div>`,
+        illustration: 'ethics'
+      }
+    ],
+    activities: {
+      individual: {
+        title: '📝 Individual Activity: Interpret & Recommend',
+        description: `<p class="mb-2">A streaming service's data mining reveals these patterns:</p>
+        <ol class="list-decimal pl-5 space-y-1 mb-3 text-sm">
+          <li>Users who watch &lt;2 hrs/week have 60% cancellation rate within 30 days</li>
+          <li>Users who add items to "My List" but never watch have 45% churn</li>
+          <li>Users who share accounts watch 3x more content</li>
+        </ol>
+        <p class="text-sm"><strong>Task:</strong> For each pattern, (a) assess if it's actionable, (b) propose a specific business strategy, (c) identify any ethical concerns with your recommendation.</p>`
+      },
+      group: {
+        title: '👥 Group Activity: Business Case Study',
+        description: `<p class="mb-2">In groups of 3–4, choose an industry and create a mock data mining scenario:</p>
+        <ol class="list-decimal pl-5 space-y-1 text-sm">
+          <li>Define the business problem</li>
+          <li>Describe the dataset and mining technique used</li>
+          <li>Present 3 "discovered" patterns</li>
+          <li>Translate each pattern into a business recommendation</li>
+          <li>Include one ethical consideration for each recommendation</li>
+          <li>Present as a 5-minute executive briefing</li>
+        </ol>`
+      }
+    },
+    quiz: [
+      { q:'The primary goal of interpreting data mining results is:', opts:['Creating more data','Generating actionable insights','Making models complex','Collecting more features'], ans:1 },
+      { q:'Which is NOT a key question when interpreting patterns?', opts:['Is it statistically significant?','How much data was used to train it?','Can we act on it?','Does domain knowledge support it?'], ans:1 },
+      { q:'Data-driven decision making requires:', opts:['Only the model output','Context, interpretation, and ethics','Ignoring domain knowledge','Maximum data collection'], ans:1 },
+      { q:'Transparency in data mining means:', opts:['Sharing all raw data','Stakeholders can understand decisions','Using open-source tools only','Publishing model weights'], ans:1 }
+    ]
+  },
+  4: {
+    title: 'Ethical Issues and Data Privacy',
+    ilo: ['Explain ethical issues in data mining.','Apply responsible data practices.','Recognize bias and privacy concerns.'],
+    sections: [
+      {
+        heading: 'Data Privacy & Security',
+        content: `<p class="mb-3">As data mining grows more powerful, protecting individual privacy becomes critical. <strong>Data privacy</strong> ensures personal information is collected, stored, and used responsibly.</p>
+        <p class="mb-3">Key frameworks include <strong>GDPR</strong> (EU), <strong>Data Privacy Act of 2012</strong> (Philippines), <strong>CCPA</strong> (California), and industry-specific regulations like HIPAA (healthcare).</p>
+        <div class="p-4 rounded-lg mb-3" style="background:rgba(99,102,241,0.1);border-left:4px solid var(--c-primary);">
+          <p class="font-bold mb-2">Core Privacy Principles:</p>
+          <ul class="list-disc pl-5 space-y-1 text-sm">
+            <li><strong>Data Minimization:</strong> Collect only what's needed</li>
+            <li><strong>Purpose Limitation:</strong> Use data only for stated purposes</li>
+            <li><strong>Consent:</strong> Get explicit permission</li>
+            <li><strong>Right to Erasure:</strong> Allow data deletion requests</li>
+          </ul>
+        </div>`,
+        illustration: 'privacy-shield'
+      },
+      {
+        heading: 'Ethical Use of Data',
+        content: `<p class="mb-3">Ethical data mining goes beyond legal compliance. It asks: <em>"Just because we can, should we?"</em></p>
+        <div class="space-y-2 mb-3">
+          <div class="p-3 rounded-lg" style="background:rgba(239,68,68,0.08);">
+            <p class="font-bold text-sm">❌ Unethical Example</p>
+            <p class="text-xs mt-1">An insurance company uses social media data to deny coverage to people showing signs of depression, without informing them.</p>
+          </div>
+          <div class="p-3 rounded-lg" style="background:rgba(34,197,94,0.08);">
+            <p class="font-bold text-sm">✅ Ethical Example</p>
+            <p class="text-xs mt-1">A health app uses anonymized, aggregated data to identify disease outbreaks in regions, sharing findings with public health agencies.</p>
+          </div>
+        </div>`,
+        illustration: 'ethics-scale'
+      },
+      {
+        heading: 'Bias in Data Mining',
+        content: `<p class="mb-3"><strong>Bias</strong> in data mining occurs when models systematically favor or disadvantage certain groups. Bias can enter at every stage:</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div class="p-3 rounded-lg text-center" style="background:rgba(239,68,68,0.08);">
+            <p class="text-2xl mb-1">📥</p>
+            <p class="font-bold text-sm">Collection Bias</p>
+            <p class="text-xs mt-1">Data doesn't represent all populations equally</p>
+          </div>
+          <div class="p-3 rounded-lg text-center" style="background:rgba(234,179,8,0.08);">
+            <p class="text-2xl mb-1">⚙️</p>
+            <p class="font-bold text-sm">Algorithm Bias</p>
+            <p class="text-xs mt-1">Model amplifies existing patterns of discrimination</p>
+          </div>
+          <div class="p-3 rounded-lg text-center" style="background:rgba(99,102,241,0.08);">
+            <p class="text-2xl mb-1">📊</p>
+            <p class="font-bold text-sm">Interpretation Bias</p>
+            <p class="text-xs mt-1">Analysts' assumptions influence conclusions</p>
+          </div>
+        </div>
+        <p class="text-sm mb-2"><strong>Real case:</strong> Amazon's hiring algorithm (2018) was found to discriminate against women because it was trained on 10 years of predominantly male resumes.</p>`,
+        illustration: 'bias-pipeline'
+      },
+      {
+        heading: 'Responsible Data Practices',
+        content: `<p class="mb-3">To practice responsible data mining:</p>
+        <ol class="list-decimal pl-5 space-y-2 text-sm">
+          <li><strong>Audit datasets</strong> for representativeness before training</li>
+          <li><strong>Test models</strong> for fairness across different demographic groups</li>
+          <li><strong>Document decisions</strong> — maintain model cards and data sheets</li>
+          <li><strong>Implement governance</strong> — assign data stewards and review boards</li>
+          <li><strong>Enable opt-out</strong> — give users control over their data</li>
+        </ol>`,
+        illustration: 'checklist-anim'
+      }
+    ],
+    activities: {
+      individual: {
+        title: '📝 Individual Activity: Ethical Audit',
+        description: `<p class="mb-2">Read the following scenario and perform an ethical audit:</p>
+        <p class="mb-3 text-sm p-3 rounded-lg" style="background:rgba(99,102,241,0.08);"><em>"A university uses student browsing data from campus WiFi, along with grades and attendance, to predict which students will drop out. They automatically enroll flagged students in mandatory counseling."</em></p>
+        <p class="text-sm"><strong>Tasks:</strong></p>
+        <ol class="list-decimal pl-5 space-y-1 text-sm">
+          <li>Identify 3 ethical concerns with this practice</li>
+          <li>Which privacy principles are potentially violated?</li>
+          <li>Could bias affect which students are flagged? How?</li>
+          <li>Propose an improved, ethically sound version of this system</li>
+        </ol>`
+      },
+      group: {
+        title: '👥 Group Activity: Ethics Debate',
+        description: `<p class="mb-2">In groups of 4, divide into two teams for a structured debate on one of these topics:</p>
+        <ol class="list-decimal pl-5 space-y-1 mb-3 text-sm">
+          <li>"Companies should be allowed to use public social media data for targeted advertising without consent"</li>
+          <li>"AI-driven hiring tools should be banned due to inherent bias"</li>
+          <li>"Governments should have access to citizens' data for national security"</li>
+        </ol>
+        <p class="text-sm"><strong>Format:</strong> Each side gets 3 min opening + 2 min rebuttal. Audience votes. Write a 1-page joint summary of both perspectives.</p>`
+      }
+    },
+    quiz: [
+      { q:'GDPR stands for:', opts:['General Data Production Regulation','General Data Protection Regulation','Global Data Privacy Rules','General Digital Privacy Regulation'], ans:1 },
+      { q:'Data minimization means:', opts:['Deleting all data','Collecting only necessary data','Using small datasets','Minimizing model size'], ans:1 },
+      { q:'Amazon\'s hiring algorithm showed bias against:', opts:['Older applicants','International applicants','Women','Part-time workers'], ans:2 },
+      { q:'Which is NOT a stage where bias can enter?', opts:['Data collection','Algorithm training','Data encryption','Interpretation of results'], ans:2 }
+    ]
+  },
+  5: {
+    title: 'Emerging Trends in Data Mining',
+    ilo: ['Describe emerging trends in data mining and analytics.','Explain the role of AI, big data, and cloud technologies in data mining.'],
+    sections: [
+      {
+        heading: 'Big Data Analytics',
+        content: `<p class="mb-3"><strong>Big Data</strong> refers to datasets so large and complex that traditional tools can't handle them. Defined by the <strong>5 V's:</strong></p>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-3">
+          <div class="p-3 rounded-lg text-center" style="background:rgba(99,102,241,0.1);"><p class="text-xl">📦</p><p class="font-bold text-xs">Volume</p><p class="text-xs opacity-70">Massive scale</p></div>
+          <div class="p-3 rounded-lg text-center" style="background:rgba(59,130,246,0.1);"><p class="text-xl">⚡</p><p class="font-bold text-xs">Velocity</p><p class="text-xs opacity-70">Speed of data</p></div>
+          <div class="p-3 rounded-lg text-center" style="background:rgba(34,197,94,0.1);"><p class="text-xl">🎭</p><p class="font-bold text-xs">Variety</p><p class="text-xs opacity-70">Different types</p></div>
+          <div class="p-3 rounded-lg text-center" style="background:rgba(234,179,8,0.1);"><p class="text-xl">✅</p><p class="font-bold text-xs">Veracity</p><p class="text-xs opacity-70">Data quality</p></div>
+          <div class="p-3 rounded-lg text-center" style="background:rgba(239,68,68,0.1);"><p class="text-xl">💎</p><p class="font-bold text-xs">Value</p><p class="text-xs opacity-70">Business worth</p></div>
+        </div>
+        <p class="text-sm">Technologies like <strong>Hadoop, Spark, and Kafka</strong> enable processing of petabytes of data across distributed systems.</p>`,
+        illustration: 'bigdata-5v'
+      },
+      {
+        heading: 'AI & Machine Learning Overview',
+        content: `<p class="mb-3"><strong>Machine Learning (ML)</strong> automates data mining by allowing systems to learn patterns from data without explicit programming. <strong>AI</strong> encompasses ML and extends to reasoning, language, and perception.</p>
+        <div class="p-4 rounded-lg mb-3" style="background:rgba(99,102,241,0.1);border-left:4px solid var(--c-primary);">
+          <p class="font-bold mb-2">ML in Data Mining:</p>
+          <ul class="list-disc pl-5 space-y-1 text-sm">
+            <li><strong>Deep Learning:</strong> Neural networks for image/text/speech analysis</li>
+            <li><strong>NLP:</strong> Mining insights from text data (reviews, social media)</li>
+            <li><strong>AutoML:</strong> Automated model selection and tuning</li>
+            <li><strong>Generative AI:</strong> Creating synthetic data for training</li>
+          </ul>
+        </div>
+        <p class="text-sm"><strong>Example:</strong> Netflix uses deep learning to analyze viewing patterns of 230M+ subscribers, generating personalized recommendations that drive 80% of content watched.</p>`,
+        illustration: 'ai-network'
+      },
+      {
+        heading: 'Data Mining in Cloud Environments',
+        content: `<p class="mb-3">Cloud computing has democratized data mining — organizations no longer need expensive hardware to process big data.</p>
+        <div class="space-y-2 mb-3">
+          <div class="p-3 rounded-lg flex items-start gap-3" style="background:rgba(234,179,8,0.08);">
+            <span class="text-xl">☁️</span>
+            <div><p class="font-bold text-sm">AWS, Azure, GCP</p><p class="text-xs">Provide scalable data mining services — pay for what you use</p></div>
+          </div>
+          <div class="p-3 rounded-lg flex items-start gap-3" style="background:rgba(59,130,246,0.08);">
+            <span class="text-xl">🔧</span>
+            <div><p class="font-bold text-sm">Cloud-Native Tools</p><p class="text-xs">BigQuery, Redshift, Databricks — mine data without managing infrastructure</p></div>
+          </div>
+          <div class="p-3 rounded-lg flex items-start gap-3" style="background:rgba(34,197,94,0.08);">
+            <span class="text-xl">🤝</span>
+            <div><p class="font-bold text-sm">Collaboration</p><p class="text-xs">Teams can share datasets, models, and notebooks in real-time across the globe</p></div>
+          </div>
+        </div>`,
+        illustration: 'cloud-arch'
+      },
+      {
+        heading: 'Future Directions',
+        content: `<p class="mb-3">Data mining continues to evolve rapidly:</p>
+        <ul class="list-disc pl-5 space-y-2 text-sm mb-3">
+          <li><strong>Edge Analytics:</strong> Mining data on IoT devices before sending to cloud</li>
+          <li><strong>Explainable AI (XAI):</strong> Making complex models interpretable</li>
+          <li><strong>Federated Learning:</strong> Training models across devices without sharing raw data</li>
+          <li><strong>Quantum Computing:</strong> Potential to solve optimization problems exponentially faster</li>
+          <li><strong>Real-time Mining:</strong> Streaming analytics for instant insights</li>
+        </ul>
+        <p class="text-sm opacity-80">The future data miner combines domain expertise, statistical knowledge, programming skills, and ethical awareness.</p>`,
+        illustration: 'future-trends'
+      }
+    ],
+    activities: {
+      individual: {
+        title: '📝 Individual Activity: Trend Analysis Report',
+        description: `<p class="mb-2">Choose ONE emerging trend from the lesson and write a 1-page report covering:</p>
+        <ol class="list-decimal pl-5 space-y-1 text-sm">
+          <li>What is the technology/trend?</li>
+          <li>How does it enhance traditional data mining?</li>
+          <li>Give a specific real-world application example</li>
+          <li>What challenges or risks does it present?</li>
+          <li>How might it evolve in the next 5 years?</li>
+        </ol>
+        <p class="text-sm mt-2"><strong>Format:</strong> 1 page, double-spaced, at least 2 references.</p>`
+      },
+      group: {
+        title: '👥 Group Activity: Future of Data Mining Presentation',
+        description: `<p class="mb-2">In groups of 3–4, create a "Data Mining in 2030" vision presentation:</p>
+        <ol class="list-decimal pl-5 space-y-1 text-sm">
+          <li>Choose an industry (healthcare, education, agriculture, finance, entertainment)</li>
+          <li>Describe how big data, AI, and cloud will transform data mining in that industry</li>
+          <li>Include at least one current example and one future prediction</li>
+          <li>Address ethical considerations</li>
+          <li>Create a visual diagram showing the data pipeline of the future</li>
+          <li>Present in 7 minutes with Q&A</li>
+        </ol>`
+      }
+    },
+    quiz: [
+      { q:'Which is NOT one of the 5 V\'s of Big Data?', opts:['Volume','Velocity','Visibility','Veracity'], ans:2 },
+      { q:'AutoML refers to:', opts:['Automatic data collection','Automated model selection and tuning','Self-driving cars','Automatic data backup'], ans:1 },
+      { q:'Federated learning allows:', opts:['Sharing raw data globally','Training models without sharing raw data','Faster internet connections','Cloud storage optimization'], ans:1 },
+      { q:'Cloud data mining\'s main advantage is:', opts:['Free unlimited storage','Scalability without hardware investment','Guaranteed accuracy','No privacy concerns'], ans:1 }
+    ]
+  }
+};
+
+// ===== ILLUSTRATIONS =====
+function renderIllustration(type, container) {
+  const div = document.createElement('div');
+  div.className = 'my-4 flex justify-center';
+
+  switch(type) {
+    case 'clustering-intro':
+      div.innerHTML = `<svg width="280" height="180" viewBox="0 0 280 180">
+        <circle cx="50" cy="60" r="8" fill="#ef4444" class="anim-float" opacity="0.8"/>
+        <circle cx="70" cy="40" r="8" fill="#ef4444" class="anim-float-d1" opacity="0.8"/>
+        <circle cx="40" cy="80" r="8" fill="#ef4444" class="anim-float-d2" opacity="0.8"/>
+        <circle cx="65" cy="75" r="8" fill="#ef4444" class="anim-float" opacity="0.8"/>
+        <circle cx="200" cy="50" r="8" fill="#3b82f6" class="anim-float-d2" opacity="0.8"/>
+        <circle cx="220" cy="70" r="8" fill="#3b82f6" class="anim-float" opacity="0.8"/>
+        <circle cx="230" cy="45" r="8" fill="#3b82f6" class="anim-float-d1" opacity="0.8"/>
+        <circle cx="210" cy="35" r="8" fill="#3b82f6" class="anim-float-d2" opacity="0.8"/>
+        <circle cx="140" cy="130" r="8" fill="#22c55e" class="anim-float-d1" opacity="0.8"/>
+        <circle cx="120" cy="150" r="8" fill="#22c55e" class="anim-float" opacity="0.8"/>
+        <circle cx="155" cy="145" r="8" fill="#22c55e" class="anim-float-d2" opacity="0.8"/>
+        <circle cx="55" cy="62" r="30" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <circle cx="215" cy="50" r="30" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <circle cx="138" cy="142" r="28" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="55" y="105" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">Cluster A</text>
+        <text x="215" y="95" text-anchor="middle" fill="#3b82f6" font-size="10" font-weight="bold">Cluster B</text>
+        <text x="138" y="178" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="bold">Cluster C</text>
+      </svg>`;
+      break;
+
+    case 'kmeans-interactive':
+      div.innerHTML = `<div class="w-full max-w-sm">
+        <div class="flex gap-2 mb-3 justify-center">
+          <button onclick="runKMeansDemo()" class="px-4 py-2 rounded-lg text-sm font-semibold text-white" style="background:var(--c-primary);">▶ Run K-Means</button>
+          <button onclick="resetKMeansDemo()" class="px-4 py-2 rounded-lg text-sm font-semibold" style="background:var(--c-secondary-action);color:#fff;">↺ Reset</button>
+        </div>
+        <svg id="kmeans-svg" width="100%" viewBox="0 0 300 200" style="background:rgba(255,255,255,0.03);border-radius:8px;"></svg>
+        <p id="kmeans-status" class="text-xs text-center mt-2 opacity-60">Click "Run K-Means" to see the algorithm in action</p>
+      </div>`;
+      setTimeout(initKMeansDemo, 100);
+      break;
+
+    case 'customer-segments':
+      div.innerHTML = `<svg width="300" height="200" viewBox="0 0 300 200">
+        <text x="150" y="15" text-anchor="middle" fill="currentColor" font-size="10" opacity="0.5">Spending ↑</text>
+        <text x="290" y="195" text-anchor="end" fill="currentColor" font-size="10" opacity="0.5">Frequency →</text>
+        <line x1="30" y1="180" x2="280" y2="180" stroke="currentColor" stroke-width="1" opacity="0.2"/>
+        <line x1="30" y1="180" x2="30" y2="20" stroke="currentColor" stroke-width="1" opacity="0.2"/>
+        <circle cx="220" cy="40" r="10" fill="#ef4444" opacity="0.7" class="anim-pulse-dot"/>
+        <circle cx="240" cy="55" r="10" fill="#ef4444" opacity="0.7"/>
+        <circle cx="250" cy="35" r="10" fill="#ef4444" opacity="0.7"/>
+        <text x="237" y="75" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="bold">VIP</text>
+        <circle cx="140" cy="100" r="10" fill="#3b82f6" opacity="0.7" class="anim-pulse-dot"/>
+        <circle cx="155" cy="115" r="10" fill="#3b82f6" opacity="0.7"/>
+        <circle cx="130" cy="120" r="10" fill="#3b82f6" opacity="0.7"/>
+        <text x="142" y="140" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="bold">Regular</text>
+        <circle cx="60" cy="155" r="10" fill="#22c55e" opacity="0.7" class="anim-pulse-dot"/>
+        <circle cx="80" cy="165" r="10" fill="#22c55e" opacity="0.7"/>
+        <circle cx="55" cy="170" r="10" fill="#22c55e" opacity="0.7"/>
+        <text x="65" y="145" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="bold">Occasional</text>
+      </svg>`;
+      break;
+
+    case 'dendrogram':
+      div.innerHTML = `<svg width="280" height="180" viewBox="0 0 280 180">
+        <line x1="40" y1="160" x2="40" y2="120" stroke="#6366f1" stroke-width="2" class="anim-connect"/>
+        <line x1="80" y1="160" x2="80" y2="120" stroke="#6366f1" stroke-width="2" class="anim-connect"/>
+        <line x1="40" y1="120" x2="80" y2="120" stroke="#6366f1" stroke-width="2"/>
+        <line x1="60" y1="120" x2="60" y2="80" stroke="#6366f1" stroke-width="2"/>
+        <line x1="140" y1="160" x2="140" y2="100" stroke="#3b82f6" stroke-width="2" class="anim-connect"/>
+        <line x1="180" y1="160" x2="180" y2="100" stroke="#3b82f6" stroke-width="2" class="anim-connect"/>
+        <line x1="140" y1="100" x2="180" y2="100" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="160" y1="100" x2="160" y2="80" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="240" y1="160" x2="240" y2="80" stroke="#22c55e" stroke-width="2" class="anim-connect"/>
+        <line x1="60" y1="80" x2="160" y2="80" stroke="#eab308" stroke-width="2"/>
+        <line x1="110" y1="80" x2="110" y2="40" stroke="#eab308" stroke-width="2"/>
+        <line x1="110" y1="40" x2="240" y2="40" stroke="#ef4444" stroke-width="2"/>
+        <line x1="240" y1="80" x2="240" y2="40" stroke="#ef4444" stroke-width="2"/>
+        <circle cx="40" cy="165" r="6" fill="#6366f1"/><text x="40" y="178" text-anchor="middle" fill="currentColor" font-size="9">A</text>
+        <circle cx="80" cy="165" r="6" fill="#6366f1"/><text x="80" y="178" text-anchor="middle" fill="currentColor" font-size="9">B</text>
+        <circle cx="140" cy="165" r="6" fill="#3b82f6"/><text x="140" y="178" text-anchor="middle" fill="currentColor" font-size="9">C</text>
+        <circle cx="180" cy="165" r="6" fill="#3b82f6"/><text x="180" y="178" text-anchor="middle" fill="currentColor" font-size="9">D</text>
+        <circle cx="240" cy="165" r="6" fill="#22c55e"/><text x="240" y="178" text-anchor="middle" fill="currentColor" font-size="9">E</text>
+        <text x="10" y="125" fill="currentColor" font-size="8" opacity="0.4">Level 1</text>
+        <text x="10" y="85" fill="currentColor" font-size="8" opacity="0.4">Level 2</text>
+        <text x="10" y="45" fill="currentColor" font-size="8" opacity="0.4">Level 3</text>
+      </svg>`;
+      break;
+
+    case 'basket':
+      div.innerHTML = `<div class="flex items-center justify-center gap-6">
+        <div class="text-center anim-float"><span class="text-4xl">🍞</span><p class="text-xs mt-1 opacity-70">Bread</p></div>
+        <div class="anim-wave"><svg width="40" height="20"><line x1="0" y1="10" x2="30" y2="10" stroke="var(--c-primary)" stroke-width="2" stroke-dasharray="4 2"/><polygon points="30,5 40,10 30,15" fill="var(--c-primary)"/></svg></div>
+        <div class="text-center anim-float-d1"><span class="text-4xl">🧈</span><p class="text-xs mt-1 opacity-70">Butter</p></div>
+        <div class="anim-wave-d1"><svg width="40" height="20"><line x1="0" y1="10" x2="30" y2="10" stroke="var(--c-primary)" stroke-width="2" stroke-dasharray="4 2"/><polygon points="30,5 40,10 30,15" fill="var(--c-primary)"/></svg></div>
+        <div class="text-center anim-float-d2"><span class="text-4xl">🥛</span><p class="text-xs mt-1 opacity-70">Milk</p></div>
+      </div>`;
+      break;
+
+    case 'metrics-calc':
+      div.innerHTML = `<div id="metrics-interactive" class="w-full max-w-sm p-4 rounded-lg" style="background:rgba(255,255,255,0.03);">
+        <p class="text-sm font-bold mb-3 text-center">📊 Try It: Calculate Metrics</p>
+        <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+          <label class="block"><span class="text-xs opacity-60">Total Transactions</span><input type="number" id="mc-total" value="1000" class="w-full mt-1 p-2 rounded text-sm" style="background:var(--c-surface);border:1px solid rgba(255,255,255,0.1);color:var(--c-text);"></label>
+          <label class="block"><span class="text-xs opacity-60">Contain A</span><input type="number" id="mc-a" value="400" class="w-full mt-1 p-2 rounded text-sm" style="background:var(--c-surface);border:1px solid rgba(255,255,255,0.1);color:var(--c-text);"></label>
+          <label class="block"><span class="text-xs opacity-60">Contain B</span><input type="number" id="mc-b" value="300" class="w-full mt-1 p-2 rounded text-sm" style="background:var(--c-surface);border:1px solid rgba(255,255,255,0.1);color:var(--c-text);"></label>
+          <label class="block"><span class="text-xs opacity-60">Contain A & B</span><input type="number" id="mc-ab" value="200" class="w-full mt-1 p-2 rounded text-sm" style="background:var(--c-surface);border:1px solid rgba(255,255,255,0.1);color:var(--c-text);"></label>
+        </div>
+        <button onclick="calcMetrics()" class="w-full py-2 rounded-lg text-sm font-semibold text-white" style="background:var(--c-primary);">Calculate</button>
+        <div id="mc-results" class="mt-3 text-sm space-y-1"></div>
+      </div>`;
+      break;
+
+    case 'grocery-viz':
+      div.innerHTML = `<div class="flex justify-center gap-3 flex-wrap">
+        <div class="p-3 rounded-lg text-center anim-float" style="background:rgba(99,102,241,0.1);min-width:80px;"><p class="text-2xl">🍞</p><p class="text-xs font-bold mt-1">40%</p><p class="text-xs opacity-60">Support</p></div>
+        <div class="flex items-center"><span class="text-xl anim-wave">→</span></div>
+        <div class="p-3 rounded-lg text-center anim-float-d1" style="background:rgba(59,130,246,0.1);min-width:80px;"><p class="text-2xl">🧈</p><p class="text-xs font-bold mt-1">50%</p><p class="text-xs opacity-60">Confidence</p></div>
+        <div class="flex items-center"><span class="text-xl anim-wave-d1">→</span></div>
+        <div class="p-3 rounded-lg text-center anim-float-d2" style="background:rgba(34,197,94,0.1);min-width:80px;"><p class="text-2xl">📈</p><p class="text-xs font-bold mt-1">1.67</p><p class="text-xs opacity-60">Lift</p></div>
+      </div>`;
+      break;
+
+    case 'apriori-flow':
+      div.innerHTML = `<div class="flex flex-col items-center gap-2">
+        <div class="px-4 py-2 rounded-lg text-xs font-semibold anim-fade-in" style="background:var(--c-primary);color:#fff;">All Items</div>
+        <span class="text-lg anim-wave">↓</span>
+        <div class="px-4 py-2 rounded-lg text-xs font-semibold anim-fade-in" style="background:rgba(99,102,241,0.2);">Frequent 1-itemsets</div>
+        <span class="text-lg anim-wave-d1">↓</span>
+        <div class="px-4 py-2 rounded-lg text-xs font-semibold anim-fade-in" style="background:rgba(99,102,241,0.3);">Candidate 2-itemsets</div>
+        <span class="text-lg anim-wave-d2">↓ <span class="text-xs opacity-60">prune</span></span>
+        <div class="px-4 py-2 rounded-lg text-xs font-semibold anim-fade-in" style="background:rgba(99,102,241,0.4);">Frequent 2-itemsets</div>
+        <span class="text-lg anim-wave-d3">↓</span>
+        <div class="px-4 py-2 rounded-lg text-xs font-semibold anim-fade-in" style="background:rgba(99,102,241,0.5);color:#fff;">Association Rules</div>
+      </div>`;
+      break;
+
+    case 'pipeline':
+      div.innerHTML = `<div class="flex items-center justify-center gap-2 flex-wrap">
+        <div class="px-3 py-2 rounded-lg text-xs font-bold text-center anim-float" style="background:rgba(99,102,241,0.15);">📊 Raw Data</div>
+        <span class="anim-wave">→</span>
+        <div class="px-3 py-2 rounded-lg text-xs font-bold text-center anim-float-d1" style="background:rgba(59,130,246,0.15);">⚙️ Mining</div>
+        <span class="anim-wave-d1">→</span>
+        <div class="px-3 py-2 rounded-lg text-xs font-bold text-center anim-float-d2" style="background:rgba(34,197,94,0.15);">🔍 Patterns</div>
+        <span class="anim-wave-d2">→</span>
+        <div class="px-3 py-2 rounded-lg text-xs font-bold text-center anim-float" style="background:rgba(234,179,8,0.15);">💡 Insights</div>
+        <span class="anim-wave-d3">→</span>
+        <div class="px-3 py-2 rounded-lg text-xs font-bold text-center anim-float-d1" style="background:rgba(239,68,68,0.15);">🎯 Action</div>
+      </div>`;
+      break;
+
+    case 'interpret':
+    case 'churn':
+      div.innerHTML = `<div class="flex justify-center"><div class="p-4 rounded-lg" style="background:rgba(99,102,241,0.05);border:1px solid rgba(99,102,241,0.2);">
+        <div class="flex gap-4 items-center">
+          <div class="text-center anim-float"><span class="text-3xl">📱</span><p class="text-xs mt-1 font-bold">Model</p></div>
+          <div class="space-y-1">
+            <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-400 anim-pulse-dot"></div><span class="text-xs">High churn risk (72%)</span></div>
+            <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-yellow-400 anim-pulse-dot"></div><span class="text-xs">Medium risk (45%)</span></div>
+            <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-400 anim-pulse-dot"></div><span class="text-xs">Low risk (12%)</span></div>
+          </div>
+          <div class="text-center anim-float-d2"><span class="text-3xl">🎯</span><p class="text-xs mt-1 font-bold">Action</p></div>
+        </div>
+      </div></div>`;
+      break;
+
+    case 'ethics':
+    case 'ethics-scale':
+      div.innerHTML = `<div class="flex justify-center">
+        <svg width="200" height="120" viewBox="0 0 200 120">
+          <line x1="100" y1="20" x2="100" y2="50" stroke="currentColor" stroke-width="2"/>
+          <line x1="40" y1="50" x2="160" y2="50" stroke="currentColor" stroke-width="3"/>
+          <line x1="40" y1="50" x2="40" y2="75" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="160" y1="50" x2="160" y2="75" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M20,75 Q40,90 60,75" fill="none" stroke="#22c55e" stroke-width="2" class="anim-wave"/>
+          <path d="M140,75 Q160,90 180,75" fill="none" stroke="#ef4444" stroke-width="2" class="anim-wave-d1"/>
+          <text x="40" y="105" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="bold">Ethical</text>
+          <text x="160" y="105" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">Unethical</text>
+          <circle cx="100" cy="15" r="8" fill="var(--c-primary)" class="anim-pulse-dot"/>
+        </svg>
+      </div>`;
+      break;
+
+    case 'privacy-shield':
+      div.innerHTML = `<div class="flex justify-center">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <path d="M80,20 L130,45 L130,90 C130,120 80,145 80,145 C80,145 30,120 30,90 L30,45 Z" fill="rgba(99,102,241,0.15)" stroke="var(--c-primary)" stroke-width="2" class="anim-float"/>
+          <text x="80" y="75" text-anchor="middle" font-size="30">🔒</text>
+          <text x="80" y="100" text-anchor="middle" fill="currentColor" font-size="10" font-weight="bold">Privacy</text>
+          <text x="80" y="115" text-anchor="middle" fill="currentColor" font-size="8" opacity="0.6">Protected</text>
+        </svg>
+      </div>`;
+      break;
+
+    case 'bias-pipeline':
+      div.innerHTML = `<div class="flex items-center justify-center gap-1 flex-wrap">
+        <div class="px-3 py-2 rounded text-xs text-center anim-float" style="background:rgba(239,68,68,0.15);">📥 Biased<br>Data</div>
+        <span class="anim-wave text-sm">→</span>
+        <div class="px-3 py-2 rounded text-xs text-center anim-float-d1" style="background:rgba(234,179,8,0.15);">⚙️ Biased<br>Model</div>
+        <span class="anim-wave-d1 text-sm">→</span>
+        <div class="px-3 py-2 rounded text-xs text-center anim-float-d2" style="background:rgba(239,68,68,0.15);">📊 Biased<br>Decisions</div>
+        <span class="anim-wave-d2 text-sm">→</span>
+        <div class="px-3 py-2 rounded text-xs text-center anim-float" style="background:rgba(239,68,68,0.2);">😞 Unfair<br>Outcomes</div>
+      </div>`;
+      break;
+
+    case 'checklist-anim':
+      div.innerHTML = `<div class="flex justify-center"><div class="space-y-2">
+        ${['Audit datasets','Test for fairness','Document decisions','Implement governance','Enable opt-out'].map((t,i)=>`
+          <div class="flex items-center gap-2 anim-fade-in" style="animation-delay:${i*0.2}s;opacity:0;">
+            <div class="w-5 h-5 rounded flex items-center justify-center text-xs" style="background:#22c55e;">✓</div>
+            <span class="text-sm">${t}</span>
+          </div>`).join('')}
+      </div></div>`;
+      break;
+
+    case 'bigdata-5v':
+      div.innerHTML = `<div class="flex justify-center">
+        <svg width="220" height="220" viewBox="0 0 220 220">
+          ${[{l:'Volume',a:270,c:'#6366f1'},{l:'Velocity',a:342,c:'#3b82f6'},{l:'Variety',a:54,c:'#22c55e'},{l:'Veracity',a:126,c:'#eab308'},{l:'Value',a:198,c:'#ef4444'}].map((v,i)=>{
+            const r=75, cx=110, cy=110;
+            const rad=v.a*Math.PI/180;
+            const x=cx+r*Math.cos(rad), y=cy+r*Math.sin(rad);
+            const tx=cx+(r+25)*Math.cos(rad), ty=cy+(r+25)*Math.sin(rad);
+            return `<circle cx="${x}" cy="${y}" r="18" fill="${v.c}" opacity="0.2" class="anim-pulse-dot"/>
+              <circle cx="${x}" cy="${y}" r="10" fill="${v.c}" opacity="0.7" class="anim-float${i%3===1?'-d1':i%3===2?'-d2':''}"/>
+              <line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${v.c}" stroke-width="1" opacity="0.3"/>
+              <text x="${tx}" y="${ty+4}" text-anchor="middle" fill="${v.c}" font-size="9" font-weight="bold">${v.l}</text>`;
+          }).join('')}
+          <circle cx="110" cy="110" r="15" fill="var(--c-primary)" opacity="0.3" class="anim-pulse-dot"/>
+          <text x="110" y="114" text-anchor="middle" fill="currentColor" font-size="10" font-weight="bold">5V</text>
+        </svg>
+      </div>`;
+      break;
+
+    case 'ai-network':
+      div.innerHTML = `<svg width="260" height="150" viewBox="0 0 260 150">
+        ${[[30,40],[30,75],[30,110]].map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="8" fill="#6366f1" class="anim-pulse-dot" style="animation-delay:${i*0.2}s"/>`).join('')}
+        ${[[100,30],[100,60],[100,90],[100,120]].map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="8" fill="#3b82f6" class="anim-float${['','-d1','-d2',''][i]}" />`).join('')}
+        ${[[170,45],[170,75],[170,105]].map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="8" fill="#22c55e" class="anim-pulse-dot" style="animation-delay:${i*0.3}s"/>`).join('')}
+        <circle cx="235" cy="75" r="10" fill="#ef4444" class="anim-float"/>
+        ${[[30,40],[30,75],[30,110]].flatMap(s=>[[100,30],[100,60],[100,90],[100,120]].map(e=>`<line x1="${s[0]}" y1="${s[1]}" x2="${e[0]}" y2="${e[1]}" stroke="#6366f1" stroke-width="0.5" opacity="0.2"/>`)).join('')}
+        ${[[100,30],[100,60],[100,90],[100,120]].flatMap(s=>[[170,45],[170,75],[170,105]].map(e=>`<line x1="${s[0]}" y1="${s[1]}" x2="${e[0]}" y2="${e[1]}" stroke="#3b82f6" stroke-width="0.5" opacity="0.2"/>`)).join('')}
+        ${[[170,45],[170,75],[170,105]].map(s=>`<line x1="${s[0]}" y1="${s[1]}" x2="235" y2="75" stroke="#22c55e" stroke-width="0.5" opacity="0.2"/>`).join('')}
+        <text x="30" y="135" text-anchor="middle" fill="currentColor" font-size="8" opacity="0.5">Input</text>
+        <text x="100" y="145" text-anchor="middle" fill="currentColor" font-size="8" opacity="0.5">Hidden</text>
+        <text x="170" y="135" text-anchor="middle" fill="currentColor" font-size="8" opacity="0.5">Hidden</text>
+        <text x="235" y="100" text-anchor="middle" fill="currentColor" font-size="8" opacity="0.5">Output</text>
+      </svg>`;
+      break;
+
+    case 'cloud-arch':
+      div.innerHTML = `<div class="flex flex-col items-center gap-2">
+        <div class="text-4xl anim-float">☁️</div>
+        <p class="text-xs font-bold opacity-70">Cloud Platform</p>
+        <div class="flex gap-4">
+          ${['💾 Storage','⚙️ Compute','📊 Analytics'].map((t,i)=>`<div class="px-3 py-2 rounded text-xs text-center anim-float${['','-d1','-d2'][i]}" style="background:rgba(99,102,241,0.1);">${t}</div>`).join('')}
+        </div>
+        <div class="flex gap-2 mt-1">
+          ${['🏢','🏪','🏥','🎓'].map((e,i)=>`<span class="text-xl anim-wave${['','-d1','-d2','-d3'][i]}">${e}</span>`).join('')}
+        </div>
+        <p class="text-xs opacity-50">Organizations</p>
+      </div>`;
+      break;
+
+    case 'future-trends':
+      div.innerHTML = `<div class="grid grid-cols-2 gap-3 max-w-xs mx-auto">
+        ${[{e:'🌐',t:'Edge AI'},{e:'🧠',t:'Explainable AI'},{e:'🔗',t:'Federated'},{e:'⚛️',t:'Quantum'}].map((item,i)=>
+          `<div class="p-3 rounded-lg text-center card-hover anim-fade-in" style="background:rgba(99,102,241,0.08);animation-delay:${i*0.15}s;opacity:0;">
+            <span class="text-2xl">${item.e}</span>
+            <p class="text-xs font-bold mt-1">${item.t}</p>
+          </div>`
+        ).join('')}
+      </div>`;
+      break;
+
+    default:
+      div.innerHTML = '';
+  }
+  container.appendChild(div);
+}
+
+// ===== K-MEANS DEMO =====
+let kmeansPoints = [];
+let kmeansCentroids = [];
+let kmeansStep = 0;
+
+function initKMeansDemo() {
+  kmeansPoints = [
+    {x:30,y:40},{x:45,y:55},{x:35,y:65},{x:50,y:45},{x:25,y:50},
+    {x:200,y:140},{x:220,y:155},{x:210,y:130},{x:230,y:145},{x:215,y:160},
+    {x:250,y:50},{x:260,y:40},{x:240,y:60},{x:270,y:55},{x:255,y:35}
+  ];
+  kmeansPoints.forEach(p => p.cluster = -1);
+  kmeansCentroids = [{x:50,y:100,c:'#ef4444'},{x:150,y:100,c:'#3b82f6'},{x:250,y:100,c:'#22c55e'}];
+  kmeansStep = 0;
+  drawKMeans();
+}
+
+function drawKMeans() {
+  const svg = document.getElementById('kmeans-svg');
+  if(!svg) return;
+  const colors = ['#ef4444','#3b82f6','#22c55e'];
+  let html = '';
+  kmeansPoints.forEach(p => {
+    const fill = p.cluster >= 0 ? colors[p.cluster] : '#94a3b8';
+    html += `<circle class="cluster-dot" cx="${p.x}" cy="${p.y}" r="6" fill="${fill}" opacity="0.8"/>`;
+  });
+  kmeansCentroids.forEach((c,i) => {
+    html += `<rect x="${c.x-7}" y="${c.y-7}" width="14" height="14" rx="2" fill="${colors[i]}" stroke="#fff" stroke-width="2" class="anim-pulse-dot"/>`;
+  });
+  svg.innerHTML = html;
+}
+
+function runKMeansDemo() {
+  if(kmeansStep >= 6) { resetKMeansDemo(); return; }
+  const status = document.getElementById('kmeans-status');
+
+  if(kmeansStep % 2 === 0) {
+    // Assign
+    kmeansPoints.forEach(p => {
+      let minD = Infinity, best = 0;
+      kmeansCentroids.forEach((c,i) => {
+        const d = Math.sqrt((p.x-c.x)**2 + (p.y-c.y)**2);
+        if(d < minD) { minD = d; best = i; }
+      });
+      p.cluster = best;
+    });
+    if(status) status.textContent = `Step ${Math.floor(kmeansStep/2)+1}: Assigned points to nearest centroids`;
+  } else {
+    // Update
+    for(let i=0;i<3;i++) {
+      const pts = kmeansPoints.filter(p=>p.cluster===i);
+      if(pts.length) {
+        kmeansCentroids[i].x = pts.reduce((s,p)=>s+p.x,0)/pts.length;
+        kmeansCentroids[i].y = pts.reduce((s,p)=>s+p.y,0)/pts.length;
+      }
+    }
+    if(status) status.textContent = `Step ${Math.floor(kmeansStep/2)+1}: Recalculated centroids`;
+  }
+  kmeansStep++;
+  drawKMeans();
+  if(kmeansStep >= 6 && status) status.textContent = 'Converged! Clusters are stable. Click Reset to try again.';
+}
+
+function resetKMeansDemo() { initKMeansDemo(); document.getElementById('kmeans-status').textContent = 'Click "Run K-Means" to see the algorithm in action'; }
+
+// ===== METRICS CALCULATOR =====
+function calcMetrics() {
+  const t=+document.getElementById('mc-total').value;
+  const a=+document.getElementById('mc-a').value;
+  const b=+document.getElementById('mc-b').value;
+  const ab=+document.getElementById('mc-ab').value;
+  const r=document.getElementById('mc-results');
+  if(!t||t<=0){r.innerHTML='<p class="text-red-400">Enter valid numbers</p>';return;}
+  const sup=ab/t, conf=a?ab/a:0, supB=b/t, lift=supB?conf/supB:0;
+  r.innerHTML = `
+    <p><strong>Support(A∪B):</strong> ${ab}/${t} = <span style="color:var(--c-primary);">${sup.toFixed(3)} (${(sup*100).toFixed(1)}%)</span></p>
+    <p><strong>Confidence(A→B):</strong> ${ab}/${a} = <span style="color:#3b82f6;">${conf.toFixed(3)} (${(conf*100).toFixed(1)}%)</span></p>
+    <p><strong>Lift(A→B):</strong> ${conf.toFixed(3)}/${supB.toFixed(3)} = <span style="color:#22c55e;">${lift.toFixed(3)}</span></p>
+    <p class="mt-2 text-xs opacity-70">${lift>1?'✅ Positive association — items are bought together more than expected!':lift===1?'➡️ Independent — no meaningful association.':'⚠️ Negative association — items are bought together less than expected.'}</p>`;
+}
+
+// ===== QUIZ SYSTEM =====
+function createQuiz(quizData, weekNum) {
+  let html = '<div class="space-y-4">';
+  quizData.forEach((q, qi) => {
+    html += `<div class="p-4 rounded-lg" style="background:rgba(255,255,255,0.03);">
+      <p class="font-semibold text-sm mb-2">${qi+1}. ${q.q}</p>
+      <div class="space-y-2">`;
+    q.opts.forEach((opt, oi) => {
+      html += `<div class="quiz-option p-2 rounded-lg text-sm" id="q${weekNum}-${qi}-${oi}" onclick="selectQuizOption(${weekNum},${qi},${oi},${q.ans})">${opt}</div>`;
+    });
+    html += `</div><p id="q${weekNum}-${qi}-fb" class="text-xs mt-2 hidden"></p></div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function selectQuizOption(w, qi, oi, ans) {
+  // Clear previous selections for this question
+  for(let i=0;i<4;i++) {
+    const el = document.getElementById(`q${w}-${qi}-${i}`);
+    if(el) { el.classList.remove('selected','correct','wrong'); }
+  }
+  const sel = document.getElementById(`q${w}-${qi}-${oi}`);
+  const fb = document.getElementById(`q${w}-${qi}-fb`);
+  if(oi === ans) {
+    sel.classList.add('correct');
+    fb.textContent = '✅ Correct!';
+    fb.style.color = '#22c55e';
+  } else {
+    sel.classList.add('wrong');
+    document.getElementById(`q${w}-${qi}-${ans}`).classList.add('correct');
+    fb.textContent = '❌ Incorrect. The correct answer is highlighted.';
+    fb.style.color = '#ef4444';
+  }
+  fb.classList.remove('hidden');
+}
+
+// ===== RENDER WEEK =====
+let currentWeek = 1;
+
+function switchWeek(n) {
+  currentWeek = n;
+  for(let i=1;i<=5;i++) {
+    const t = document.getElementById(`tab-${i}`);
+    t.className = i===n ? 'tab-active px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all' : 'tab-inactive px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all';
+  }
+  renderWeek(n);
+}
+
+function renderWeek(n) {
+  const w = weeks[n];
+  const area = document.getElementById('content-area');
+  let html = `<div class="anim-fade-in max-w-4xl mx-auto">`;
+
+  // Header
+  html += `<div class="mb-6">
+    <div class="flex items-center gap-2 mb-1"><span class="text-xs px-2 py-1 rounded font-semibold" style="background:var(--c-primary);color:#fff;">WEEK ${n}</span><span class="text-xs opacity-50">Finals Period</span></div>
+    <h2 class="text-2xl font-bold mb-2" style="font-family:'Space Mono',monospace;">${w.title}</h2>
+    <div class="p-3 rounded-lg" style="background:rgba(99,102,241,0.08);">
+      <p class="text-xs font-bold mb-1 opacity-60">INTENDED LEARNING OUTCOMES</p>
+      ${w.ilo.map(i=>`<p class="text-sm flex items-start gap-2"><span style="color:var(--c-primary);">✦</span>${i}</p>`).join('')}
+    </div>
+  </div>`;
+
+  // Section tabs
+  const sectionIds = w.sections.map((_,i)=>`s${n}-${i}`);
+  html += `<div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+    <button onclick="showSection(${n},'lesson')" id="stab-${n}-lesson" class="px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap" style="background:var(--c-primary);color:#fff;">📖 Lesson</button>
+    <button onclick="showSection(${n},'quiz')" id="stab-${n}-quiz" class="px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap" style="background:var(--c-surface);">🧠 Quiz</button>
+    <button onclick="showSection(${n},'individual')" id="stab-${n}-individual" class="px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap" style="background:var(--c-surface);">📝 Individual</button>
+    <button onclick="showSection(${n},'group')" id="stab-${n}-group" class="px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap" style="background:var(--c-surface);">👥 Group</button>
+  </div>`;
+
+  // Lesson content
+  html += `<div id="sec-${n}-lesson">`;
+  w.sections.forEach((s,i) => {
+    html += `<div class="mb-6 p-5 rounded-xl card-hover" style="background:var(--c-surface);">
+      <h3 class="text-lg font-bold mb-3" style="font-family:'Space Mono',monospace;">${s.heading}</h3>
+      <div class="text-sm leading-relaxed">${s.content}</div>
+      <div id="illust-${n}-${i}"></div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Quiz
+  html += `<div id="sec-${n}-quiz" class="hidden">
+    <div class="p-5 rounded-xl" style="background:var(--c-surface);">
+      <h3 class="text-lg font-bold mb-4" style="font-family:'Space Mono',monospace;">🧠 Knowledge Check — Week ${n}</h3>
+      ${createQuiz(w.quiz, n)}
+    </div>
+  </div>`;
+
+  // Individual activity
+  html += `<div id="sec-${n}-individual" class="hidden">
+    <div class="p-5 rounded-xl" style="background:var(--c-surface);">
+      <h3 class="text-lg font-bold mb-3" style="font-family:'Space Mono',monospace;">${w.activities.individual.title}</h3>
+      <div class="text-sm leading-relaxed">${w.activities.individual.description}</div>
+    </div>
+  </div>`;
+
+  // Group activity
+  html += `<div id="sec-${n}-group" class="hidden">
+    <div class="p-5 rounded-xl" style="background:var(--c-surface);">
+      <h3 class="text-lg font-bold mb-3" style="font-family:'Space Mono',monospace;">${w.activities.group.title}</h3>
+      <div class="text-sm leading-relaxed">${w.activities.group.description}</div>
+    </div>
+  </div>`;
+
+  html += `</div>`;
+  area.innerHTML = html;
+
+  // Render illustrations
+  w.sections.forEach((s,i) => {
+    const container = document.getElementById(`illust-${n}-${i}`);
+    if(container && s.illustration) renderIllustration(s.illustration, container);
+  });
+
+  lucide.createIcons();
+}
+
+function showSection(week, section) {
+  ['lesson','quiz','individual','group'].forEach(s => {
+    const el = document.getElementById(`sec-${week}-${s}`);
+    const tab = document.getElementById(`stab-${week}-${s}`);
+    if(el) el.classList.toggle('hidden', s !== section);
+    if(tab) {
+      tab.style.background = s === section ? 'var(--c-primary)' : 'var(--c-surface)';
+      tab.style.color = s === section ? '#fff' : 'var(--c-text)';
+    }
+  });
+}
+
+// Init
+applyConfig(defaultConfig);
+renderWeek(1);
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9fad210184c4fec3',t:'MTc3ODYyNzc2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
